@@ -1,4 +1,3 @@
-Foswiki::Contrib::InfiniteScrollContrib,>=1.0,perl,Optional
 Foswiki::Contrib::JQMomentContrib,>=1.0,perl,Required
 Foswiki::Contrib::JQPrettyPhotoContrib,>=1.0,perl,Required
 Foswiki::Contrib::JQSerialPagerContrib,>=1.0,perl,Required
@@ -12,10 +11,10 @@ Foswiki::Plugins::FlexWebListPlugin,>=1.91,perl,Required
 Foswiki::Plugins::ImagePlugin,>=3.0,perl,Required
 Foswiki::Plugins::JQueryPlugin,>=6.00,perl,Required
 Foswiki::Plugins::MimeIconPlugin,>=0,perl,Required
-Foswiki::Plugins::TagCloudPlugin,>=1.0,perl,Required
+Any::Moose,>=0.17,cpan,Required
+Cache::FileCache,>0,cpan,Required
+File::MMagic,>0,cpan,Required
+HTML::Entities,>=3.64,cpan,Required
 JSON::XS,>=2.231,cpan,Required
 LWP::UserAgent,>=5.820,cpan,Required
-Any::Moose,>=0.17,cpan,Required
 XML::Easy,>0,cpan,Required
-HTML::Entities,>=3.64,cpan,Required
-File::MMagic,>0,cpan,Required
