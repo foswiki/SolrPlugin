@@ -26,7 +26,10 @@ use Foswiki::Plugins::SolrPlugin ();
 use Foswiki::Form ();
 use Foswiki::OopsException ();
 use Foswiki::Time ();
+use Cache::FileCache ();
 use Foswiki::Contrib::Stringifier ();
+use Digest::MD5 ();
+use Encode ();
 
 use constant TRACE => 0;    # toggle me
 use constant VERBOSE => 1;  # toggle me
@@ -237,11 +240,11 @@ sub update {
 
         my $changed;
         if ($Foswiki::Plugins::SESSION->can('getApproxRevTime')) {
-          $changed = $Foswiki::Plugins::SESSION->getApproxRevTime($origWeb, $topic);
+          $changed = $this->{session}->getApproxRevTime($origWeb, $topic);
         } else {
 
           # This is here for old engines
-          $changed = $Foswiki::Plugins::SESSION->{store}->getTopicLatestRevTime($origWeb, $topic);
+          $changed = $this->{session}->{store}->getTopicLatestRevTime($origWeb, $topic);
         }
 
         my $topicTime = $timeStamps{$topic} || 0;
@@ -593,8 +596,15 @@ sub indexTopic {
     my %sorting = map { $_ => lc($_->{comment} || $_->{name}) } @attachments;
     foreach my $attachment (sort { $sorting{$a} cmp $sorting{$b} } @attachments) {
 
-      # is the attachment is the skip list?
       my $name = $attachment->{'name'} || '';
+
+      # test for existence
+      unless (Foswiki::Func::attachmentExists($web, $topic, $name)) {
+        $this->log("Warning: can't find attachment '$name' at $web.$topic ... invalid meta data");
+        next;
+      }
+
+      # is the attachment is the skip list?
       if ($this->isSkippedAttachment($web, $topic, $name)) {
         $this->log("Skipping attachment $web.$topic.$name");
         next;
@@ -715,12 +725,8 @@ sub indexAttachment {
   #my $t0 = [Time::HiRes::gettimeofday] if PROFILE;
 
   my $name = $attachment->{'name'} || '';
-  if (VERBOSE) {
-    #$this->log("Indexing attachment $web.$topic.$name");
-  } else {
 
-    #$this->log("a", 1);
-  }
+  #$this->log("Indexing attachment $web.$topic.$name") if VERBOSE;
 
   # SMELL: while the below test weeds out attachments that somehow where gone physically it is too expensive for the
   # average case to open all attachments
@@ -738,17 +744,19 @@ sub indexAttachment {
     $extension = lc($2);
   }
   $title =~ s/_+/ /g;
-  $extension = 'jpg' if $extension =~ /jpe?g/i;
 
-  # check extension
-  my $indexextensions = $this->indexExtensions();
+  # fix some extension naming
+  $extension = 'jpeg' if $extension =~ /jpe?g/i;
+  $extension = 'html' if $extension =~ /html?/i;
+
   my $attText = '';
-  if ($indexextensions->{$extension}) {
-    $attText = $this->getStringifiedVersion($web, $topic, $name);
+  $attText = $this->getStringifiedVersion($web, $topic, $name);
+  if ($attText ne '') {
     $attText = $this->plainify($attText, $web, $topic);
   } else {
-
-    #$this->log("not reading attachment $web.$topic.$name");
+    # warn for non-pdfs
+    $this->log("Warning: attachment $name at $web.$topic has got zero length ... maybe stringifier failed?")
+      unless $extension eq 'pdf';
   }
 
   my $doc = $this->newDocument();
@@ -983,6 +991,23 @@ sub deleteDocument {
 
 }
 
+
+################################################################################
+sub cache {
+  my $this = shift;
+
+  unless ($this->{cache}) {
+    $this->{cache} = new Cache::FileCache({
+        'cache_root' => $this->{workArea}.'/stringifier_cache',
+        'default_expires_in' => '7 d',
+        'directory_umask' => 077,
+      }
+    );
+  }
+
+  return $this->{cache};
+}
+
 ################################################################################
 sub getStringifiedVersion {
   my ($this, $web, $topic, $attachment) = @_;
@@ -998,17 +1023,15 @@ sub getStringifiedVersion {
   $filename =~ /(.*)/;
   $filename = $1;
 
+#  unless (-e $filename) {
+#    $this->log("Warning: can't find file $filename");
+#    return "";
+#  }
+
+  #$this->log("get stringified version of $filename") if VERBOSE;
+
   my $mime = $this->mmagic->checktype_filename($filename);
   my $skipCaching = ($mime =~ /^(text\/plain)$/)?1:0;
-
-  #print STDERR "filename=$filename, mime=$mime\n";
-
-  my $workArea = $this->{workArea};
-  my $cachedFilename = "$workArea/$web/$topic/$attachment.txt";
-
-  # untaint..
-  $cachedFilename =~ /(.*)/;
-  $cachedFilename = $1;
 
   my $attText = '';
 
@@ -1017,21 +1040,24 @@ sub getStringifiedVersion {
     $attText = Foswiki::Contrib::Stringifier->stringFor($filename) || '';
   } else {
 
-    mkdir "$workArea/$web" unless -d "$workArea/$web";
-    mkdir "$workArea/$web/$topic" unless -d "$workArea/$web/$topic";
+    my $fileDate = modificationTime($filename);
 
-    my $origModified = modificationTime($filename);
-    my $cachedModified = modificationTime($cachedFilename);
+    # prevent wide char in subroutine
+    my $encFileName = Encode::encode_utf8($filename) if $Foswiki::UNICODE; 
 
-    if ($origModified > $cachedModified) {
+    my $key = Digest::MD5::md5_base64($encFileName);
+    my $cacheDate = 0;
+    my $obj = $this->cache->get_object($key);
+    $cacheDate = $obj->get_created_at() if $obj;
 
-      #$this->log("caching stringified version of $attachment in $cachedFilename");
+    if ($fileDate > $cacheDate) {
+      #$this->log("caching stringified version of $attachment");
       $attText = Foswiki::Contrib::Stringifier->stringFor($filename) || '';
-      Foswiki::Func::saveFile($cachedFilename, $attText);
+      $this->cache->set($key, $attText);
     } else {
 
       #$this->log("found stringified version of $attachment in cache");
-      $attText = Foswiki::Func::readFile($cachedFilename);
+      $attText = $this->cache->get($key) || '';
     }
   }
 
@@ -1040,8 +1066,6 @@ sub getStringifiedVersion {
     $this->log("Warning: ignoring attachment $attachment at $web.$topic larger than 10MB");
     $attText = '';
   }
- 
-
 
   return $attText;
 }

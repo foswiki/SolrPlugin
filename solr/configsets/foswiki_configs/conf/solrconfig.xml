@@ -834,8 +834,7 @@
       </str>
       <!-- boost more recent documents -->
       <str name="bf">
-        recip(ms(NOW,date),3.16e-11,1,1)
-        <!-- recip(rord(date),1,1000,1000) -->
+        product(min(recip(ms(NOW,date),3.16e-11,0.8,0.4),0.20),sum(1,product(0.8,total_likes)))
       </str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic</str>
@@ -891,8 +890,7 @@
       </str>
       <!-- boost more recent documents -->
       <str name="bf">
-        recip(ms(NOW,date),3.16e-11,1,1)
-        <!-- recip(rord(date),1,1000,1000) -->
+        product(min(recip(ms(NOW,date),3.16e-11,0.8,0.4),0.20),sum(1,product(0.8,total_likes)))
       </str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic</str>
@@ -984,8 +982,7 @@
 
       <!-- boost more recent documents -->
       <str name="bf">
-        recip(ms(NOW,date),3.16e-11,1,1)
-        <!-- recip(rord(date),1,1000,1000) -->
+        product(min(recip(ms(NOW,date),3.16e-11,0.8,0.4),0.20),sum(1,product(0.8,total_likes)))
       </str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic</str>

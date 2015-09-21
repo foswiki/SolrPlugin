@@ -136,22 +136,6 @@ sub isSkippedAttachment {
 }
 
 ##############################################################################
-sub isSkippedExtension {
-  my ($this, $fileName) = @_;
-
-  my $indexExtensions = $this->indexExtensions;
-
-  my $extension = '';
-  if ($fileName =~ /^(.+)\.(\w+?)$/) {
-    $extension = lc($2);
-  }
-  $extension = 'jpg' if $extension =~ /jpe?g/i;
-
-  return 0 if $indexExtensions->{$extension};
-  return 1;
-}
-
-##############################################################################
 # List of webs that shall not be indexed
 sub skipWebs {
   my $this = shift;
@@ -214,27 +198,6 @@ sub skipTopics {
   }
 
   return $skiptopics;
-}
-
-##############################################################################
-# List of file extensions to be stringified
-sub indexExtensions {
-  my $this = shift;
-
-  my $indexextensions = $this->{_indexextensions};
-
-  unless (defined $indexextensions) {
-    $indexextensions = {};
-    my $extensions = $Foswiki::cfg{SolrPlugin}{IndexExtensions}
-      || "txt, html, xml, doc, docx, xls, xlsx, ppt, pptx, pdf, odt";
-    foreach my $tmpextension (split(/\s*,\s*/, $extensions)) {
-      $indexextensions->{$tmpextension} = 1;
-    }
-
-    $this->{_indexextensions} = $indexextensions;
-  }
-
-  return $indexextensions;
 }
 
 ##############################################################################
@@ -460,8 +423,8 @@ sub plainify {
   # remove/escape special chars
   $text =~ s/\\//g;
   $text =~ s/"//g;
-  $text =~ s/%{//g;
-  $text =~ s/}%//g;
+  $text =~ s/%\{//g;
+  $text =~ s/\}%//g;
   $text =~ s/%//g;
   $text =~ s/{\s*}//g;
   $text =~ s/#+//g;

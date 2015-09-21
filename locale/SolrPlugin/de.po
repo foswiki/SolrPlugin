@@ -120,7 +120,7 @@ msgstr "Name"
 
 #: data/System/SolrSearchBaseTemplate.txt:351
 msgid "Next"
-msgstr "n&&auml;chste"
+msgstr "Nächste"
 
 #: data/System/SolrWikiUsersViewTemplate.txt:25
 msgid "Organisation"
@@ -132,7 +132,7 @@ msgstr "Populäre Schlüsselworte"
 
 #: data/System/SolrSearchBaseTemplate.txt:351
 msgid "Previous"
-msgstr "Zur&&uml;ck"
+msgstr "Vorherige"
 
 #: data/System/SolrWikiUsersViewTemplate.txt:42
 #: data/System/SolrWikiUsersViewTemplate.txt:62

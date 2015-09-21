@@ -45,10 +45,6 @@ $Foswiki::cfg{SolrPlugin}{SkipWebs} = 'TWiki, TestCases';
 $Foswiki::cfg{SolrPlugin}{SkipTopics} = '';
 
 # **STRING EXPERT CHECK='undefok'**
-# Comma seperated list of extenstions to read, Their metadata is added to the index in any case.
-$Foswiki::cfg{SolrPlugin}{IndexExtensions} = 'txt, html, xml, doc, docx, xls, xlsx, ppt, pptx, pdf, odt';
-
-# **STRING EXPERT CHECK='undefok'**
 # List of attachments to skip                                                                                         
 # For example: Web.SomeTopic.AnAttachment.txt, Web.OtherTopic.OtherAttachment.pdf 
 # Note that neither metadata nor the content of the attachment is added to the index

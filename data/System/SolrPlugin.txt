@@ -1,7 +1,7 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1437153664" format="1.1" version="1"}%
+%META:TOPICINFO{author="Contributor" comment="" date="1437482567" format="1.1" version="8"}%
 %META:TOPICPARENT{name="Plugins"}%
 ---+ Solr Plugin
-%SHORTDESCRIPTION%
+%$SHORTDESCRIPTION%
 
 %TOC%
 
@@ -13,10 +13,10 @@ caching, replication, and a web administration interface.
 ---++ Screenshots
 
 <a href="%ATTACHURLPATH%/SolrPluginSnap1.png" class="foswikiImage">
-  <img src="%ATTACHURLPATH%/SolrPluginSnap1.png" style="width:30%" />
+  <img src="%ATTACHURLPATH%/SolrPluginSnap1.png" style="width:30%;height:auto" />
 </a>
 <a href="%ATTACHURLPATH%/SolrPluginSnap2.png" class="foswikiImage">
-  <img src="%ATTACHURLPATH%/SolrPluginSnap2.png" style="width:30%" />
+  <img src="%ATTACHURLPATH%/SolrPluginSnap2.png" style="width:30%;height:auto" />
 </a>
 
 ---++ Installation
@@ -677,39 +677,52 @@ useful for spatial search.
 ---+++ Fields
 
 | *Name* | *Type* | *Multivalued* | *Stored* | *Description* |
-| timestamp | tdate | | stored | time when the document was added to the index |
-| spell | text_spell | multivalued | | used for spellchecking |
-| id | string | | stored | unique identifier for each document; this is the _external_ id usable in applications; there's an internal solr document id not related to this field |
-| language | string | | stored | language of the current document; this may be specified explicitly using the =CONTENT_LANGUAGE= preference, or set to "detect" to let the solr update chain detect the language automatically |
-| url | string | | stored | url used to  access the document being indexed |
-| type | type | | stored | holds the type facet of the document; this is "image" for all kinds of images, "video" for all kinds of videos, "topic" for Foswiki topics and the verbatim file extension for everything else; note: plugins like Foswiki:Extensions/MetaCommentPlugin might use specific types as well (like "comment" in this case) |
-| web | string | | stored | name of the web this document is located in |
-| topic | string | | stored | name of the topic |
-| webtopic | string | | stored | concatenation of the web and topic part |
 | access_granted | string | multivalued | | this field controls access of users to this topic or attachment in the search index; every query is augmented with an ACL check against this field; only users listed in this field are allowed view rights; special value is "all" when there are no view restrictions |
-| title | string | | stored | title of a document; a topic title is read from a =TopicTitle= formfield, a =TOPICTITLE= preference variable or defaults to the =topic= name itself; for attachments this is the filename with the extension stripped off |
-| summary | text_generic | | stored | this is a plainified summary of the topic text |
+| attachment | string | multivalued | stored | list of all attachment names of this topic |
 | author | string | | stored | the name of the user that changed the document most recently |
+| author_url | string | | stored | the url of the user that changed the document most recently |
+| catchall | text_generic | multivalued | stored | copy-field that gathers content from (allmost) all fields; this is the default search field for the "standard" query parser; note that fields to be queried can be configured per request using the "dismax" handler |
+| category | string | multivalued | stored | list of categories this document is in; note: this field will only be used if Foswiki:Extensions/ClassificationPlugin is installed; it will populate it with the list of all categories up to !TopCategory; content of this field is copied to =category_search= as well (see generic fields below) |
+| comment | text_generic | | stored | comment field of an attachment | 
+| concept | string | multivalued | stored | support for uima processing chain |
+| container_id | string | | stored | id of containing document, e.g. the topic this is a comment or attachment for |
+| container_title | string | | stored | title name of containing document |
+| container_topic | string | | stored | topic of containing document |
+| container_url | string | | stored | url of containing document |
+| container_web | string | | stored | web of containing document |
 | contributor | string | multivalued | stored | list of users that contributed to this topic at some point in time |
-| date | tdate | | stored | time the the document was changed last |
-| version | float | | | current version of the topic |
-| text | text_generic | | | document text |
 | createauthor | string | | stored | author of the initial version of this document |
 | createdate | tdate | | stored | date when the initial version of this document was created |
-| catchall | text_generic | multivalued | stored | copy-field that gathers content from (allmost) all fields; this is the default search field for the "standard" query parser; note that fields to be queried can be configured per request using the "dismax" handler |
-| substrings | text_substring | multivalued | | holds substring analysis of the most important search fields |
-| phonetic | phonetic | multivalued | | holds the phonetic analysis of the most important search fields |
-| state | string | | | used by comments or any other application that tracks specific states of a document, such as "new", "unapproved", "approved", "draft", "unpublished", "published", ... |
-| parent | string | | stored | parent topic of the current topic |
+| date | tdate | | stored | time the the document was changed last |
 | form | string | | stored | name of the form attached to the current topic |
-| preference | string | multivalued | stored | this field catches all topic preferences. each preference is captured in a dynamic field as well (see dynamic fields below) |
-| attachment | string | multivalued | stored | list of all attachment names of this topic |
-| outgoing | string | multivalued | stored | list of all outgoing links; this information is used to detect backlinks |
-| category | string | multivalued | stored | list of categories this document is in; note: this field will only be used if Foswiki:Extensions/ClassificationPlugin is installed; it will populate it with the list of all categories up to !TopCategory; content of this field is copied to =category_search= as well (see generic fields below) |
-| tag | string | multivalued | stored | list of tags assigned to this document; note: this field will only be used if Foswiki:Extensions/ClassificationPlugin is installed; content of this field is copied to =category_search= as well (see generic fields below) |
+| icon | string | | stored | icon to indetify the rendition for this document |
+| id | string | | stored | unique identifier for each document; this is the _external_ id usable in applications; there's an internal solr document id not related to this field |
+| language | string | | stored | language of the current document; this may be specified explicitly using the =CONTENT_LANGUAGE= preference, or set to "detect" to let the solr update chain detect the language automatically |
 | name | string | | stored | filename of an attachment |
-| comment | text_generic | | stored | comment field of an attachment | 
+| outgoing | string | multivalued | stored | list of all outgoing links; this information is used to detect backlinks |
+| parent | string | | stored | parent topic of the current topic |
+| phonetic | phonetic | multivalued | | holds the phonetic analysis of the most important search fields |
+| charnorm | text_charnorm | | multivalued | result of the character normalization analysis | 
+| preference | string | multivalued | stored | this field catches all topic preferences. each preference is captured in a dynamic field as well (see dynamic fields below) |
+| sentence | text_generic | multivalued | stored | support for uima processing chain |
 | size | tint | | stored | size of an attachment in bytes |
+| spell | text_spell | multivalued | | used for spellchecking |
+| state | string | | | used by comments or any other application that tracks specific states of a document, such as "new", "unapproved", "approved", "draft", "unpublished", "published", ... |
+| substrings | text_substring | multivalued | | holds substring analysis of the most important search fields |
+| summary | text_generic | | stored | this is a plainified summary of the topic text |
+| tag | string | multivalued | stored | list of tags assigned to this document; note: this field will only be used if Foswiki:Extensions/ClassificationPlugin is installed; content of this field is copied to =category_search= as well (see generic fields below) |
+| text | text_generic | | | document text |
+| thumbnail | string | | stored | url to thumbnail representation of this document; mostly used for images |
+| timestamp | tdate | | stored | time when the document was added to the index |
+| title | string | | stored | title of a document; a topic title is read from a =TopicTitle= formfield, a =TOPICTITLE= preference variable or defaults to the =topic= name itself; for attachments this is the filename with the extension stripped off |
+| topic | string | | stored | name of the topic |
+| type | type | | stored | holds the type facet of the document; this is "image" for all kinds of images, "video" for all kinds of videos, "topic" for Foswiki topics and the verbatim file extension for everything else; note: plugins like Foswiki:Extensions/MetaCommentPlugin might use specific types as well (like "comment" in this case) |
+| url | string | | stored | url used to  access the document being indexed |
+| version | float | | | current version of the topic |
+| webcat | string | | stored | combined web-category facet |
+| web | string | | stored | name of the web this document is located in |
+| webtopic | string | | stored | concatenation of the web and topic part |
+
 
 ---+++ Dynamic fields
 
@@ -833,22 +846,14 @@ specific search applications. The destination fields are then analysed using the
 ---++ Dependencies
 %$DEPENDENCIES%
 
----++ Plugin Info
-<!--
-   * Set SHORTDESCRIPTION = Enterprise Search Engine for Foswiki based on [[http://lucene.apache.org/solr/][Solr]]
--->
-|  Author: | Foswiki:Main.MichaelDaum|
-|  Copyright: | &copy; 2009-2015, Michael Daum http://michaeldaumconsulting.com |
-|  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
-|  Release: | %$RELEASE% |
-|  Version: | %$VERSION% |
-|  Home: | Foswiki:Extensions/%TOPIC% |
-|  Support: | Foswiki:Support/%TOPIC% |
-|  Change History: | <!-- versions below in reverse order -->&nbsp; |
+---++ Change History
+|  21 Sep 2015: | cache stringified attachments using Cache::FileCache now and added api to purge/clear cache regularly; \
+                  removed =IndexExtensions= config parameter to let the stringifier decide on supported file formats; \
+                  added support for Foswiki:Extensions/LikePlugin boosting search results by social preferences |
 |  17 Jul 2015: | added support for Foswiki-2.0 ;\
                   indexing workflow and state facets supporting Foswiki:Extensions/WorkflowPlugin; \
                   added =author_url= to solr schema; \
-                  added google image and video mime types mapping them to "image" while indexing; 
+                  added google image and video mime types mapping them to "image" while indexing |
 |  27 Feb 2015: | upgraded to solr-5.0.0 |
 |  29 Sep 2014: | moved to jsrender for templating, replacing the deprecated jquery.tmpl |
 |  29 Aug 2014: | fix mailto links in !WikiUsers view template; \
@@ -929,3 +934,12 @@ specific search applications. The destination fields are then analysed using the
 
 %META:FILEATTACHMENT{name="SolrPluginSnap1.png" attachment="SolrPluginSnap1.png" attr="" comment="" date="1437153664" size="93552" user="ProjectContributor" version="1"}%
 %META:FILEATTACHMENT{name="SolrPluginSnap2.png" attachment="SolrPluginSnap2.png" attr="" comment="" date="1437153664" size="158013" user="ProjectContributor" version="1"}%
+%META:FORM{name="PackageForm"}%
+%META:FIELD{name="Author" title="Author" value="Michael Daum"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2009-2015, Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
+%META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
+%META:FIELD{name="Release" title="Release" value="%$RELEASE%"}%
+%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/SolrPlugin"}%
+%META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
+%META:FIELD{name="Version" title="Version" value="%$VERSION%"}%

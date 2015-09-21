@@ -88,12 +88,16 @@
   "field_TopicType_lst": "%MAKETEXT{"topic type"}%",
   "type": "%MAKETEXT{"media"}%",
   "date": "%MAKETEXT{"recently"}%",
-  "en": "%MAKETEXT{"English"}%",
-  "de": "%MAKETEXT{"German"}%",
   "language": "%MAKETEXT{"language"}%",
   "keyword": "%MAKETEXT{"keyword"}%",
   "tag": "%MAKETEXT{"tag"}%",
-  "webcat": "%MAKETEXT{"Category"}%"
+  "webcat": "%MAKETEXT{"Category"}%"%IF{"context MultiLingualPluginEnabled" 
+    then="$percntLANGUAGES{
+        header=\",$n\"
+        format=\"  \\"$code\\":\\"$language\\"\"
+        separator=\",$n\"
+      }$percnt" 
+  }%
 }
 </div>
 </literal>%TMPL:END%
@@ -200,7 +204,6 @@
       </a>
     </div>
     <h3>
-      <img src='{{if icon}}{{:icon}}{{else}}%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/page_white.png{{/if}}' width='16' height='16' class='solrHitIcon' />
       <a href='{{:url}}'>{{:name}}</a>
       <span class='foswikiGrayText foswikiSmallish solrContainerLink'>
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
@@ -500,6 +503,7 @@
 %TMPL:P{"solr::facet"
   id="field_TopicType_lst"
   exclude="ApplicationLicense|ApplicationTopic|DataForm|DocuTopic|TopicFunction|TopicStub|TopicTemplate|TopicType|TopicView|WebTool|WikiApplication|WikiTopic|TaggedTopic|CategorizedTopic"
+  sort="title" 
   title="%MAKETEXT{"Topic type"}%"
 }%
 %TMPL:P{"solr::facet"

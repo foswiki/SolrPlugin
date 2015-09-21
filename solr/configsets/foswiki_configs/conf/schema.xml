@@ -1056,6 +1056,11 @@
     -->
    <field name="state" type="string" />
 
+   <!-- social values -->
+   <field name="likes" type="tint" default="0" />
+   <field name="dislikes" type="tint" default="0" />
+   <field name="total_likes" type="tint" default="0" />
+
    <!-- TOPICS: -->
    <field name="parent" type="string" />
    <field name="topic_search" type="text_wikiword" />

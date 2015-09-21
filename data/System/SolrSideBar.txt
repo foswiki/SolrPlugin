@@ -84,6 +84,3 @@ Renders a list of the five most recent changes in the current web.
     </li>"
 }%%ENDSECTION{"recentchanges"}%
 </verbatim>
-
-%META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%
-%META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%

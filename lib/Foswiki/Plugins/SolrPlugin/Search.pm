@@ -542,7 +542,7 @@ sub restSOLRPROXY {
   my $wikiUser = Foswiki::Func::getWikiName();
 
   unless (Foswiki::Func::isAnAdmin($wikiUser)) { # add ACLs
-    push @{$params{fq}}, " (access_granted:$wikiUser OR access_granted:all)"
+    push @{$params{fq}}, " (access_granted:$wikiUser OR access_granted:all)";
   }
 
   #print STDERR "fq=$params{fq}\n";
@@ -603,7 +603,8 @@ sub restSOLRSEARCH {
   my $jsonWrf = $params{"json.wrf"};
   delete $params{"json.wrf"};
 
-  #print STDERR "params=".join(', ', keys %params)."\n";
+  #print STDERR "theQuery=$theQuery\n";
+  #print STDERR "params=".dump(\%params)."\n";
 
   my $response = $this->doSearch($theQuery, \%params);
 
@@ -1261,7 +1262,6 @@ sub solrSearch {
 
   #print STDERR "solrSearch($query), params=".dump($params)."\n";
 
-
   return $this->solrRequest("select", $params);
 }
 
@@ -1675,10 +1675,10 @@ sub urlEncode {
   my $text = shift;
 
   # $text = Encode::encode_utf8($text) if $Foswiki::UNICODE; 
-  #$text =~ s/([^0-9a-zA-Z-_.:~!*'\/])/'%'.sprintf('%02x',ord($1))/ge;
+  #$text =~ s/([^0-9a-zA-Z-_.:~!*'\/])/sprintf('%%%02x',ord($1))/ge;
 
   # the small version
-  $text =~ s/([':"])/'%'.sprintf('%02x',ord($1))/ge;
+  $text =~ s/([':"])/sprintf('%%%02x',ord($1))/ge;
   $text =~ s/ /%20/g;
 
   return $text;
