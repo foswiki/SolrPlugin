@@ -30,8 +30,8 @@ BEGIN {
   }
 }
   
-our $VERSION = '4.10';
-our $RELEASE = '21 Jul 2015';
+our $VERSION = '4.20';
+our $RELEASE = '01 Oct 2015';
 our $SHORTDESCRIPTION = 'Enterprise Search Engine for Foswiki based on [[http://lucene.apache.org/solr/][Solr]]';
 our $NO_PREFS_IN_TOPIC = 1;
 our %searcher;
@@ -163,10 +163,6 @@ sub initPlugin {
     validate => 0,
     http_allow => 'GET,POST',
   );
-
-  Foswiki::Func::addToZone("script", "SOLRPLUGIN::SEARCHBOX", <<'HERE', "JQUERYPLUGIN");
-<script src='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/solr-searchbox.js'></script> 
-HERE
 
   Foswiki::Func::registerRESTHandler('purgeCache', sub { return getIndexer()->cache->purge; return; },
     authenticate => 0,

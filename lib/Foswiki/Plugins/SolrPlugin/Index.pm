@@ -754,9 +754,7 @@ sub indexAttachment {
   if ($attText ne '') {
     $attText = $this->plainify($attText, $web, $topic);
   } else {
-    # warn for non-pdfs
-    $this->log("Warning: attachment $name at $web.$topic has got zero length ... maybe stringifier failed?")
-      unless $extension eq 'pdf';
+    #$this->log("Warning: attachment $name at $web.$topic has got zero length ... maybe stringifier failed?")
   }
 
   my $doc = $this->newDocument();
@@ -886,6 +884,7 @@ sub optimize {
   my $this = shift;
 
   return unless $this->{solr};
+  return if $this->{_trappedSignal};
 
   # temporarily set a different timeout for this operation
   my $agent = $this->{solr}->agent();

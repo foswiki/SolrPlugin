@@ -153,21 +153,20 @@
   <div class='solrSearchHit solrTopicHit clearfix'>
     %TMPL:P{"solr::thumbnail"}%
     <h3>
-      <img src='{{if icon}}{{:icon}}{{else}}%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/page_white.png{{/if}}' width='16' height='16' />
+      <img src='{{if icon}}{{:icon}}{{else}}%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/page_white.png{{/if}}' width='16' height='16' class='solrHitIcon' />
       <a href='{{:url}}'>{{:title}}</a>
-      <span class=' solrContainerLink foswikiGrayText foswikiSmallish'>
+      <span class=' solrContainerLink foswikiGrayText foswikiNormal'>
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
     </h3>
-    <div class='solrTopicInfo foswikiGrayText'>
-      {{:~renderTopicInfo()}}
+    <div class='solrRevision'> 
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
     </div>
-    <div class='solrTopicSummary foswikiGrayText'>{{:summary}}</div>
     <div class='solrHilite'>
       {{:~getHilite(id)}}
     </div>
-    <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
+    <div class='solrTopicInfo foswikiGrayText'>
+      {{:~renderTopicInfo()}}
     </div>
   </div>
 </script>
@@ -181,15 +180,15 @@
     <h3>
       <img src='{{if icon}}{{:icon}}{{else}}%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/page_white.png{{/if}}' width='16' height='16' class='solrHitIcon' />
       <a href='{{:url}}'>{{:title}}</a>
-      <span class='foswikiGrayText foswikiSmallish solrContainerLink'>
+      <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
     </h3>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
+    </div>
+    <div class='solrHilite'>
+      {{:~getHilite(id)}}
     </div>
   </div>
 </script>%TMPL:END%
@@ -204,21 +203,15 @@
       </a>
     </div>
     <h3>
+      <img src='{{if icon}}{{:icon}}{{else}}%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/page_white.png{{/if}}' width='16' height='16' class='solrHitIcon' />
       <a href='{{:url}}'>{{:name}}</a>
-      <span class='foswikiGrayText foswikiSmallish solrContainerLink'>
+      <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
-      {{if comment}}
-        <div class='foswikiGrayText foswikiSmallish solrSearchHitSummary'>{{:comment}}</div>
-      {{/if}}
     </h3>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
     </div>
-    %CLEAR%
   </div>
 </script>%TMPL:END%
 %{</verbatim>}%
@@ -229,15 +222,15 @@
     <h3>
       <img src='%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/comment.png' width='16' height='16' class='solrHitIcon' />
       <a href='{{:url}}'>{{:title}}</a>
-      <span class='foswikiGrayText foswikiSmallish solrContainerLink'>
+      <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
     </h3>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
+    </div>
+    <div class='solrHilite'>
+      {{:~getHilite(id)}}
     </div>
   </div>
 </script>%TMPL:END%
@@ -249,19 +242,19 @@
     <h3>
       <img src='{{if icon}}{{:icon}}{{else}}%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/page_white.png{{/if}}' width='16' height='16' class='solrHitIcon' />
       <a href='{{:url}}'>{{:name}}</a>
-      <span class='foswikiGrayText foswikiSmallish solrContainerLink' >
+      <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
-      {{if comment}}
-        <div class='foswikiGrayText foswikiSmallish'>{{:comment}}</div>
-      {{/if}}
     </h3>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
     </div>
+    <div class='solrHilite'>
+      {{:~getHilite(id)}}
+    </div>
+    {{if comment}}
+      <div class='foswikiGrayText'>{{:comment}}</div>
+    {{/if}}
   </div>
 </script>%TMPL:END%
 %{</verbatim>}%
@@ -425,25 +418,24 @@
    actual input field, as well as some basic select and checkboxes
 }%
 %TMPL:DEF{"solr::inputstep"}%<!-- -->
-<div class='foswikiFormStep'>
-<div class='foswikiLeft'>
-<table class='foswikiNullTable'>
-  <tr>
-    <td>
-      <input type='text' autocomplete='off' class='foswikiInputField jqFocus solrSearchField' size='50' style='margin-right:8px;' />
-    </td>
-    <td>
-      %BUTTON{"%MAKETEXT{"Search"}%" type="submit" title="%MAKETEXT{"submit the query"}%" icon="find" class="solrSubmitButton"}%
-    </td>
-  </tr>
-</table>
-%TMPL:P{"solr::input::checkboxes"}%<!-- -->
-</div>
-<div class='foswikiRight'>
-%TMPL:P{"solr::sortby"}%<!-- -->
-%TMPL:P{"DISsolr::displayas"}%<!-- -->
-</div>
-%CLEAR%
+<div class='foswikiFormStep clearfix'>
+  <div class='foswikiLeft'>
+    <table class='foswikiNullTable'>
+      <tr>
+        <td>
+          <input type='text' autocomplete='off' class='foswikiInputField jqFocus solrSearchField' size='50' style='margin-right:8px;' />
+        </td>
+        <td>
+          %BUTTON{"%MAKETEXT{"Search"}%" type="submit" title="%MAKETEXT{"submit the query"}%" icon="find" class="solrSubmitButton"}%
+        </td>
+      </tr>
+    </table>
+    %TMPL:P{"solr::input::checkboxes"}%<!-- -->
+  </div>
+  <div class='foswikiRight'>
+    %TMPL:P{"solr::sortby"}%<!-- -->
+    %TMPL:P{"DISsolr::displayas"}%<!-- -->
+  </div>
 </div>
 <!-- -->%TMPL:END%
 %{</verbatim>}%

@@ -10,14 +10,43 @@
   margin:1.3864em 0em;
 }
 .solrSearchHits h3 {
-  margin:0px;
-  font-size:100%;
-  line-height:1.3864em; 
+  margin:0;
   padding:0px;
+}
+.solrSearchHits h3 a {
+  text-decoration:none;
+}
+.solrSearchHits h3 .solrHitIcon {
+  vertical-align:middle;
+}
+
+
+.solrTopicInfo,
+.solrHilite,
+.solrTopicSummary,
+.solrRevision {
+  margin:0.5em 0;
+  padding-left:22px;
+}
+.solrRevision {
+  font-size:95%;
+  margin-top:0.5em;
+}
+.solrRevision,
+.solrRevision a {
+  text-decoration:none;
+  color:#818181;
+  color:#049804;
 }
 
 .solrSearchHitsList .solrSearchHit {
   margin:1.3864em 0em;
+  border-top:1px solid #ddd;
+  padding-top:1.3864em;
+}
+.solrSearchHitsList .solrSearchHit:first-child {
+  border-top:0;
+  padding-top:0;
 }
 .solrSearchHitsGrid .solrSearchHit {
   width:17%;
@@ -105,7 +134,7 @@
 }
 .solrSearchHitsList .solrThumbnail,
 .solrSearchHitsList .solrImageFrame {
-  float:left;
+  float:right;
   margin-right:1em;
 }
 .solrThumbnail .imageSimple,
@@ -118,11 +147,6 @@
   overflow:hidden;
 }
 
-.solrRevision,
-.solrRevision a {
-  text-decoration:none;
-  color:#049804;
-}
 .solrSortion {
   text-align:right;
 }

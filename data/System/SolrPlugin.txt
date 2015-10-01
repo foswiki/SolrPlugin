@@ -1,7 +1,6 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1442835433" format="1.1" version="1"}%
-%META:TOPICPARENT{name="Plugins"}%
+%META:TOPICINFO{author="ProjectContributor" date="1443691651" format="1.1" version="1"}%
 ---+ Solr Plugin
-%$SHORTDESCRIPTION%
+%FORMFIELD{"Description"}%
 
 %TOC%
 
@@ -139,14 +138,14 @@ cd <foswiki-dir>/tools
 For instance to empty your index completely use:
 
 <verbatim class="bash">
-./solrindex *:*
+./soldelete *:*
 </verbatim>
 
 ---+++ solrjob
 
 <verbatim class="bash">
 cd <foswiki-dir>/tools
-./solrdelete ...
+./solrjob ...
 </verbatim>
 
 This tool is a wrapper around =solrindex= and will use either =solrindex= or =virtualhost-solrindex=
@@ -847,6 +846,8 @@ specific search applications. The destination fields are then analysed using the
 %$DEPENDENCIES%
 
 ---++ Change History
+%TABLE{columnwidths="7em" tablewidth="100%"}%
+|  01 Oct 2015: | improve default layout of search results; moved unsafe inline-javascript into a js file of its own |
 |  21 Sep 2015: | cache stringified attachments using Cache::FileCache now and added api to purge/clear cache regularly; \
                   removed =IndexExtensions= config parameter to let the stringifier decide on supported file formats; \
                   added support for Foswiki:Extensions/LikePlugin boosting search results by social preferences |
@@ -932,11 +933,12 @@ specific search applications. The destination fields are then analysed using the
 |  22 Nov 2010: | fixes integration with pattern skin |
 |  18 Nov 2010: | initial public release |
 
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attachment="SolrPluginSnap1.png" attr="" comment="" date="1442835433" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attachment="SolrPluginSnap2.png" attr="" comment="" date="1442835433" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1443691649" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1443691649" size="158013" user="ProjectContributor" version="1"}%
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Michael Daum"}%
 %META:FIELD{name="Copyright" title="Copyright" value="&copy; 2009-2015, Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Release" title="Release" value="%$RELEASE%"}%
