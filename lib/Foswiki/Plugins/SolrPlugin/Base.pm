@@ -25,6 +25,19 @@ use Encode ();
 our $STARTWW = qr/^|(?<=[\s\(])/m;
 our $ENDWW = qr/$|(?=[\s,.;:!?)])/m;
 
+BEGIN {
+  if ($Foswiki::Plugins::VERSION < 2.3) {
+    # Pre-unicode Foswiki
+    $WebService::Solr::ENCODE = 1;
+    $WebService::Solr::DECODE = 1;
+  } else {
+    # Unicode Foswiki
+    $WebService::Solr::ENCODE = 1;
+    $WebService::Solr::DECODE = 0;
+  }
+}
+
+
 ##############################################################################
 sub new {
   my $class = shift;
@@ -40,6 +53,22 @@ sub new {
     @_
   };
   bless($this, $class);
+
+  $this->{iconOfType} = {
+    'fa-file-text-o' => qr/^topic$/i,
+    'fa-code-o' => qr/\.?(js|css)$/i,
+    'fa-comment-o' => qr/^comment$/i,
+    'fa-file-image-o' => qr/\.?(art|bmp|cdr|cdt|cpt|djv|djvu|gif|ico|ief|jng|jpe|jpeg|jpg|pat|pbm|pcx|pgm|png|pnm|ppm|psd|ras|rgb|svg|svgz|tif|tiff|webp|wbmp|xbm|xpm|xwd)$/i,
+    'fa-file-video-o' => qr/\.?(3gp|asf|asx|avi|axv|dif|dl|dv|fli|flv|gl|lsf|lsx|m4v|mng|mov|movie|mp4|mpe|mpeg|mpg|mpv|mxu|ogv|qt|wm|wmv|wmx|wvx|swf|webm)$/i,
+    'fa-file-audio-o' => qr/\.?(aif|aifc|aiff|amr|amr|au|awb|awb|axa|flac|gsm|kar|m3u|m3u|m4a|mid|midi|mp2|mp3|mpega|mpga|oga|ogg|pls|ra|ra|ram|rm|sd2|sid|snd|spx|wav|wax|weba|wma)$/i,
+    'fa-file-archive-o' => qr/\.?(zip|tar|tar|rar|gz)$/i,
+    'fa-file-pdf-o' => qr/\.?pdf$/i,
+    'fa-file-excel-o' => qr/\.?xlsx?$/i,
+    'fa-file-word-o' => qr/\.?docx?$/i,
+    'fa-file-powerpoint-o' => qr/\.?pptx?$/i,
+  } unless defined $this->{iconOfType};
+
+  $this->{defaultIcon} = 'fa-file-o' unless defined $this->{defaultIcon};
 
   $this->{timeout} = 180 unless defined $this->{timeout};
   $this->{optimizeTimeout} = 600 unless defined $this->{optimizeTimeout};
@@ -211,7 +240,7 @@ sub entityDecode {
   my ($this, $text) = @_;
 
   return "" unless defined $text;
-  $text =~ s/&#(\d+);/chr($1)/ge;
+  $text =~ s/&#(\d\d\d);/chr($1)/ge;
 
   return $text;
 }
@@ -261,31 +290,23 @@ sub putBackBlocks {
 
 ##############################################################################
 sub mapToIconFileName {
-  my ($this, $type, $size) = @_;
+  my ($this, $type) = @_;
 
-  $size ||= 16;
+  my $foundIcon;
 
-  my $pubUrlPath = $Foswiki::cfg{PubUrlPath}.'/'.$Foswiki::cfg{SystemWebName}.'/FamFamFamSilkIcons/';
+  foreach my $icon (keys %{$this->{iconOfType}}) {
+    my $pattern = $this->{iconOfType}{$icon};
+    if ($type =~ $pattern) {
+      $foundIcon = $icon;
+      last;
+    }
+  }
 
-  # some specific icons
-  return $pubUrlPath.'page_white_edit.png' if $type =~ /topic/i;
-  return $pubUrlPath.'comment.png' if $type =~ /comment/i;
+  $foundIcon = $this->{defaultIcon} unless $foundIcon;
 
-  if (Foswiki::Func::getContext()->{MimeIconPluginEnabled}) {
-    require Foswiki::Plugins::MimeIconPlugin;
-    my ($iconName, $iconPath) = Foswiki::Plugins::MimeIconPlugin::getIcon($type, "oxygen", $size);
-    return $iconPath;
-  } 
+  #print STDERR "$type => $foundIcon\n";
 
-  return $pubUrlPath.'picture.png' if $type =~ /(jpe?g)|gif|png/i;
-  return $pubUrlPath.'compress.png' if $type =~ /zip|tar|tar|rar/i;
-  return $pubUrlPath.'page_white_acrobat.png' if $type =~ /pdf/i;
-  return $pubUrlPath.'page_excel.png' if $type =~ /xlsx?/i;
-  return $pubUrlPath.'page_word.png' if $type =~ /docx?/i;
-  return $pubUrlPath.'page_white_powerpoint.png' if $type =~ /pptx?/i;
-  return $pubUrlPath.'page_white_flash.png' if $type =~ /flv|swf/i;
-
-  return $pubUrlPath.'page_white.png';
+  return $foundIcon;
 }
 
 ##############################################################################
@@ -386,16 +407,19 @@ sub plainify {
   $text =~ s/%WEB%/$web/g;
   $text =~ s/%TOPIC%/$topic/g;
   $text =~ s/%WIKITOOLNAME%/$wtn/g;
-  $text =~ s/%$Foswiki::regex{tagNameRegex}({.*?})?%//g;    # remove
+
+  # don't remove ALL macros, only some, todo: add some more
+  #  $text =~ s/%$Foswiki::regex{tagNameRegex}({.*?})?%//g;
+  $text =~ s/%(?:STARTSECTION|BEGINSECTION|ENDSECTION|STOPSECTION|STARTINCLUDE|STOPINCLUDE)(?:\{.*?\})?%//g;
 
   # Format e-mail to add spam padding (HTML tags removed later)
   $text =~ s/$STARTWW((mailto\:)?[a-zA-Z0-9-_.+]+@[a-zA-Z0-9-_.]+\.[a-zA-Z0-9-_]+)$ENDWW//gm;
-  $text =~ s/<!--.*?-->//gs;                                # remove all HTML comments
-  $text =~ s/<(?!nop)[^>]*>/ /g;                            # remove all HTML tags except <nop>
+  $text =~ s/<!--.*?-->//gs;    # remove all HTML comments
+  $text =~ s/<(?!nop)[^>]*>/ /g;    # remove all HTML tags except <nop>
 
   # SMELL: these should have been processed by entityDecode() before
-  $text =~ s/&#\d+;/ /g;                                    # remove html entities
-  $text =~ s/&[a-z]+;/ /g;                                  # remove entities
+  $text =~ s/&#\d+;/ /g;            # remove html entities
+  $text =~ s/&[a-z]+;/ /g;          # remove entities
 
   # keep only link text of legacy [[prot://uri.tld/ link text]]
   $text =~ s/
@@ -414,26 +438,22 @@ sub plainify {
   $text =~ s/[\[\]\*\|=_\&\<\>]/ /g;    # remove Wiki formatting chars
   $text =~ s/^\-\-\-+\+*\s*\!*/ /gm;    # remove heading formatting and hbar
   $text =~ s/[\+\-]+/ /g;               # remove special chars
-  $text =~ s/^\s+//;                    # remove leading whitespace
-  $text =~ s/\s+$//;                    # remove trailing whitespace
+  $text =~ s/^\s+//gm;                  # remove leading whitespace
+  $text =~ s/\s+$//gm;                  # remove trailing whitespace
   $text =~ s/!(\w+)/$1/gs;              # remove all nop exclamation marks before words
-  $text =~ s/[\r\n]+/\n/gs;
-  $text =~ s/[ \t]+/ /gs;
 
   # remove/escape special chars
-  $text =~ s/\\//g;
-  $text =~ s/"//g;
-  $text =~ s/%\{//g;
-  $text =~ s/\}%//g;
-  $text =~ s/%//g;
-  $text =~ s/{\s*}//g;
-  $text =~ s/#+//g;
-  $text =~ s/\$perce?nt//g;
-  $text =~ s/\$dollar//g;
-  $text =~ s/~~~/ /g;
-  $text =~ s/^$//gs;
+  $text =~ s/%\{\s*\}%//g;
+  $text =~ s/#+/ /g;
+  $text =~ s/\$perce?nt/ /g;
+  $text =~ s/\$dollar/ /g;
+  $text =~ s/[ \t]+/ /gms;
+  $text =~ s/^\s*$//gms;
+  $text =~ s/[\r\n]+/\\n/gms;           # keep linefeeds before ...
+  $text = $this->discardIllegalChars($text);    # discarding invisible control characters and unused code points and then ...
+  $text =~ s/\\n/\n/g;                          # add them back in
 
-  return $this->discardIllegalChars($text);
+  return $text;
 }
 
 ################################################################################
@@ -461,16 +481,15 @@ sub toSiteCharSet {
 ##############################################################################
 sub fromUtf8 {
   my $this = shift;
+
   return Encode::decode_utf8($_[0]);
 }
 
 ##############################################################################
 sub toUtf8 {
-  my ($this, $string) = @_;
+  my $this = shift;
 
-#  my $charset = $Foswiki::cfg{Site}{CharSet};
-#  $string = Encode::decode($charset, $string);
-  return Encode::encode('utf-8', $string);
+  return Encode::encode('utf-8', $_[0]);
 }
 
 1;

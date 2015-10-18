@@ -1029,35 +1029,25 @@ sub getStringifiedVersion {
 
   #$this->log("get stringified version of $filename") if VERBOSE;
 
-  my $mime = $this->mmagic->checktype_filename($filename);
-  my $skipCaching = ($mime =~ /^(text\/plain)$/)?1:0;
+  my $attText = Foswiki::Contrib::Stringifier->stringFor($filename) || '';
+  my $fileDate = modificationTime($filename);
 
-  my $attText = '';
+  # prevent wide char in subroutine
+  my $encFileName = $Foswiki::UNICODE?Encode::encode_utf8($filename):$filename;
 
-  if ($skipCaching) {
-    #print STDERR "skipping caching attachment $filename as it is a $mime\n";
+  my $key = Digest::MD5::md5_base64($encFileName);
+  my $cacheDate = 0;
+  my $obj = $this->cache->get_object($key);
+  $cacheDate = $obj->get_created_at() if $obj;
+
+  if ($fileDate > $cacheDate) {
+    #$this->log("caching stringified version of $attachment");
     $attText = Foswiki::Contrib::Stringifier->stringFor($filename) || '';
+    $this->cache->set($key, $attText);
   } else {
 
-    my $fileDate = modificationTime($filename);
-
-    # prevent wide char in subroutine
-    my $encFileName = Encode::encode_utf8($filename) if $Foswiki::UNICODE; 
-
-    my $key = Digest::MD5::md5_base64($encFileName);
-    my $cacheDate = 0;
-    my $obj = $this->cache->get_object($key);
-    $cacheDate = $obj->get_created_at() if $obj;
-
-    if ($fileDate > $cacheDate) {
-      #$this->log("caching stringified version of $attachment");
-      $attText = Foswiki::Contrib::Stringifier->stringFor($filename) || '';
-      $this->cache->set($key, $attText);
-    } else {
-
-      #$this->log("found stringified version of $attachment in cache");
-      $attText = $this->cache->get($key) || '';
-    }
+    #$this->log("found stringified version of $attachment in cache");
+    $attText = $this->cache->get($key) || '';
   }
 
   # only cache the first 10MB at most, TODO: make size configurable
@@ -1067,18 +1057,6 @@ sub getStringifiedVersion {
   }
 
   return $attText;
-}
-
-################################################################################
-sub mmagic {
-  my $this = shift;
-
-  unless (defined $this->{mmagic}) {
-    require File::MMagic;
-    $this->{mmagic} = File::MMagic->new();
-  }
-
-  return $this->{mmagic};
 }
 
 ################################################################################
@@ -1399,6 +1377,18 @@ sub _expandGroup {
   return [keys %result];
 }
 
+################################################################################
+sub getField {
+  my ($this, $doc, $name) = @_;
+
+  foreach my $field ($doc->fields) {
+    if ($field->name eq $name) {
+      return $field;
+    }
+  }
+
+  return;
+}
 
 ################################################################################
 sub getAclFields {

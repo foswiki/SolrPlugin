@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1443691651" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" date="1445162450" format="1.1" version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -34,9 +34,8 @@ The current plugin requires *Solr 5.0.0* or later.  Download it from the [[http:
 %JQREQUIRE{"chili"}%
 
 <verbatim class="bash">
-tar xzf solr-5.x.x.tgz solr-5.x.x/bin/install_solr_service.sh
-cd solr-5.x.x/bin/
-./install_solr_service.sh ../../solr-5.x.x.tgz
+tar xzf solr-5.x.x.tgz solr-5.x.x/bin/install_solr_service.sh --strip-components 2 
+./install_solr_service.sh ./solr-5.x.x.tgz
 service solr stop
 </verbatim>
 
@@ -138,7 +137,7 @@ cd <foswiki-dir>/tools
 For instance to empty your index completely use:
 
 <verbatim class="bash">
-./soldelete *:*
+./solrdelete *:*
 </verbatim>
 
 ---+++ solrjob
@@ -762,6 +761,7 @@ Similarly topic preferences are indexed using a =preference_*= prefix.
 | *_d | tdouble | | stored | fields with a _f suffix are indexed as a double precision float |
 | *_b | boolean | | stored | true, false |
 | *_s | string | | stored | dynamic field for unanalyzed text |
+| *_std | string | not stored | dynamic field for standard analysis, i.e. stopwords not being removed |
 | *_t | text_generic | | stored | generic text |
 | *_dt | tdate | | stored | a dateTime value |
 | *_lst | string | multivalued | stored | this field is used for any multi-valued formfield in !DataForms like, select, radio, checkbox, textboxlist |
@@ -847,6 +847,20 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  18 Oct 2015: | fixed backwards compatibility with pre-unicode Foswiki; \
+                  bring back =solr::queryfields= in <nop>SolrSearchBaseTemplate; \
+                  fixed language facet to properly match language tags to their name; \
+                  improved layout of search results as well as autosuggestion widget; \
+                  removed workflow facet from default search; \
+                  fixed icon mapping for topics that don't come with an icon defined in their <nop>TopicType; \
+                  don't try to encode html entities without a code point in utf8; \
+                  don't remove all macros from topic text, just some;  \
+                  removed dependency on <nop>MimeIconsPlugin as we are using fontawesome now; \
+                  improved formula for sorting results by reference; \
+                  fixed sorting in ajax-solr; \
+                  fixed exposing/hiding parameters in ajax-solr; \
+                  improved findability of content; i.e. when containing stop words only in the title; \
+                  removed unused =/browse= search handler from solr config |
 |  01 Oct 2015: | improve default layout of search results; moved unsafe inline-javascript into a js file of its own |
 |  21 Sep 2015: | cache stringified attachments using Cache::FileCache now and added api to purge/clear cache regularly; \
                   removed =IndexExtensions= config parameter to let the stringifier decide on supported file formats; \
@@ -933,8 +947,8 @@ specific search applications. The destination fields are then analysed using the
 |  22 Nov 2010: | fixes integration with pattern skin |
 |  18 Nov 2010: | initial public release |
 
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1443691649" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1443691649" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1445162454" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1445162454" size="158013" user="ProjectContributor" version="1"}%
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Michael Daum"}%
 %META:FIELD{name="Copyright" title="Copyright" value="&copy; 2009-2015, Michael Daum http://michaeldaumconsulting.com"}%

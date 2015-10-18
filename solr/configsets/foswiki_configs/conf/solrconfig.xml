@@ -820,36 +820,36 @@
       <str name="echoParams">explicit</str>
       <float name="tie">0.01</float>
       <str name="qf"> 
-        title_search^10.0 
-        topic_search^8.0 
-        web_search^5.0 
+        title_std^5.0 
+        title_search^5.0 
+        topic_std^4.0 
+        topic_search^4.0 
+        web_search^3.0
         category_search^2.0 
         tag_search^2.0 
         catchall
         substrings
         charnorm
-        <!-- enable this if you like to add sound-like search hits 
-             phonetic^0.0001 
-        -->
+        phonetic
       </str>
       <!-- boost more recent documents -->
       <str name="bf">
-        product(min(recip(ms(NOW,date),3.16e-11,0.8,0.4),0.20),sum(1,product(0.8,total_likes)))
+        product(recip(ms(NOW/HOUR,date),3.16e-11,1,1),sum(1,total_likes))
       </str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic</str>
       <str name="pf">
-        title_search^10.0 
-        topic_search^8.0 
-        web_search^5.0 
+        title_std^5.0 
+        title_search^5.0 
+        topic_std^4.0 
+        topic_search^4.0 
+        web_search^3.0 
         category_search^2.0 
         tag_search^2.0 
         catchall
         substrings
         charnorm
-        <!-- enable this if you like to add sound-like search hits 
-             phonetic^0.0001 
-        -->
+        phonetic
       </str>
       <int name="ps">1</int>
       <int name="qs">1</int>
@@ -876,36 +876,36 @@
       <str name="echoParams">explicit</str>
       <float name="tie">0.01</float>
       <str name="qf"> 
-        title_search^10.0 
-        topic_search^8.0 
-        web_search^5.0 
+        title_std^5.0 
+        title_search^5.0 
+        topic_std^4.0 
+        topic_search^4.0 
+        web_search^3.0 
         category_search^2.0 
         tag_search^2.0 
         catchall
         substrings
         charnorm
-        <!-- enable this if you like to add sound-like search hits 
-             phonetic^0.0001 
-        -->
+        phonetic
       </str>
       <!-- boost more recent documents -->
-      <str name="bf">
-        product(min(recip(ms(NOW,date),3.16e-11,0.8,0.4),0.20),sum(1,product(0.8,total_likes)))
+      <str name="boost">
+        product(recip(ms(NOW/HOUR,date),3.16e-11,0.08,0.05),sum(1,total_likes))
       </str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic</str>
       <str name="pf">
-        title_search^10.0 
-        topic_search^8.0 
+        title_std^5.0 
+        title_search^5.0 
+        topic_std^4.0 
+        topic_search^4.0 
         web_search^5.0 
         category_search^2.0 
         tag_search^2.0
         catchall
         substrings
         charnorm
-        <!-- enable this if you like to add sound-like search hits 
-             phonetic^0.0001 
-        -->
+        phonetic
       </str>
       <int name="ps">1</int>
       <int name="qs">1</int>
@@ -954,78 +954,6 @@
     </arr>
   </requestHandler>
 
-  <requestHandler name="/browse" class="solr.SearchHandler">
-     <lst name="defaults">
-
-       <str name="wt">velocity</str>
-       <str name="v.template">browse</str>
-       <str name="v.layout">layout</str>
-       <!-- str name="v.properties">velocity.properties</str-->
-       <str name="v.contentType">text/html;charset=UTF-8</str>
-
-       <str name="defType">edismax</str>
-       <str name="q.alt">*:*</str>
-       <str name="rows">10</str>
-       <str name="fl">*,score</str>
-
-      <str name="qf"> 
-        title_search^10.0 
-        topic_search^8.0 
-        web_search^5.0 
-        category_search^2.0 
-        tag_search^2.0 
-        catchall
-        substrings
-        charnorm
-        phonetic^0.0001 
-      </str>
-
-      <!-- boost more recent documents -->
-      <str name="bf">
-        product(min(recip(ms(NOW,date),3.16e-11,0.8,0.4),0.20),sum(1,product(0.8,total_likes)))
-      </str>
-      <!-- boost topics in favor of attachments -->
-      <str name="bq">type:topic</str>
-      <str name="pf">
-        title_search^10.0 
-        topic_search^8.0 
-        web_search^5.0 
-        category_search^2.0 
-        tag_search^2.0
-        catchall
-        substrings
-        charnorm
-        phonetic^0.0001 
-      </str>
-      <int name="ps">1</int>
-      <int name="qs">1</int>
-
-       <str name="facet">on</str>
-       <str name="facet.field">type</str>
-       <str name="facet.field">tag</str>
-       <str name="facet.field">category</str>
-       <str name="facet.field">web</str>
-       <str name="facet.field">author</str>
-       <str name="facet.mincount">1</str>
-       <str name="facet.limit">10</str>
-
-       <str name="mlt.qf">
-         category^1.4 tag^1.0 title^1.2 id^10.0 author^2.0
-       </str>
-       <str name="mlt.fl">category,tag,title,id,author</str>
-       <int name="mlt.count">3</int>
-
-       <str name="spellcheck">false</str>
-       <str name="spellcheck.thresholdTokenFreuqncy">0.01</str>
-       <str name="spellcheck.count">10</str>
-       <str name="spellcheck.collate">true</str>
-     </lst>
-     <arr name="last-components">
-       <str>spellcheck</str>
-     </arr>
-  </requestHandler>
-  
-
   <!-- realtime get handler, guaranteed to return the latest stored fields of
        any document, without the need to commit or open a new searcher.  The
        current implementation relies on the updateLog feature being enabled. -->
@@ -1042,10 +970,21 @@
         <str name="echoParams">explicit</str>
         <str name="mlt.fl">text</str> 
         <!-- str name="mlt.qf"> web^4.0 category^3.0 tag^3.0 title^2.0 </str--> 
-        <str name="mlt.mintf">1</str> 
-        <str name="mlt.mindf">5</str> 
+        <str name="mlt.mintf">1</str>
+        <str name="mlt.mindf">1</str>
+        <str name="mlt.minwl">3</str>
+        <str name="mlt.maxwl">15</str>
+        <str name="mlt.maxqt">20</str>
+        <str name="mlt.match.include">false</str>
         <str name="mlt.boost">true</str> 
      </lst> 
+<!--
+     <arr name="components">
+       <str>query</str>
+       <str>mlt</str>
+       <str>facet</str>
+     </arr>
+-->
   </requestHandler> 
 
   <!-- Update Request Handler.

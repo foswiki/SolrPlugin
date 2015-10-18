@@ -16,17 +16,16 @@
 .solrSearchHits h3 a {
   text-decoration:none;
 }
-.solrSearchHits h3 .solrHitIcon {
-  vertical-align:middle;
+.solrSearchHits .solrHitIcon {
+  float:right;
+  color:#ccc;
 }
-
 
 .solrTopicInfo,
 .solrHilite,
 .solrTopicSummary,
 .solrRevision {
   margin:0.5em 0;
-  padding-left:22px;
 }
 .solrRevision {
   font-size:95%;
@@ -134,12 +133,12 @@
 }
 .solrSearchHitsList .solrThumbnail,
 .solrSearchHitsList .solrImageFrame {
-  float:right;
-  margin-right:1em;
+  float:left;
+  margin:0.5em 1em 0.5em 0;
 }
 .solrThumbnail .imageSimple,
 .solrImageFrame .imageSimple {
-  float:right;
+  float:left;
 }
 .solrSearchHitsList .solrThumbnail .imageSimple,
 .solrSearchHitsList .solrImageFrame .imageSimple {

@@ -60,14 +60,7 @@ AjaxSolr.ParameterHashStore = AjaxSolr.ParameterStore.extend(
    */
   save: function () {
     this.hash = this.exposedString();
-    if (this.storedString()) {
-      // make a new history entry
-      window.location.hash = this.hash;
-    }
-    else {
-      // replace the old history entry
-      window.location.replace(window.location.href.replace('#', '') + '#' + this.hash);
-    }
+    window.location.hash = this.hash;
   },
 
   /**

@@ -18,7 +18,7 @@
       minLength: 3,
       extraParams: {
         limit: 3,
-        fields: "name,web,topic,container_title,title,type,thumbnail,url,field_Telephone_s,field_Phone_s,field_Mobile_s"
+        fields: "name,web,topic,container_title,title,type,thumbnail,icon,url,field_Telephone_s,field_Phone_s,field_Mobile_s"
       },
       position: {
         my: "right top",
@@ -39,14 +39,14 @@
             "{{if phoneNumber}}<a class='ui-autosuggest-phone-number' href='sip:{{:phoneNumber}}'></a>{{/if}}"+
             "<a href='{{:url}}' class='ui-autosuggest-link'>"+
               "<table class='foswikiNullTable'><tr>"+
-                "<th><div><img class='thumbnail' width='48' alt='{{:name}}' src='{{:thumbnail}}' /></div></th>"+
+                "<th><div>{{:thumbnail}}</div></th>"+
                 "<td>{{:title}}<div class='foswikiGrayText'>{{:phoneNumber}}</div></td>"+
               "</tr></table></a>"+
             "</li>{{{:footer}}",
         "default": "<li class='ui-autosuggest-item {{:group}} {{:isFirst}} {{:isLast}}'>{{:header}}"+
             "<a href='{{:url}}' class='ui-autosuggest-link'>"+
               "<table class='foswikiNullTable'><tr>"+
-                "<th><div><img class='thumbnail' width='48' alt='{{:name}}' src='{{:thumbnail}}' /></div></th>"+
+                "<th><div>{{:thumbnail}}</div></th>"+
                 "<td>{{:title}}<div class='foswikiGrayText'>{{:container_title}}</div></td>"+
               "</tr></table>"+
             "</a></li>{{:footer}}",
@@ -221,12 +221,22 @@
             template = self._getTemplate(item.group) || self._getTemplate("default"),
             li;
 
-        if (typeof(item.thumbnail) !== 'undefined') {
-          if (!/^(\/|https?:)/.test(item.thumbnail)) {
-            item.thumbnail = self.options.thumbnailBase + '&topic=' + item.web + '.' + item.topic + '&file=' + item.thumbnail;
+        if (!item._done) {
+          item._done = true;
+          if (typeof(item.thumbnail) !== 'undefined') {
+            if (/^fa\-/.test(item.thumbnail) && typeof("item.icon") != 'undefined') {
+              item.thumbnail = "<i  class='fa "+item.icon+"' />"
+            } else {
+              if (/^(\/|https?:)/.test(item.thumbnail)) {
+                item.thumbnailUrl = item.thumbnail;
+              } else {
+                item.thumbnailUrl = self.options.thumbnailBase + '&topic=' + item.web + '.' + item.topic + '&file=' + item.thumbnail;
+              }
+              item.thumbnail = "<img class='thumbnail' width='48' src='"+item.thumbnailUrl+"' />";
+            }
+          } else {
+            item.thumbnail = '';
           }
-        } else {
-          item.thumbnail = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
         }
 
         li = $(template.render(item)).data("ui-autocomplete-item", item)

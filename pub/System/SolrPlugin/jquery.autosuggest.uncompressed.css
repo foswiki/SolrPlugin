@@ -65,9 +65,15 @@
 .ui-autosuggest .ui-menu-item th {
   width:48px;
 }
+.ui-autosuggest .ui-menu-item .fa {
+  font-size:30px;
+  margin:9px;
+}
 .ui-autosuggest .ui-menu-item table th div {
   height:48px;
   overflow:hidden;
+  color:#818181;
+  text-align:center;
 }
 
 .ui-autosuggest .ui-autosuggest-first-in-group {

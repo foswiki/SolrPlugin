@@ -526,8 +526,9 @@ AjaxSolr.ParameterStore = AjaxSolr.Class.extend(
    */
   isHidden: function(param) {
     if (typeof(param) === 'object') {
-      param = decodeURIComponent(param.string());
+      param = param.string();
     }
+    param = decodeURIComponent(param);
     for (var i = 0, l = this.hidden.length; i < l; i++) {
       if (this.hidden[i] == param) {
         return true;
@@ -898,14 +899,7 @@ AjaxSolr.ParameterHashStore = AjaxSolr.ParameterStore.extend(
    */
   save: function () {
     this.hash = this.exposedString();
-    if (this.storedString()) {
-      // make a new history entry
-      window.location.hash = this.hash;
-    }
-    else {
-      // replace the old history entry
-      window.location.replace(window.location.href.replace('#', '') + '#' + this.hash);
-    }
+    window.location.hash = this.hash;
   },
 
   /**

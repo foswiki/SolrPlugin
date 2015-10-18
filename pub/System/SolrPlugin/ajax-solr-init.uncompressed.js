@@ -64,7 +64,7 @@
     $(".solrSpellchecking").solrSpellcheckWidget(manager);
 
     manager.setStore(new AjaxSolr.ParameterHashStore());
-    manager.store.exposed = [ 'fq', 'q', 'start', 'sort' ];
+    manager.store.exposed = [ 'fq', 'q', 'start', 'sort', 'rows' ];
 
     // init
     manager.init();
@@ -95,6 +95,10 @@
 
     if (extraFilter) {
       manager.store.hidden.push("fq="+extraFilter);
+    }
+
+    if (solrParams.rows) {
+      manager.store.hidden.push("rows="+solrParams.rows);
     }
 
     manager.doRequest();

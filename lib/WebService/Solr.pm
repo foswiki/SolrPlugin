@@ -13,6 +13,7 @@ use XML::Easy::Content;
 use XML::Easy::Text ();
 
 our $ENCODE = 1;
+our $DECODE = 0;
 
 has 'url' => (
     is      => 'ro',
@@ -178,7 +179,7 @@ sub _send_update {
     my ( $self, $xml, $params, $autocommit ) = @_;
     $autocommit = $self->autocommit unless defined $autocommit;
 
-    $xml= Encode::encode('utf-8', $xml) if $ENCODE;
+    $xml= _encode($xml);
 
     $params ||= {};
     my $url = $self->_gen_url( 'update' );
@@ -201,6 +202,15 @@ sub _send_update {
 
     return $self->last_response;
 }
+
+sub _encode {
+  return $ENCODE?Encode::encode_utf8($_[0]):$_[0]; 
+}
+
+sub _decode {
+  return $DECODE?Encode::decode_utf8($_[0]):$_[0]; 
+}
+
 
 no Any::Moose;
 

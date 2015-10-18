@@ -423,11 +423,15 @@
       scrollSpeed: 250
     },
 
+    perPage: function () {
+      return parseInt(this.manager.response.responseHeader && this.manager.response.responseHeader.params && this.manager.response.responseHeader.params.rows || this.manager.store.get('rows').val() || 10);
+    },
+
     clickHandler: function (page) {
       var self = this;
       return function () {
-        var start = page * (self.manager.response.responseHeader.params && self.manager.response.responseHeader.params.rows || 20)
-        //console.log("page=",page,"start="+start);
+        var start = page * self.perPage();
+        //console.log("page=",page,"start=",start);
         //self.manager.store.get('start').val(start);
         self.manager.doRequest(start);
         if (self.options.enableScroll) {

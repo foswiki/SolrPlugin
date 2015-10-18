@@ -1,9 +1,9 @@
 package WebService::Solr::Field;
 
+use WebService::Solr();
 use XML::Easy::Element;
 use XML::Easy::Content;
 use XML::Easy::Text ();
-use Encode();
 
 sub new {
     my ( $class, $name, $value, $opts ) = @_;
@@ -14,7 +14,7 @@ sub new {
 
     my $self = {
         name  => $name,
-        value => $value,
+        value => WebService::Solr::_decode($value),
         %{ $opts },
     };
 
@@ -29,7 +29,7 @@ sub name {
 
 sub value {
     my $self = shift;
-    $self->{ value } = $_[ 0 ] if @_;
+    $self->{ value } = WebService::Solr::_decode($_[ 0 ]) if @_;
     return $self->{ value };
 }
 

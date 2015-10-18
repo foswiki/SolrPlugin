@@ -124,6 +124,26 @@
       </analyzer>
     </fieldType>
 
+    <!-- A text field that only preserves the original string with only moderate standardizations,
+         i.e. it does _not_ process stopwords or synonyms
+     -->
+    <fieldType name="text_std" stored="false" indexed="true" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.WordDelimiterFilterFactory" 
+          splitOnCaseChange="0" 
+          generateWordParts="1" 
+          generateNumberParts="1" 
+          catenateWords="0" 
+          catenateNumbers="0" 
+          catenateAll="0" 
+          preserveOriginal="1" 
+        />
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
     <!-- A general text field that has reasonable -->
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
@@ -1112,6 +1132,7 @@
    -->
    <dynamicField name="*_i"  type="tint"/>
    <dynamicField name="*_s"  type="string"/>
+   <dynamicField name="*_std"  type="text_std"/>
    <dynamicField name="*_l"  type="tlong"/>
    <dynamicField name="*_t"  type="text_generic"/>
    <dynamicField name="*_b"  type="boolean"/>
@@ -1199,7 +1220,13 @@
    <copyField source="topic" dest="topic_search" />
    <copyField source="web" dest="web_search" />
    <copyField source="webtopic" dest="webtopic_search"/>
+
    <copyField source="*_s" dest="*_search"/>
+   <copyField source="*_s" dest="*_std"/>
+
+   <copyField source="web" dest="web_std" omitNorms="true" />
+   <copyField source="title" dest="title_std" omitNorms="true" />
+   <copyField source="topic" dest="topic_std" omitNorms="true" />
 
    <copyField source="attachment" dest="catchall"/>
    <copyField source="category" dest="catchall"/>

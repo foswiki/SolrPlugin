@@ -101,8 +101,9 @@ AjaxSolr.ParameterStore = AjaxSolr.Class.extend(
    */
   isHidden: function(param) {
     if (typeof(param) === 'object') {
-      param = decodeURIComponent(param.string());
+      param = param.string();
     }
+    param = decodeURIComponent(param);
     for (var i = 0, l = this.hidden.length; i < l; i++) {
       if (this.hidden[i] == param) {
         return true;

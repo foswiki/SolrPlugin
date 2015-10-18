@@ -18,18 +18,10 @@
 %TMPL:DEF{"solr::defaultsort"}%score desc%TMPL:END%
 %TMPL:DEF{"solr::dateformat"}%dddd, Do MMMM YYYY, HH:mm%TMPL:END%
 %TMPL:DEF{"solr::fields"}%%TMPL:END%
-%TMPL:DEF{"solr::extrafilter"}%%IF{
-  "defined 'SOLR_EXTRAFILTER'" 
-  then="%SOLR_EXTRAFILTER%" 
-}% %IF{
-  "not $USERNAME ingroup 'AdminGroup'"
-  then="-web_search:Applications"
-}%%TMPL:END%
+%TMPL:DEF{"solr::queryfields"}%%TMPL:END%
+%TMPL:DEF{"solr::extrafilter"}%%SOLR_EXTRAFILTER{default=""}% %IF{ "not $USERNAME ingroup 'AdminGroup'" then="-web_search:Applications" }%%TMPL:END%
 %TMPL:DEF{"solr::facet::include::web"}%%TMPL:END%
-%TMPL:DEF{"solr::facet::exclude::web"}%^(_.*%IF{
-  "not $USERNAME ingroup 'AdminGroup'"
-  then="|Application.*"
-}%)$%TMPL:END%
+%TMPL:DEF{"solr::facet::exclude::web"}%^(_.*%IF{ "not $USERNAME ingroup 'AdminGroup'" then="|Application.*" }%)$%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
@@ -37,7 +29,7 @@
    content: main definition that puts together all pieces
 }%
 %TMPL:DEF{"content"}%<noautolink>
-<div id='solrSearch' style='display:none' data-more-fields='%TMPL:P{"solr::fields"}%' data-solr-url='%SCRIPTURL{"rest"}%/SolrPlugin/proxy' data-solr-params='{"topic": "%WEB%.%TOPIC%", "qt":"%TMPL:P{"solr::defaultquerytype"}%", "rows": %TMPL:P{"solr::defaultrows"}%}' data-extra-filter='%TMPL:P{"solr::extrafilter"}%'>
+<div id='solrSearch' style='display:none' data-more-fields='%TMPL:P{"solr::fields"}%' %FORMATLIST{"%TMPL:P{"solr::queryfields"}%" header="data-query-fields='" footer="'" separator=" " split=" "}% data-solr-url='%SCRIPTURL{"rest"}%/SolrPlugin/proxy' data-solr-params='{"topic": "%WEB%.%TOPIC%", "qt":"%TMPL:P{"solr::defaultquerytype"}%", "rows": %TMPL:P{"solr::defaultrows"}%}' data-extra-filter='%TMPL:P{"solr::extrafilter"}%'>
 %TMPL:P{"solr::title"}%<!-- -->
 %TMPL:P{"solr::header"}%<!-- -->
 %TMPL:P{"solr::hits"}%<!-- -->
@@ -91,13 +83,43 @@
   "language": "%MAKETEXT{"language"}%",
   "keyword": "%MAKETEXT{"keyword"}%",
   "tag": "%MAKETEXT{"tag"}%",
-  "webcat": "%MAKETEXT{"Category"}%"%IF{"context MultiLingualPluginEnabled" 
-    then="$percntLANGUAGES{
-        header=\",$n\"
-        format=\"  \\"$code\\":\\"$language\\"\"
-        separator=\",$n\"
-      }$percnt" 
-  }%
+  "webcat": "%MAKETEXT{"Category"}%",
+  "ar":"Arabic",
+  "bg":"Bulgarian",
+  "ca":"Catalan",
+  "ckb":"Kurdish",
+  "cjk":"Japanese",
+  "cz":"Czech",
+  "da":"Danish",
+  "de":"German",
+  "el":"Greek",
+  "en":"English",
+  "es":"Spanish",
+  "fa":"Persian",
+  "fi":"Finnish",
+  "fr":"French",
+  "ga":"Irish",
+  "gl":"Galician",
+  "hi":"Hindi",
+  "hu":"Hungarian",
+  "hy":"Armenian",
+  "id":"Indonesian",
+  "it":"Italian",
+  "ja":"Japanese",
+  "ko":"Korean",
+  "lv":"Latvian",
+  "nl":"Dutch",
+  "no":"Norwegian",
+  "pl":"Polish",
+  "pt-br":"Portuguese",
+  "pt":"Portuguese",
+  "ro":"Romanian",
+  "ru":"Russian",
+  "sv":"Swedish",
+  "tr":"Turkish",
+  "uk":"Ukrainian",
+  "zh-cn":"Chinese",
+  "zh-tw":"Chinese"
 }
 </div>
 </literal>%TMPL:END%
@@ -151,9 +173,8 @@
 %{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::hits::ClassifiedTopic"}%<script id="solrHitTemplate_ClassifiedTopic" type="text/x-jsrender">
   <div class='solrSearchHit solrTopicHit clearfix'>
-    %TMPL:P{"solr::thumbnail"}%
     <h3>
-      <img src='{{if icon}}{{:icon}}{{else}}%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/page_white.png{{/if}}' width='16' height='16' class='solrHitIcon' />
+      <i class='solrHitIcon foswikiIcon jqIcon fa {{if icon}}{{:icon}}{{else}}fa-file-o{{/if}}'></i>
       <a href='{{:url}}'>{{:title}}</a>
       <span class=' solrContainerLink foswikiGrayText foswikiNormal'>
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
@@ -162,6 +183,7 @@
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
     </div>
+    %TMPL:P{"solr::thumbnail"}%
     <div class='solrHilite'>
       {{:~getHilite(id)}}
     </div>
@@ -176,9 +198,8 @@
 %{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::hits::topic"}%<script id="solrHitTemplate_topic" type="text/x-jsrender">
   <div class='solrSearchHit solrTopicHit clearfix'>
-    %TMPL:P{"solr::thumbnail"}%
     <h3>
-      <img src='{{if icon}}{{:icon}}{{else}}%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/page_white.png{{/if}}' width='16' height='16' class='solrHitIcon' />
+      <i class='solrHitIcon foswikiIcon jqIcon fa {{if icon}}{{:icon}}{{else}}fa-file-o{{/if}}'></i>
       <a href='{{:url}}'>{{:title}}</a>
       <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
@@ -187,6 +208,7 @@
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
     </div>
+    %TMPL:P{"solr::thumbnail"}%
     <div class='solrHilite'>
       {{:~getHilite(id)}}
     </div>
@@ -203,7 +225,7 @@
       </a>
     </div>
     <h3>
-      <img src='{{if icon}}{{:icon}}{{else}}%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/page_white.png{{/if}}' width='16' height='16' class='solrHitIcon' />
+      <i class='solrHitIcon foswikiIcon jqIcon fa {{if icon}}{{:icon}}{{else}}fa-file-o{{/if}}'></i>
       <a href='{{:url}}'>{{:name}}</a>
       <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
@@ -220,7 +242,7 @@
 %TMPL:DEF{"solr::templates::hits::comment"}%<script id="solrHitTemplate_comment" type="text/x-jsrender">
   <div class='solrSearchHit solrCommentHit'>
     <h3>
-      <img src='%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/comment.png' width='16' height='16' class='solrHitIcon' />
+      <i class='solrHitIcon foswikiIcon jqIcon fa {{if icon}}{{:icon}}{{else}}fa-file-o{{/if}}'></i>
       <a href='{{:url}}'>{{:title}}</a>
       <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
@@ -240,7 +262,7 @@
 %TMPL:DEF{"solr::templates::hits::misc"}%<script id="solrHitTemplate_misc" type="text/x-jsrender">
   <div class='solrSearchHit solrAttachmentHit'>
     <h3>
-      <img src='{{if icon}}{{:icon}}{{else}}%PUBURLPATH%/%SYSTEMWEB%/FamFamFamSilkIcons/page_white.png{{/if}}' width='16' height='16' class='solrHitIcon' />
+      <i class='solrHitIcon foswikiIcon jqIcon fa {{if icon}}{{:icon}}{{else}}fa-file-o{{/if}}'></i>
       <a href='{{:url}}'>{{:name}}</a>
       <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
@@ -311,7 +333,7 @@
 
 %{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::hierarchy"}%<script id="solrHierarchyTemplate" type="text/x-jsrender">
-<li><img src='{{:icon}}' width='16' height='16' /> <a href='#' class='solrFacetFalue cat_{{:id}}' data-value='{{:id}}'>{{:title}}</a> {{:~renderFacetCount(id)}}
+<li><i class='solrHitIcon foswikiIcon jqIcon fa {{:icon}}'></i><a href='#' class='solrFacetFalue cat_{{:id}}' data-value='{{:id}}'>{{:title}}</a> {{:~renderFacetCount(id)}}
 <div class='solrHierarchyChildren'>
 {{for ~getChildren}}
   {{if index < 5}}
@@ -494,17 +516,9 @@
 }%
 %TMPL:P{"solr::facet"
   id="field_TopicType_lst"
-  exclude="ApplicationLicense|ApplicationTopic|DataForm|DocuTopic|TopicFunction|TopicStub|TopicTemplate|TopicType|TopicView|WebTool|WikiApplication|WikiTopic|TaggedTopic|CategorizedTopic"
+  exclude="ApplicationLicense|ApplicationTopic|DataForm|DocuTopic|TopicStub|TopicTemplate|WebTool|WikiApplication|WikiTopic|TaggedTopic|CategorizedTopic"
   sort="title" 
   title="%MAKETEXT{"Topic type"}%"
-}%
-%TMPL:P{"solr::facet"
-  id="state"
-  title="%MAKETEXT{"Workflow State"}%"
-}%
-%TMPL:P{"solr::facet"
-  id="preference_WORKFLOW_s"
-  title="%MAKETEXT{"Workflow"}%"
 }%
 %TMPL:P{"solr::facet"
   id="language"

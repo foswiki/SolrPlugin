@@ -45,13 +45,19 @@ AJAX_SOLR_WIDGETS_SOURCE=\
   widgets/HierarchyWidget.uncompressed.js \
   widgets/SpellcheckWidget.uncompressed.js
 
-ajax-solr:
-	git clone https://github.com/evolvingweb/ajax-solr.git
+.PHONY: git
 
-ajax-solr.uncompressed.js: Makefile ajax-solr $(AJAX_SOLR_SOURCE)
+git:
+	git clone https://github.com/evolvingweb/ajax-solr.git git
+
+ifneq (,$(wildcard ajax-solr))
+ajax-solr.uncompressed.js: Makefile $(AJAX_SOLR_SOURCE)
 	@echo "generating ajax-solr.uncompressed.js"
 	@$(CAT) $(AJAX_SOLR_SOURCE) > $@
+endif
 
+ifneq (,$(wildcard widgets))
 ajax-solr-widgets.uncompressed.js: Makefile $(AJAX_SOLR_WIDGETS_SOURCE)
 	@echo "generating ajax-solr-widgets.uncompressed.js"
 	@$(CAT) $(AJAX_SOLR_WIDGETS_SOURCE) > $@
+endif

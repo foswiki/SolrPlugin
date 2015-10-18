@@ -260,7 +260,7 @@ sub formatResponse {
   if ($facets) {
 
     foreach my $facetSpec (split(/\s*,\s*/, $theFacets)) {
-      my ($facetLabel, $facetID) = parseFacetSpec($this->fromUtf8($facetSpec));
+      my ($facetLabel, $facetID) = parseFacetSpec($facetSpec);
       my $theFacetHeader = $params->{"header_$facetID"} || '';
       my $theFacetFormat = $params->{"format_$facetID"} || '';
       my $theFacetFooter = $params->{"footer_$facetID"} || '';
@@ -536,8 +536,7 @@ sub restSOLRPROXY {
   $theWeb ||= $this->{session}->{webName};
   $theTopic ||= $this->{session}->{topicName};
   my $theQuery = $query->param('q') || "*:*";
-
-  my %params = map {$_ => [$query->multi_param($_)]} grep {!/^_$/} $query->param();
+  my %params = map {$_ => [$query->multi_param($_)]} grep {!/^_$/} $query->multi_param();
 
   my $wikiUser = Foswiki::Func::getWikiName();
 
@@ -545,8 +544,10 @@ sub restSOLRPROXY {
     push @{$params{fq}}, " (access_granted:$wikiUser OR access_granted:all)";
   }
 
+  #$params{bf} = 'recip(ms(NOW,date),3.16e-11,10,1)';
+
   #print STDERR "fq=$params{fq}\n";
-  #print STDERR "params=".join(', ', keys %params)."\n";
+  #print STDERR "proxy params=".dump(\%params)."\n";
 
   my $response = $this->solrSearch($theQuery, \%params);
 
@@ -583,7 +584,7 @@ sub restSOLRPROXY {
     };
   }
 
-  return Encode::decode_utf8($result);
+  return $this->fromUtf8($result);
 }
 
 ##############################################################################
@@ -603,8 +604,8 @@ sub restSOLRSEARCH {
   my $jsonWrf = $params{"json.wrf"};
   delete $params{"json.wrf"};
 
-  #print STDERR "theQuery=$theQuery\n";
-  #print STDERR "params=".dump(\%params)."\n";
+#  print STDERR "theQuery=$theQuery\n";
+#  print STDERR "params=".dump(\%params)."\n";
 
   my $response = $this->doSearch($theQuery, \%params);
 
@@ -621,14 +622,14 @@ sub restSOLRSEARCH {
 
   my $result = '';
   my $status = 200;
-  my $contentType = "application/json";
+  my $contentType = "application/json; charset=utf-8";
 
   try {
     $result = $response->raw_response->content();
   } catch Error::Simple with {
     $result = "Error parsing response";
     $status = 500;
-    $contentType = "text/plain";
+    $contentType = "text/plain; charset=utf-8";
   };
 
   if ($jsonWrf) {
@@ -665,7 +666,9 @@ sub restSOLRAUTOSUGGEST {
   my $query = Foswiki::Func::getCgiQuery();
 
   my $theQuery = $query->param('term') || '*';
-  $theQuery .= '*' if $theQuery !~ /\*$/ && $theQuery !~ /:/;
+  unless ($theQuery =~ /[":\s\*]/) {
+    $theQuery .= "*";
+  }
 
   my $theRaw = Foswiki::Func::isTrue(scalar $query->param('raw'));
 
@@ -803,7 +806,7 @@ sub restSOLRAUTOSUGGEST {
     if (defined $group) {
       my @docs = ();
       foreach my $doc (@{$group->{doclist}{docs}}) {
-        $doc->{thumbnail} = $this->mapToIconFileName("unknown", 48)
+        $doc->{thumbnail} = $this->mapToIconFileName("unknown")
           unless defined $doc->{thumbnail};
         $doc->{value} = $doc->{title};
         push @docs, $doc;
@@ -832,7 +835,7 @@ sub restSOLRAUTOSUGGEST {
           } else {
             my $ext = $doc->{name};
             $ext =~ s/^.*\.([^\.]+)$/$1/g;
-            $doc->{thumbnail} = $this->mapToIconFileName($ext, 48);
+            $doc->{thumbnail} = $this->mapToIconFileName($ext);
           }
         }
         $doc->{value} = $doc->{title}; 
@@ -951,7 +954,7 @@ sub restSOLRSIMILAR {
   my $query = Foswiki::Func::getCgiQuery();
   my $theQuery = $query->param('q');
   $theQuery =  "id:$theWeb.$theTopic" unless defined $theQuery;
-  my %params = map {$_ => join(" " , @{[$query->param($_)]})} $query->param();
+  my %params = map {$_ => [$query->multi_param($_)]} grep {!/^_$/} $query->multi_param();
   delete $params{'q'};
 
   my $response = $this->doSimilar($theQuery, \%params);
@@ -1260,7 +1263,7 @@ sub solrSearch {
   $params ||= {};
   $params->{'q'} = $query if $query;
 
-  #print STDERR "solrSearch($query), params=".dump($params)."\n";
+  #print STDERR "solrSearch - params=".dump($params)."\n";
 
   return $this->solrRequest("select", $params);
 }
@@ -1269,7 +1272,18 @@ sub solrSearch {
 sub solrRequest {
   my ($this, $path, $params) = @_;
 
-  return $this->{solr}->generic_solr_request($path, $params);
+  my $response = $this->{solr}->generic_solr_request($path, $params);
+
+  if (TRACE) {
+    my $error = $response->content()->{error};
+
+    if ($error) {
+      my $queryHeader = $response->content()->{responseHeader};
+      $this->log("ERROR in solr request: ".$error->{msg}."\n".JSON::to_json($queryHeader, {pretty=>1}));
+    }
+  }
+
+  return $response;
 }
 
 ##############################################################################
@@ -1750,7 +1764,7 @@ sub parseFilter {
 
   my @filter = ();
   $filter ||= '';
-  $filter = $this->toUtf8($this->urlDecode($this->entityDecode($filter)));
+  $filter = $this->urlDecode($this->entityDecode($filter));
 
   #print STDERR "parseFilter($filter)\n";
 
