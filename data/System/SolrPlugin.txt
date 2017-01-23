@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1445162450" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" date="1485183295" format="1.1" version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -59,6 +59,7 @@ mv /var/solr/logs /var/log/solr
    * set =SOLR_LOGS_DIR=/var/log/solr=
    * edit =/var/solr/log4j.properties=
    * set =solr.log=/var/log/solr=
+   * set log level from =INFO= to =WARN=: =log4j.rootLogger=WARN, file, CONSOLE= 
 
 ---+++ Install Foswiki configuration set
 
@@ -228,7 +229,7 @@ The service is configured by placing below configuration script at =/etc/iwatch/
   <watchlist>
     <title>Foswiki</title>
     <contactpoint email="root@localhost" name="Administrator"/>
-    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob'"><foswiki-dir>/data</path>
+    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="sudo -u <httpd-user> <foswiki-dir>/tools/solrjob"><foswiki-dir>/data</path>
     <path type="regexception">\.tmp|\.sw\w|\.svn|\.lease|\.lock|,$|\.changes|,v|^_[0-9]|^log|^Temporary|^UnitTestCheck</path>
   </watchlist>
 </config>
@@ -247,12 +248,12 @@ For !VirtualHostingContrib use:
     <contactpoint email="root@localhost" name="Administrator"/>
 
     <!-- watch directories shared among all virtual domains -->
-    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host all'"><foswiki-dir>/data/System</path>
-    <!-- <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host all'"><foswiki-dir>/data/Applications</path> -->
+    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="sudo -u <httpd-user> <foswiki-dir>/tools/solrjob --host all"><foswiki-dir>/data/System</path>
+    <!-- <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="sudo -u <httpd-user> <foswiki-dir>/tools/solrjob --host all"><foswiki-dir>/data/Applications</path> -->
 
     <!-- watch each virtual domain for changes -->
-    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host <domain1>'"><vhosts-dir>/<domain1>/data</path>
-    <!-- <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host <domain2>'"><vhosts-dir>/<domain2>/data</path> -->
+    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su -l <httpd-user> -c '<foswiki-dir>/tools/solrjob --host <domain1>'"><vhosts-dir>/<domain1>/data</path>
+    <!-- <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su -l <httpd-user> -c '<foswiki-dir>/tools/solrjob --host <domain2>'"><vhosts-dir>/<domain2>/data</path> -->
 
     <path type="regexception">\.tmp|\.sw\w|\.svn|\.lease|\.lock|,$|\.changes|,v|^_[0-9]|^log|^Temporary|^UnitTestCheck</path>
   </watchlist>
@@ -596,8 +597,21 @@ SOLRSIMILAR allows to return a list of similar topics given the current one.
    rows="5"
 }%<!-- solrsimilar -->
 
-<verbatim class="foswikiHidden">
 ---++++ SOLRSCRIPTURL
+
+returns a link to a SolrSearch with the given parameters pre-set.
+
+| *Parameter* | *Description* | *Default* |
+| "..." or search | search string to render a link for | |
+| id | get a link to the search defined by SOLRSEARCH | |
+| topic | name of the search topic to jump to | <nop>WebSearch |
+| union | a list of fields whose values can be selected in a union (using an "or" operator) | |
+| multivalued | a list of fields that may be searched by multiple values | |
+| start | | |
+| sort | | |
+| &lt;field_name> | any field defined in in solr's schema.xml | |
+
+<verbatim class="foswikiHidden">
 
 ---+++ Rest inteface
 
@@ -720,7 +734,6 @@ useful for spatial search.
 | webcat | string | | stored | combined web-category facet |
 | web | string | | stored | name of the web this document is located in |
 | webtopic | string | | stored | concatenation of the web and topic part |
-
 
 ---+++ Dynamic fields
 
@@ -847,6 +860,18 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  23 Jan 2017: | converted WebServices::Solr to Moo; \
+                  fixed documentation for iwatch realtime indexing; \
+                  documentation of SOLRSCRIPTURL macro; \
+                  using jquery.i18n for javascript translations now; \
+                  new facet filter to search in facet values; \
+                  improved indexing of user profile pages and their thumbnail image; \
+                  indexing image geometry now; \
+                  improved jquery.autosugest widget; \
+                  improved <nop>ToggleFacetWidget; \
+                  improved boosting of query ingrediences; \
+                  mapping all office documents to a combined attachment type (document, presentation, spreadsheet, chart, ...); \
+                  better support for plenv in system services and cron jobs |
 |  18 Oct 2015: | fixed backwards compatibility with pre-unicode Foswiki; \
                   bring back =solr::queryfields= in <nop>SolrSearchBaseTemplate; \
                   fixed language facet to properly match language tags to their name; \
@@ -947,15 +972,15 @@ specific search applications. The destination fields are then analysed using the
 |  22 Nov 2010: | fixes integration with pattern skin |
 |  18 Nov 2010: | initial public release |
 
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1445162454" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1445162454" size="158013" user="ProjectContributor" version="1"}%
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Michael Daum"}%
-%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2009-2015, Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="Version" title="Version" value="%25$VERSION%25"}%
+%META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
-%META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
-%META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
-%META:FIELD{name="Release" title="Release" value="%$RELEASE%"}%
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/SolrPlugin"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2009-2017, Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
+%META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FIELD{name="Version" title="Version" value="%$VERSION%"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1485183295" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1485183295" size="158013" user="ProjectContributor" version="1"}%

@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2015 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2017 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -221,9 +221,10 @@ sub update {
 
       # get all timestamps for this web
       $searcher->iterate({
-        query => "web:$web type:topic", 
-        fields => "topic,timestamp", 
-        process => sub {
+         q => "web:$web type:topic", 
+         fl => "topic,timestamp", 
+        },
+        sub {
           my $doc = shift;
           my $topic = $doc->value_for("topic");
           my $time = $doc->value_for("timestamp");
@@ -231,7 +232,7 @@ sub update {
           $time = int(Foswiki::Time::parseTime($time));
           $timeStamps{$topic} = $time;
         }
-      });
+      );
 
       # delta
       my @topics = Foswiki::Func::getTopicList($web);
@@ -330,8 +331,9 @@ sub indexTopic {
   $date ||= 0;    # prevent formatTime to crap out
   $date = Foswiki::Func::formatTime($date, 'iso', 'gmtime');
 
-  unless ($rev =~ /^\d+$/) {
-    $this->log("Warning: invalid version '$rev' of $web.$topic");
+  unless ($rev && $rev =~ /^\d+$/) {
+    $rev //= 'undef';
+    $this->log("WARNING: invalid version '$rev' of $web.$topic");
     $rev = 1;
   }
 
@@ -416,6 +418,12 @@ sub indexTopic {
     $formName =~ s/\//\./g;
     $doc->add_fields(form => $formName);
 
+    # check whether we are indexing a user profile
+    my $personDataFormPattern = $Foswiki::cfg{SolrPlugin}{PersonDataForm} || '*UserForm';
+    $personDataFormPattern =~ s/\*/.*/g;
+    $personDataFormPattern =~ s/OR/|/g;
+    my $isUserProfile = ($formName =~ /$personDataFormPattern/x) ? 1: 0;
+
     if ($formDef) {    # form definition found, if not the formfields aren't indexed
 
       my %seenFields = ();
@@ -428,7 +436,8 @@ sub indexTopic {
           my $isMultiValued = $fieldDef->isMultiValued;
           my $isValueMapped = $fieldDef->can("isValueMapped") && $fieldDef->isValueMapped;
           my $field = $meta->get('FIELD', $name);
-          next unless $field;
+
+          next if !defined($field) && !$isUserProfile && $name ne 'Email';
 
           # prevent from mall-formed formDefinitions
           if ($seenFields{$name}) {
@@ -437,7 +446,13 @@ sub indexTopic {
           }
           $seenFields{$name} = 1;
 
-          my $value = $field->{value};
+          my $value = $field?$field->{value}:'';
+
+          # special handling for user profile's email: get it from the user mapper in case there is none in the form
+          if ($name eq 'Email' && $isUserProfile && !$value) {
+            my @emails = Foswiki::Func::wikinameToEmails($topic);
+            $value = $emails[0] if @emails;
+          }
 
           if ($isValueMapped) {
 
@@ -509,6 +524,12 @@ sub indexTopic {
                 $this->log("WARNING: malformed float value '$value'");
               }
             } 
+
+            # add an extra treatment for booleans
+            if ($fieldType eq '_b') {
+              $value = Foswiki::Func::isTrue($value, 0);
+              $doc->add_fields($fieldName . '_b' => $value);
+            }
 
             # for explicit _s fields apply a full plainify
             elsif ($fieldType eq '_s') {
@@ -600,7 +621,7 @@ sub indexTopic {
 
       # test for existence
       unless (Foswiki::Func::attachmentExists($web, $topic, $name)) {
-        $this->log("Warning: can't find attachment '$name' at $web.$topic ... invalid meta data");
+        $this->log("WARNING: can't find attachment '$name' at $web.$topic ... invalid meta data");
         next;
       }
 
@@ -617,8 +638,8 @@ sub indexTopic {
       if (!defined $thumbnail && $attachment->{attr} && $attachment->{attr} =~ /t/) {
         $thumbnail = $name;
       }
-      if (!defined $firstImage && $name =~ /\.(png|jpe?g|gif|bmp|svg)$/i) {
-        $firstImage = $name;
+      if ($name =~ /\.(png|jpe?g|gif|bmp|svg)$/i) {
+        $firstImage = $name unless defined $firstImage;
       }
 
       # then index each of them
@@ -687,7 +708,7 @@ sub extractOutgoingLinks {
 
   # normal wikiwords
   $text = $this->takeOutBlocks($text, 'noautolink', $removed);
-  $text =~ s#(?:($Foswiki::regex{webNameRegex})\.)?($Foswiki::regex{wikiWordRegex}|$Foswiki::regex{abbrevRegex})#$this->_addLink($outgoingLinks, $web, $topic, $1, $2)#gexom;
+  $text =~ s#(?:($Foswiki::regex{webNameRegex})\.)?($Foswiki::regex{wikiWordRegex}|$Foswiki::regex{abbrevRegex})#$this->_addLink($outgoingLinks, $web, $topic, $1, $2)#gexm;
   $this->putBackBlocks(\$text, $removed, 'noautolink');
 
   # square brackets
@@ -706,9 +727,9 @@ sub _addLink {
   return '' if $link =~ /^http|ftp/;    # don't index external links
   return '' unless Foswiki::Func::topicExists($web, $topic);
 
-  $link =~ s/\%SCRIPTURL(PATH)?{.*?}\%\///g;
-  $link =~ s/%WEB%/$baseWeb/g;
-  $link =~ s/%TOPIC%/$baseTopic/g;
+  $link =~ s/\%SCRIPTURL(?:PATH)?(?:\{.*?\})?\%\///g;
+  $link =~ s/%(?:BASE)?WEB%/$baseWeb/g;
+  $link =~ s/%(?:BASE)?TOPIC%/$baseTopic/g;
 
   #print STDERR "link=$link\n" unless defined $links->{$link};
 
@@ -754,7 +775,7 @@ sub indexAttachment {
   if ($attText ne '') {
     $attText = $this->plainify($attText, $web, $topic);
   } else {
-    #$this->log("Warning: attachment $name at $web.$topic has got zero length ... maybe stringifier failed?")
+    #$this->log("WARNING: attachment $name at $web.$topic has got zero length ... maybe stringifier failed?")
   }
 
   my $doc = $this->newDocument();
@@ -767,7 +788,7 @@ sub indexAttachment {
   my $rev = $attachment->{'version'} || 1;
 
   unless ($rev =~ /^\d+$/) {
-    $this->log("Warning: invalid version '$rev' of attachment $name in $web.$topic");
+    $this->log("WARNING: invalid version '$rev' of attachment $name in $web.$topic");
     $rev = 1;
   }
 
@@ -778,6 +799,14 @@ sub indexAttachment {
   #  $author = Foswiki::Func::getWikiName($author) || 'UnknownUser';
   #  # weed out some strangers
   #  $author = 'UnknownUser' unless Foswiki::Func::isValidWikiWord($author);
+
+  # get image info
+  if ($name =~ /\.(png|jpe?g|gif|bmp|svg)$/i) {
+    my ($width, $height) = $this->pingImage(_getPathOfAttachment($web, $topic, $name));
+    if (defined $width && defined $height) {
+      $doc->add_fields('width' => $width, 'height' => $height);
+    }
+  }
 
   # get contributor and most recent author
   my @contributors = $this->getContributors($web, $topic, $attachment);
@@ -1007,23 +1036,29 @@ sub cache {
   return $this->{cache};
 }
 
+sub _getPathOfAttachment {
+  my ($web, $topic, $attachment) = @_;
+
+  my $pubDir = Foswiki::Func::getPubDir();
+
+  $web =~ s/\./\//g;
+  return "$pubDir/$web/$topic/$attachment";
+}
+
 ################################################################################
 sub getStringifiedVersion {
   my ($this, $web, $topic, $attachment) = @_;
 
-  my $pubpath = Foswiki::Func::getPubDir();
-  my $dirWeb = $web;
-  $dirWeb =~ s/\./\//g;
-  $web =~ s/\//\./g;
+  my $filename = _getPathOfAttachment($web, $topic, $attachment);
 
-  my $filename = "$pubpath/$dirWeb/$topic/$attachment";
+  $web =~ s/\//\./g;
 
   # untaint..
   $filename =~ /(.*)/;
   $filename = $1;
 
 #  unless (-e $filename) {
-#    $this->log("Warning: can't find file $filename");
+#    $this->log("WARNING: can't find file $filename");
 #    return "";
 #  }
 
@@ -1052,7 +1087,7 @@ sub getStringifiedVersion {
 
   # only cache the first 10MB at most, TODO: make size configurable
   if (length($attText) > 1014*1000*10) { 
-    $this->log("Warning: ignoring attachment $attachment at $web.$topic larger than 10MB");
+    $this->log("WARNING: ignoring attachment $attachment at $web.$topic larger than 10MB");
     $attText = '';
   }
 
@@ -1173,11 +1208,18 @@ sub getRevisionInfo {
 
   ($web, $topic) = $this->normalizeWebTopicName($web, $topic);
 
-  if ($attachment && (!defined($rev) || $rev == $maxRev)) {
-    return ($attachment->{date}, $attachment->{author} || $attachment->{user}, $attachment->{version} || $maxRev);
-  } else {
-    return Foswiki::Func::getRevisionInfo($web, $topic, $rev, $attachment);
+  if (!defined($rev) || (defined($maxRev) && $rev == $maxRev)) {
+    if ($attachment) {
+      return ($attachment->{date}, $attachment->{author} || $attachment->{user}, $attachment->{version} || $maxRev);
+    } else {
+      my ($meta) = Foswiki::Func::readTopic($web, $topic); 
+      my $topicInfo = $meta->get('TOPICINFO');
+      return ($topicInfo->{date}, $topicInfo->{author}, $topicInfo->{version});
+    }
   }
+
+  # fall back to store means
+  return Foswiki::Func::getRevisionInfo($web, $topic, $rev, $attachment);
 }
 
 ################################################################################
@@ -1397,6 +1439,36 @@ sub getAclFields {
   my $grantedUsers = $this->getGrantedUsers(@_);
   return () unless $grantedUsers;
   return ('access_granted' => $grantedUsers);
+}
+
+################################################################################
+sub mage {
+  my $this = shift;
+
+  unless ($this->{mage}) {
+
+    my $impl =
+         $Foswiki::cfg{ImagePlugin}{Impl}
+      || $Foswiki::cfg{ImageGalleryPlugin}{Impl}
+      || 'Image::Magick';
+
+    eval "require $impl";
+    die $@ if $@;
+    $this->{mage} = $impl->new();
+  }
+
+  return $this->{mage};
+}
+
+################################################################################
+sub pingImage {
+  my ($this, $path) = @_;
+
+  my ($width, $height, $filesize, $format) = $this->mage->Ping($path);
+  $width ||= 0;
+  $height ||= 0;
+
+  return ($width, $height, $filesize, $format);
 }
 
 1;

@@ -5,6 +5,7 @@
     defaults: {
       templateName: '#solrFacetFieldTemplate',
       container: '.solrFacetFieldContainer',
+      filterField: '.solrFacetFieldFilter>input',
       hideNullValues: true,
       hideSingle: true,
       name: null,
@@ -13,6 +14,7 @@
     facetType: 'facet_queries',
     template: null,
     container: null,
+    filterField: null,
     paramString: null,
     inputType: null,
 
@@ -105,6 +107,13 @@
         }
       });
 
+      if (self.filterField && self.filterField.is(":visible")) {
+        var val = self.filterField.val();
+        if (val) {
+          self.container.find(".jqSerialPager").data("filter", val);
+        }
+      }
+
       self.$target.children("h2").each(function() {
         var text = $(this).text();
         if (text) {
@@ -114,15 +123,48 @@
     },
 
     init: function() {
-      var self = this;
+      var self = this, timer;
 
       self.initQueries();
 
       self._super();
       self.template = $.templates(self.options.templateName);
       self.container = self.$target.find(self.options.container);
+      self.filterField = self.$target.find(self.options.filterField);
       self.inputType = 'checkbox'; //(self.options.multiSelect)?'checkbox':'radio';
       self.$target.addClass("solrFacetContainer");
+
+      self.$target.find(".solrFacetFieldTwisty").on("afterClose.twisty", function() {
+        var val = self.filterField.val();
+        if (val) {
+          self.container.find(".jqSerialPager").trigger("refresh");
+        }
+        self.filterField.blur();
+      }).on("afterOpen.twisty", function() {
+        var val = self.filterField.val();
+        if (val) {
+          self.container.find(".jqSerialPager").trigger("refresh", val);
+        }
+        self.filterField.focus();
+      });
+
+      self.filterField.on("keyup", function(ev) {
+        var $input = $(this),
+            val = $input.val(),
+            pager = self.container.find(".jqSerialPager");
+
+        if (pager.length) {
+          if (typeof(timer) !== 'undefined') {
+            clearTimeout(timer);
+            timer = undefined;
+          }
+          timer =setTimeout(function() {
+            pager.trigger("refresh", val);
+            timer = undefined;
+          }, 250);
+        }
+      });
+
     }
 
   });

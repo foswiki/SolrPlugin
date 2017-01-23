@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1442835433" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1485183295" format="1.1"  version="1"}%
 %META:TOPICPARENT{name="SolrPlugin"}%
 %{<verbatim class="tml">}%
 %{ ###########################################################################
@@ -19,7 +19,7 @@
 %TMPL:DEF{"solr::dateformat"}%dddd, Do MMMM YYYY, HH:mm%TMPL:END%
 %TMPL:DEF{"solr::fields"}%%TMPL:END%
 %TMPL:DEF{"solr::queryfields"}%%TMPL:END%
-%TMPL:DEF{"solr::extrafilter"}%%SOLR_EXTRAFILTER{default=""}% %IF{ "not $USERNAME ingroup 'AdminGroup'" then="-web_search:Applications" }%%TMPL:END%
+%TMPL:DEF{"solr::extrafilter"}%<literal>%SOLR_EXTRAFILTER{default=""}%</literal> %IF{ "not $USERNAME ingroup 'AdminGroup'" then="-web_search:Applications" }%%TMPL:END%
 %TMPL:DEF{"solr::facet::include::web"}%%TMPL:END%
 %TMPL:DEF{"solr::facet::exclude::web"}%^(_.*%IF{ "not $USERNAME ingroup 'AdminGroup'" then="|Application.*" }%)$%TMPL:END%
 %{</verbatim>}%
@@ -46,7 +46,7 @@
    solr::assets - css and js to be added to the html head
 }%
 %TMPL:DEF{"solr::assets"}%<!-- -->
-%JQREQUIRE{"livequery,focus, serialpager, scrollto, prettyphoto, render, jqtwisty, moment, blockui, imagetooltip"}%<!-- -->
+%JQREQUIRE{"livequery,focus, serialpager, scrollto, photoswipe, render, jqtwisty, moment, blockui, imagetooltip" warn="off"}%<!-- -->
 %ADDTOZONE{"script"
   id="SOLRPLUGIN::AJAX"
   requires="JQUERYPLUGIN::LIVEQUERY, JQUERYPLUGIN::BLOCKUI, JQUERYPLUGIN::MOMENT"
@@ -74,13 +74,6 @@
     subheader=",$n"
     separator=",$n"
   }%,
-  "Filed in": "%MAKETEXT{"Filed in [_1]"}%",
-  "Tagged": "%MAKETEXT{"Tagged [_1]"}%",
-  "tagged": "%MAKETEXT{"tagged [_1]"}%",
-  "field_TopicType_lst": "%MAKETEXT{"topic type"}%",
-  "type": "%MAKETEXT{"media"}%",
-  "date": "%MAKETEXT{"recently"}%",
-  "language": "%MAKETEXT{"language"}%",
   "keyword": "%MAKETEXT{"keyword"}%",
   "tag": "%MAKETEXT{"tag"}%",
   "webcat": "%MAKETEXT{"Category"}%",
@@ -162,7 +155,7 @@
 %TMPL:DEF{"solr::thumbnail"}%
 {{if thumbnail}}
       <div class='solrThumbnail'>
-        <a class='imageHref imageSimple jqImageTooltip {web:"{{:web}}", topic:"{{:topic}}", image:"{{:thumbnail}}"}' href='{{:url}}' title='{{:name}}'>
+        <a href='{{:url}}' title='{{:name}}' class='imageHref imageSimple jqImageTooltip' data-web='{{:web}}' data-topic='{{:topic}}' data-image='{{:thumbnail}}' data-orig-width='{{:width}}' data-orig-height='{{:height}}'>
           <img src='%SCRIPTURLPATH{"rest"}%/ImagePlugin/resize?topic={{:web}}.{{:topic}};file={{:~encodeURIComponent(thumbnail)}};size=70>;crop=center' alt='{{:thumbnail}}' />
         </a>
       </div>
@@ -187,6 +180,7 @@
     <div class='solrHilite'>
       {{:~getHilite(id)}}
     </div>
+    <span class='foswikiClear'></span>
     <div class='solrTopicInfo foswikiGrayText'>
       {{:~renderTopicInfo()}}
     </div>
@@ -220,7 +214,7 @@
 %TMPL:DEF{"solr::templates::hits::image"}%<script id="solrHitTemplate_image" type="text/x-jsrender">
   <div class='solrSearchHit solrImageHit clearfix'>
     <div class='solrImageFrame'>
-      <a class='imageHref imageSimple jqImageTooltip {web:"{{:web}}", topic:"{{:topic}}", image:"{{:name}}"}' href='{{:url}}' title='{{:name}}'>
+      <a href='{{:url}}' title='{{:name}}' class='imageHref imageSimple jqImageTooltip' data-web='{{:web}}' data-topic='{{:topic}}' data-image='{{:name}}' data-orig-width='{{:width}}' data-orig-height='{{:height}}'>
         <img src='%SCRIPTURLPATH{"rest"}%/ImagePlugin/resize?topic={{:web}}.{{:topic}};file={{:~encodeURIComponent(name)}};size=70>;crop=center' alt='{{:name}}' />
       </a>
     </div>
@@ -282,7 +276,7 @@
 %{</verbatim>}%
 
 %TMPL:DEF{"solr::templates::facetfield"}%<script id="solrFacetFieldTemplate" type="text/x-jsrender"> 
-  <div class="jqSerialPager" data-prev-text="%MAKETEXT{"prev"}%" data-next-text="%MAKETEXT{"next"}%" data-pagesize="10">
+  <div class="jqSerialPager" data-pagesize="10">
     <ul>
       {{for widget.facetCounts ~widget=widget}}
         <li>
@@ -523,11 +517,13 @@
 %TMPL:P{"solr::facet"
   id="language"
   title="%MAKETEXT{"Language"}%"
+  hidefilter="on"
 }%
 %TMPL:P{"solr::facet"
   id="author"
   exclude="UnknownUser|AdminUser|RegistrationAgent|AdminGroup|WikiGuest|FoswikiContributor|ProjectContributor|TestUser"
   title="%MAKETEXT{"Author"}%"
+  hidefilter="on"
 }%
 <!-- -->%TMPL:END%
 %{</verbatim>}%
@@ -549,6 +545,7 @@
       * mincount - lower boundary for facet values to display
       * hidesingle - boolean
       * hidenullvalues - boolean
+      * hidefilter - boolean
       * limit - max number of facet values to return
 }%
 %TMPL:DEF{"solr::facet"}%<div data-field='%id%' %IF{
@@ -589,8 +586,14 @@
   "not '%reverse%'=~'^([%]reverse%)?$'"
   then="data-facet-sort-reverse='%reverse%'"
 }%>
-<h2 class='jqTwisty' data-initial-state='open' data-open-img='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/toggle-collapse.png' data-close-img='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/toggle.png'>%title%</h2>
-  <div class='solrFacetFieldContainer'></div>
+<h2 class='clearfix'>
+<span class='jqTwisty' data-initial-state='open' data-target='#solrFacetField_%id%'>%title%</span>
+%IF{
+  "'%hidefilter%'!='on'"
+  then="<div class='jqTwisty solrFacetFieldTwisty foswikiRight' data-initial-state='close'>%JQICON{"fa-binoculars"}%</div>
+        <div class='solrFacetFieldFilter foswikiRight'><input type='text' size='20' class='foswikiInputField' placeholder='%MAKETEXT{"Filter"}%' /></div>"
+}%</h2>
+  <div class='solrFacetFieldContainer' id='solrFacetField_%id%'></div>
 </div>%TMPL:END%
 %{</verbatim>}%
 
@@ -619,7 +622,7 @@
   <literal>
   <div class="solrJsonData">%queries%</div>
   </literal>
-  <h2 class='jqTwisty' data-initial-state='open' data-open-img='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/toggle-collapse.png' data-close-img='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/toggle.png'>%title%</h2>
+  <h2 class='jqTwisty' data-initial-state='open'>%title%</h2>
   <div class='solrFacetFieldContainer'></div>
 </div>%TMPL:END%
 %{</verbatim>}%
@@ -638,6 +641,8 @@
       * include - TODO: look up solr docu
       * dateformat - format string used when the facet goes over a date range
       * hidesingle - boolean
+      * sort - count or title
+      * reverse - boolean
 }%
 %TMPL:DEF{"solr::facetrange"}%<div class='solrFacetField' data-field='%id%' data-facet-type='facet_ranges'%IF{
   "not '%start%'=~'^([%]start%)?$'"
@@ -661,8 +666,14 @@
   "not '%other%'=~'^([%]other%)?$'"
   then=" data-facet-range-other='%other%'"
   else=" data-facet-range-other='before'"
+}%%IF{ 
+  "not '%sort%'=~'^([%]sort%)?$'"
+  then=" data-facet-sort='%sort%'"
+}%%IF{
+  "not '%reverse%'=~'^([%]reverse%)?$'"
+  then=" data-facet-sort-reverse='%reverse%'"
 }%>
-  <h2 class='jqTwisty' data-initial-state='open' data-open-img='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/toggle-collapse.png' data-close-img='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/toggle.png'>%title%</h2>
+  <h2 class='jqTwisty' data-initial-state='open'>%title%</h2>
   <div class='solrFacetFieldContainer'></div>
 </div>%TMPL:END%
 %{</verbatim>}%
@@ -688,7 +699,7 @@
 %{ ###########################################################################
    solr::hits - display all search hits
 }%
-%TMPL:DEF{"solr::hits"}%<div class="solrSearchHits jqPrettyPhoto {itemSelector:'.solrImageFrame a'} clearfix" data-block-ui="window"></div>%TMPL:END%
+%TMPL:DEF{"solr::hits"}%<div class="solrSearchHits jqPhotoSwipe clearfix" data-history="false" data-item-selector=".solrImageFrame a" data-block-ui="window"></div>%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
@@ -802,5 +813,5 @@
 </div>
 %{</verbatim>}%
 
-%META:PREFERENCE{name="DENYTOPICVIEW" title="DENYTOPICVIEW" type="Set" value=" "}%
+%META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
 %META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%

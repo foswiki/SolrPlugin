@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1442835433" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1485183295" format="1.1" version="1"}%
 %META:TOPICPARENT{name="WebHome"}%
 %{<verbatim class="tml">}%
 %TMPL:INCLUDE{"SolrSearchView"}%
@@ -44,6 +44,7 @@
 </noautolink>%TMPL:END%
 %{</verbatim>}%
 
+%{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::hits"}%<!-- -->
 %TMPL:P{"solr::templates::hits::topic"}%<!-- -->
 %TMPL:P{"solr::templates::userimage"}%<!-- -->
@@ -66,14 +67,14 @@
 </script>%TMPL:END%
 %{</verbatim>}%
 
-%{<verbatim>}%
+%{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::userimage"}%<script id="solrHitTemplate_userimage" type="text/x-jsrender">
-  <div class='foswikiImage foswikiLeft' style='background-image:url({{if thumbnail}}
+  <a href='{{:url}}' class='foswikiImage foswikiLeft' style='background-image:url({{if thumbnail}}
       %SCRIPTURLPATH{"rest"}%/ImagePlugin/resize?topic={{:web}}.{{:topic}};file={{:~encodeURIComponent(thumbnail)}};size=80x100;crop=on
     {{else}}
       %PUBURLPATH%/%SYSTEMWEB%/JQueryPlugin/images/nobody.gif
     {{/if}})'>
-  </div>
+  </a>
 </script>%TMPL:END%
 %{</verbatim>}%
 
@@ -84,7 +85,8 @@
   requires="SOLRPLUGIN"
   text="<link rel='stylesheet' href='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/wikiusers.css' media='all' />"
 }%%ADDTOZONE{"script"
-  requires="SOLRPLUGIN"
+  requires="SOLRPLUGIN, JQUERYPLUGIN"
+  id="WIKIUSERS::JS"
   text="<script src='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/wikiusers.js' ></script>"
 }%<!-- -->%TMPL:END%
 %{</verbatim>}%
@@ -120,5 +122,5 @@
 </script>%TMPL:END%
 %{</verbatim>}%
 
-%META:PREFERENCE{name="DENYTOPICVIEW" title="DENYTOPICVIEW" type="Set" value=" "}%
+%META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
 %META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%

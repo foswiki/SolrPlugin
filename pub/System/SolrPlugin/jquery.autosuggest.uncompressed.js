@@ -1,7 +1,7 @@
 /*
- * jQuery autosuggest plugin 2.00
+ * jQuery autosuggest plugin 2.01
  *
- * Copyright (c) 2013-2015 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2017 Michael Daum http://michaeldaumconsulting.com
  *
  * Dual licensed under the MIT and GPL licenses:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -27,7 +27,7 @@
       },
 
       locales: {
-        persons: 'Persons',
+        persons: 'People',
         topics: 'Topics',
         attachments: 'Attachments',
         loading: "Loading ...",
@@ -36,13 +36,13 @@
 
       templates: {
         "persons": "<li class='ui-autosuggest-item {{:group}} {{:isFirst}} {{:isLast}}'>{{:header}}"+
-            "{{if phoneNumber}}<a class='ui-autosuggest-phone-number' href='sip:{{:phoneNumber}}'></a>{{/if}}"+
+            "{{if phoneNumber}}<a class='ui-autosuggest-phone-number' href='tel:{{:phoneNumber}}'></a>{{/if}}"+
             "<a href='{{:url}}' class='ui-autosuggest-link'>"+
               "<table class='foswikiNullTable'><tr>"+
                 "<th><div>{{:thumbnail}}</div></th>"+
                 "<td>{{:title}}<div class='foswikiGrayText'>{{:phoneNumber}}</div></td>"+
               "</tr></table></a>"+
-            "</li>{{{:footer}}",
+            "</li>{{:footer}}",
         "default": "<li class='ui-autosuggest-item {{:group}} {{:isFirst}} {{:isLast}}'>{{:header}}"+
             "<a href='{{:url}}' class='ui-autosuggest-link'>"+
               "<table class='foswikiNullTable'><tr>"+

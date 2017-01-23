@@ -13,261 +13,264 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: data/System/SolrSearchBaseTemplate.txt:621
+#: data/System/SolrSearchBaseTemplate.txt:690
 msgid "(none)"
 msgstr "(nichts)"
 
-#: data/System/SolrSearchBaseTemplate.txt:449
+#: data/System/SolrSearchBaseTemplate.txt:500
 msgid "1 hour"
 msgstr "1 Stunde"
 
-#: data/System/SolrSearchBaseTemplate.txt:454
+#: data/System/SolrSearchBaseTemplate.txt:505
 msgid "1 month"
 msgstr "1 Monat"
 
-#: data/System/SolrSearchBaseTemplate.txt:456
+#: data/System/SolrSearchBaseTemplate.txt:507
 msgid "1 year"
 msgstr "1 Jahr"
 
-#: data/System/SolrSearchBaseTemplate.txt:452
+#: data/System/SolrSearchBaseTemplate.txt:503
 msgid "2 days"
 msgstr "2 Tage"
 
-#: data/System/SolrSearchBaseTemplate.txt:455
+#: data/System/SolrSearchBaseTemplate.txt:506
 msgid "2 months"
 msgstr "2 Monate"
 
-#: data/System/SolrSearchBaseTemplate.txt:450
+#: data/System/SolrSearchBaseTemplate.txt:501
 msgid "4 hours"
 msgstr "4 Stunden"
 
-#: data/System/SolrSearchBaseTemplate.txt:453
+#: data/System/SolrSearchBaseTemplate.txt:504
 msgid "7 days"
 msgstr "7 Tage"
 
-#: data/System/SolrSearchBaseTemplate.txt:472
+#: data/System/SolrSearchBaseTemplate.txt:525
 msgid "Author"
 msgstr "Autor"
 
-#: data/System/WebChangesViewTemplate.txt:11
+#: data/System/SolrSearchBaseTemplate.txt:79
 msgid "Category"
 msgstr "Kategorie"
 
-#: data/System/SolrSearchBaseTemplate.txt:623
+#: data/System/SolrSearchBaseTemplate.txt:692
 msgid "Clear"
 msgstr "Zur&&uuml;cksetzen"
 
-#: data/System/SolrSearchBaseTemplate.txt:330
+#: data/System/SolrSearchBaseTemplate.txt:717
+msgid "Create date"
+msgstr ""
+
+#: data/System/SolrSearchBaseTemplate.txt:382
 msgid "Did you mean %1?"
 msgstr "Meinten Sie %1?"
 
-#: data/System/SolrSearchBaseTemplate.txt:663
+#: data/System/SolrSearchBaseTemplate.txt:733
 msgid "Display as"
 msgstr "Anzeige als"
 
-#: data/System/SolrWikiUsersViewTemplate.txt:64
-msgid "Email"
-msgstr "Email"
+#: templates/viewtopbar.solr.tmpl:15
+msgid "Enter topic name or a search string"
+msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:91
-msgid "English"
-msgstr "Englisch"
+#: data/System/SolrSearchBaseTemplate.txt:594
+#, fuzzy
+msgid "Filter"
+msgstr "Ergebnisse filtern"
 
-#: data/System/SolrSearchBaseTemplate.txt:85
-msgid "Filed in %1"
-msgstr "Abgelegt in %1"
-
-#: data/System/SolrSearchBaseTemplate.txt:617
+#: data/System/SolrSearchBaseTemplate.txt:686
 msgid "Filter results"
 msgstr "Ergebnisse filtern"
 
-#: data/System/SolrSearchBaseTemplate.txt:92
-msgid "German"
-msgstr "Deutsch"
-
-#: data/System/SolrSearchBaseTemplate.txt:705
+#: data/System/SolrSearchBaseTemplate.txt:775
 msgid "In all webs"
 msgstr "In allen Webs"
 
-#: data/System/SolrSearchBaseTemplate.txt:696
+#: data/System/SolrSearchBaseTemplate.txt:766
 msgid "In current web"
 msgstr "Im momentanen Web"
 
-#: data/System/SolrSearchBaseTemplate.txt:714
+#: data/System/SolrSearchBaseTemplate.txt:784
 msgid "In my contributions"
 msgstr "In meinen Beiträgen"
 
-#: data/System/SolrSearchBaseTemplate.txt:467
+#: data/System/SolrSearchBaseTemplate.txt:519
 msgid "Language"
 msgstr "Sprache"
 
-#: data/System/SolrSearchBaseTemplate.txt:647
+#: data/System/SolrSearchBaseTemplate.txt:716
 msgid "Last changed"
 msgstr "Letzte &&Auml;nderung"
 
-#: data/System/SolrWikiUsersViewTemplate.txt:33
-#: data/System/SolrWikiUsersViewTemplate.txt:65
+#: data/System/SolrWikiUsersViewTemplate.txt:32
 msgid "Location"
 msgstr "Niederlassung"
 
-#: data/System/SolrSearchBaseTemplate.txt:442
+#: data/System/SolrSearchBaseTemplate.txt:493
 msgid "Media"
 msgstr "Medium"
 
-#: data/System/SolrSearchBaseTemplate.txt:648
+#: data/System/SolrSearchBaseTemplate.txt:718
 msgid "Name"
 msgstr "Name"
 
-#: data/System/SolrSearchBaseTemplate.txt:351
+#: data/System/SolrSearchBaseTemplate.txt:404
 msgid "Next"
-msgstr "Nächste"
+msgstr "Weiter"
 
-#: data/System/SolrWikiUsersViewTemplate.txt:25
+#: data/System/SolrWikiUsersViewTemplate.txt:24
 msgid "Organisation"
 msgstr "Organisation"
 
-#: data/System/SolrSearchBaseTemplate.txt:726
+#: data/System/SolrSearchBaseTemplate.txt:796
 msgid "Popular tags"
 msgstr "Populäre Schlüsselworte"
 
-#: data/System/SolrSearchBaseTemplate.txt:351
+#: data/System/SolrSearchBaseTemplate.txt:404
 msgid "Previous"
-msgstr "Vorherige"
+msgstr "Zurück"
 
-#: data/System/SolrWikiUsersViewTemplate.txt:42
-#: data/System/SolrWikiUsersViewTemplate.txt:62
+#: data/System/SolrWikiUsersViewTemplate.txt:41
 msgid "Profession"
 msgstr "Beruf"
 
-#: data/System/SolrSideBar.txt:68
+#: data/System/SolrSideBar.txt:72
 msgid "Recent Changes"
 msgstr "Letzte &&Auml;nderungen"
 
-#: data/System/SolrSearchBaseTemplate.txt:447
-#: data/System/WebChangesViewTemplate.txt:22
+#: data/System/SolrSearchBaseTemplate.txt:498
+#: data/System/WebChangesViewTemplate.txt:19
 msgid "Recent changes"
 msgstr "Letzte &&Auml;nderungen"
 
-#: data/System/WebChangesViewTemplate.txt:23
+#: data/System/WebChangesViewTemplate.txt:20
 msgid "Recent changes in %1"
 msgstr "Letze &&Auml;nderungen in %1"
 
-#: data/System/SolrSearchBaseTemplate.txt:646
+#: data/System/SolrSearchBaseTemplate.txt:715
 msgid "Relevance"
 msgstr "Relevanz"
 
-#: data/System/SolrSearchBaseTemplate.txt:300
-#: data/System/SolrWikiUsersViewTemplate.txt:101
+#: data/System/SolrSearchBaseTemplate.txt:352
+#: data/System/SolrWikiUsersViewTemplate.txt:100
 msgid "Results %1 - %2 of <b>%3</b>"
 msgstr "Treffer %1 - %2 von <b>%3</b>"
 
-#: data/System/SolrSearchBaseTemplate.txt:308
-#: data/System/SolrWikiUsersViewTemplate.txt:109
+#: data/System/SolrSearchBaseTemplate.txt:360
+#: data/System/SolrWikiUsersViewTemplate.txt:108
 msgid "Results per page"
 msgstr "Treffer pro Seite"
 
-#: data/System/SolrSearchBaseTemplate.txt:393
-#: data/System/SolrSearchViewTemplate.txt:25
+#: data/System/NatSkinSolrSearchViewTemplate.txt:25
+#: data/System/SolrSearchBaseTemplate.txt:445
+#: templates/viewtopbar.solr.tmpl:21
 msgid "Search"
 msgstr "Suchen"
 
-#: data/System/SolrSideBar.txt:42
+#: data/System/SolrSideBar.txt:43
 msgid "Similar topics"
 msgstr "&&Auml;hnliche Topics"
 
-#: data/System/SolrSearchBaseTemplate.txt:643
+#: data/System/SolrSearchBaseTemplate.txt:712
 msgid "Sort by"
 msgstr "Sortierung"
 
-#: data/System/SolrSearchBaseTemplate.txt:86
-msgid "Tagged %1"
-msgstr "Verschlagwortet als %1"
-
-#: data/System/SolrWikiUsersViewTemplate.txt:63
-msgid "Tel"
-msgstr "Tel"
-
-#: data/System/SolrSearchBaseTemplate.txt:463
+#: data/System/SolrSearchBaseTemplate.txt:515
 msgid "Topic type"
 msgstr "Topic Typ"
 
-#: data/System/SolrSearchBaseTemplate.txt:431
+#: data/System/SolrSearchBaseTemplate.txt:482
 msgid "Web"
 msgstr "Web"
 
-#: data/System/SolrSearchBaseTemplate.txt:619
+#: data/System/SolrSearchBaseTemplate.txt:809
+msgid "You are here:"
+msgstr ""
+
+#: data/System/SolrSearchBaseTemplate.txt:688
 msgid "Your selection"
 msgstr "Ihre Auswahl"
 
-#: data/System/SolrSearchBaseTemplate.txt:670
+#: data/System/SolrSearchBaseTemplate.txt:740
 msgid "grid"
 msgstr "Raster"
 
-#: data/System/SolrSearchBaseTemplate.txt:139
-#: data/System/SolrSearchBaseTemplate.txt:162
-#: data/System/SolrSearchBaseTemplate.txt:186
-#: data/System/SolrSearchBaseTemplate.txt:209
-#: data/System/SolrSearchBaseTemplate.txt:228
+#: data/System/SolrSearchBaseTemplate.txt:173
+#: data/System/SolrSearchBaseTemplate.txt:199
+#: data/System/SolrSearchBaseTemplate.txt:225
+#: data/System/SolrSearchBaseTemplate.txt:242
+#: data/System/SolrSearchBaseTemplate.txt:262
 msgid "in %1"
 msgstr "in %1"
 
-#: data/System/SolrSearchBaseTemplate.txt:94
+#: data/System/SolrSearchBaseTemplate.txt:77
 msgid "keyword"
 msgstr "Suchbegriff"
 
-#: data/System/SolrSearchBaseTemplate.txt:93
-msgid "language"
-msgstr "Sprache"
-
-#: data/System/SolrSearchBaseTemplate.txt:666
+#: data/System/SolrSearchBaseTemplate.txt:736
 msgid "list"
 msgstr "Liste"
 
-#: data/System/SolrSearchBaseTemplate.txt:89
-msgid "media"
-msgstr "Medium"
-
-#: data/System/SolrSearchBaseTemplate.txt:245
-msgid "next"
-msgstr "n&&auml;chste"
-
-#: data/System/SolrSearchBaseTemplate.txt:302
-#: data/System/SolrWikiUsersViewTemplate.txt:103
+#: data/System/SolrSearchBaseTemplate.txt:354
+#: data/System/SolrWikiUsersViewTemplate.txt:102
 msgid "nothing found"
 msgstr "Keine Treffer"
 
-#: data/System/SolrSearchBaseTemplate.txt:457
+#: data/System/SolrSearchBaseTemplate.txt:508
 msgid "older"
 msgstr "älter"
 
-#: data/System/SolrSearchBaseTemplate.txt:245
-msgid "prev"
-msgstr "zur&&uuml;ck"
-
-#: data/System/SolrSearchBaseTemplate.txt:90
-msgid "recently"
-msgstr "&&Auml;nderung"
-
-#: data/System/SolrSideBar.txt:45
+#: data/System/SolrSideBar.txt:46
 msgid "score: %1"
 msgstr "Gewichtung: %1"
 
-#: data/System/SolrSearchBaseTemplate.txt:393
+#: data/System/SolrSearchBaseTemplate.txt:445
 msgid "submit the query"
 msgstr "Anfrage abschicken"
 
-#: data/System/SolrSearchBaseTemplate.txt:95
+#: data/System/SolrSearchBaseTemplate.txt:78
 msgid "tag"
 msgstr "Schlüsselwort"
 
-#: data/System/SolrSearchBaseTemplate.txt:87
-msgid "tagged %1"
-msgstr "verschlagwortet als %1"
-
-#: data/System/SolrSearchBaseTemplate.txt:451
+#: data/System/SolrSearchBaseTemplate.txt:502
 msgid "today"
 msgstr "heute"
 
-#: data/System/SolrSearchBaseTemplate.txt:88
-msgid "topic type"
-msgstr "Topic Typ"
+#~ msgid "Email"
+#~ msgstr "Email"
+
+#~ msgid "English"
+#~ msgstr "Englisch"
+
+#~ msgid "Filed in %1"
+#~ msgstr "Abgelegt in %1"
+
+#~ msgid "German"
+#~ msgstr "Deutsch"
+
+#~ msgid "Tagged %1"
+#~ msgstr "Verschlagwortet als %1"
+
+#~ msgid "Tel"
+#~ msgstr "Tel"
+
+#~ msgid "language"
+#~ msgstr "Sprache"
+
+#~ msgid "media"
+#~ msgstr "Medium"
+
+#~ msgid "next"
+#~ msgstr "n&&auml;chste"
+
+#~ msgid "prev"
+#~ msgstr "zur&&uuml;ck"
+
+#~ msgid "recently"
+#~ msgstr "&&Auml;nderung"
+
+#~ msgid "tagged %1"
+#~ msgstr "verschlagwortet als %1"
+
+#~ msgid "topic type"
+#~ msgstr "Topic Typ"

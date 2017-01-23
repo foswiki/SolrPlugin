@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="foswiki" version="1.5">
+<schema name="foswiki" version="1.6">
 
   <types>
     <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
@@ -230,7 +230,7 @@
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords.txt" />
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="15" />
-        <filter class="solr.ReverseStringFilterFactory" />
+        <!-- <filter class="solr.ReverseStringFilterFactory" /> -->
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
       <analyzer type="query">
@@ -1113,6 +1113,8 @@
    <field name="name" type="string" />
    <field name="comment" type="text_generic" />
    <field name="size" type="tint" />
+   <field name="width" type="tint" />
+   <field name="height" type="tint" />
 
    <!-- dynamicFields: these are used to cover formfield definitions
         a formfield is named using a field_ prefix to prevent a name
@@ -1222,6 +1224,7 @@
    <copyField source="webtopic" dest="webtopic_search"/>
 
    <copyField source="*_s" dest="*_search"/>
+   <copyField source="*_s" dest="*_sort"/>
    <copyField source="*_s" dest="*_std"/>
 
    <copyField source="web" dest="web_std" omitNorms="true" />

@@ -5,6 +5,7 @@
     options: {
       templateName: '#solrToggleFacetTemplate',
       value: null,
+      inverseValue: null,
       inverse: false
     },
     checkbox: null,
@@ -41,20 +42,40 @@
           if ($(this).is(":checked")) {
             if (self.options.inverse) {
               self.unclickHandler(self.options.value).call(self);
+              if (self.options.inverseValue) {
+                self.clickHandler(self.options.inverseValue).call(self);
+              }
             } else {
               self.clickHandler(self.options.value).call(self);
+              if (self.options.inverseValue) {
+                self.unclickHandler(self.options.inverseValue).call(self);
+              }
             }
           } else {
             if (self.options.inverse) {
               self.clickHandler(self.options.value).call(self);
+              if (self.options.inverseValue) {
+                self.unclickHandler(self.options.inverseValue).call(self);
+              }
             } else {
               self.unclickHandler(self.options.value).call(self);
+              if (self.options.inverseValue) {
+                self.clickHandler(self.options.inverseValue).call(self);
+              }
             }
           }
         });
 
       if (self.options.inverse) {
         self.add(self.options.value);
+        if (self.options.inverseValue) {
+          self.remove(self.options.inverseValue);
+        }
+      } else {
+        if (self.options.inverseValue) {
+          self.add(self.options.inverseValue);
+        }
+        self.remove(self.options.value);
       }
     }
 

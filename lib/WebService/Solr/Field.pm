@@ -1,6 +1,6 @@
 package WebService::Solr::Field;
 
-use WebService::Solr();
+use WebService::Solr ();
 use XML::Easy::Element;
 use XML::Easy::Content;
 use XML::Easy::Text ();
@@ -94,7 +94,7 @@ Creates a new field object. Currently, the only option available is a
 
 =head2 BUILDARGS( @args )
 
-A Moose override to allow our custom constructor.
+A Moo override to allow our custom constructor.
 
 =head2 to_element( )
 

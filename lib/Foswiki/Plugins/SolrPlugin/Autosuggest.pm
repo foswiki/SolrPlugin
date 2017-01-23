@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2013-2015 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2013-2017 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@ sub new {
   my $this = bless(
     $class->SUPER::new(
       name => 'Autosuggest',
-      version => '2.00',
+      version => '2.01',
       author => 'Michael Daum',
       homepage => 'http://foswiki.org/Extensions/SolrPlugin',
       css => ['jquery.autosuggest.css'],

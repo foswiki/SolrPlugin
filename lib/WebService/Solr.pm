@@ -1,7 +1,9 @@
 package WebService::Solr;
 
-use Any::Moose;
+use Moo;
 
+use Types::Standard qw(InstanceOf Object Bool HashRef Maybe);
+use Scalar::Util qw(blessed);
 use Encode ();
 use URI;
 use LWP::UserAgent;
@@ -11,34 +13,40 @@ use HTTP::Headers;
 use XML::Easy::Element;
 use XML::Easy::Content;
 use XML::Easy::Text ();
+use Carp;
 
 our $ENCODE = 1;
 our $DECODE = 0;
 
 has 'url' => (
     is      => 'ro',
-    isa     => 'URI',
+    isa     => InstanceOf['URI'],
     default => sub { URI->new( 'http://localhost:8983/solr' ) }
 );
 
 has 'agent' =>
-    ( is => 'ro', isa => 'Object', default => sub { LWP::UserAgent->new } );
+    ( is => 'ro', isa => Object, default => sub { LWP::UserAgent->new } );
 
-has 'autocommit' => ( is => 'ro', isa => 'Bool', default => 1 );
+has 'autocommit' => ( is => 'ro', isa => Bool, default => 1 );
 
 has 'default_params' => (
     is         => 'ro',
-    isa        => 'HashRef',
-    auto_deref => 1,
+    isa        => HashRef,
     default    => sub { { wt => 'json' } }
 );
 
+around default_params => sub {
+    my ($orig, $self, @args) = @_;
+    my $ret = $self->$orig(@args);
+    return wantarray ? %$ret : $ret;
+};
+
 has 'last_response' => (
     is  => 'rw',
-    isa => 'Maybe[WebService::Solr::Response]',
+    isa => Maybe[InstanceOf['WebService::Solr::Response']],
 );
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 sub BUILDARGS {
     my ( $self, $url, $options ) = @_;
@@ -177,6 +185,7 @@ sub _gen_url {
 
 sub _send_update {
     my ( $self, $xml, $params, $autocommit ) = @_;
+
     $autocommit = $self->autocommit unless defined $autocommit;
 
     $xml= _encode($xml);
@@ -184,11 +193,10 @@ sub _send_update {
     $params ||= {};
     my $url = $self->_gen_url( 'update' );
     $url->query_form( { $self->default_params, %$params } );
-
     my $req = HTTP::Request->new(
         POST => $url,
         HTTP::Headers->new( Content_Type => 'text/xml; charset=utf-8' ),
-        '<?xml version="1.0" encoding="UTF-8"?>' . $xml
+        '<?xml version="1.0" encoding="UTF-8"?>' . $xml 
     );
 
     my $http_response = $self->agent->request( $req );
@@ -212,9 +220,8 @@ sub _decode {
 }
 
 
-no Any::Moose;
 
-__PACKAGE__->meta->make_immutable;
+no Moo;
 
 1;
 
@@ -277,7 +284,7 @@ listed in the L<ACCESSORS|/"ACCESSORS"> section.
 
 =head2 BUILDARGS( @args )
 
-A Moose override to allow our custom constructor.
+A Moo override to allow our custom constructor.
 
 =head2 add( $doc|\@docs, \%options )
 
@@ -343,6 +350,9 @@ and a copyright year of 2011 or 2012:
 
 The filter queries are typically added when drilling down into search
 results and selecting a facet to drill into.
+
+In order to enable facets, the option C<facet =E<gt> "on"> must be passed.
+Facet options are detailed in the wiki (https://wiki.apache.org/solr/SimpleFacetParameters).
 
 =head2 auto_suggest( \%options )
 
@@ -418,4 +428,3 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
-

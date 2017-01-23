@@ -1,8 +1,8 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1442835433" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1485183295" format="1.1" version="1"}%
 %META:TOPICPARENT{name="SolrSearchBase"}%
 %{<verbatim class="tml">}%
 %TMPL:INCLUDE{"SolrSearchBase"}%
 %{</verbatim>}%
 
-%META:PREFERENCE{name="DENYTOPICVIEW" title="DENYTOPICVIEW" type="Set" value=" "}%
+%META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
 %META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%

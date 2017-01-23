@@ -1,0 +1,122 @@
+diff --git a/lib/WebService/Solr.pm b/lib/WebService/Solr.pm
+index d1d0d81..24f6b88 100644
+--- a/lib/WebService/Solr.pm
++++ b/lib/WebService/Solr.pm
+@@ -4,7 +4,7 @@ use Moo;
+ 
+ use Types::Standard qw(InstanceOf Object Bool HashRef Maybe);
+ use Scalar::Util qw(blessed);
+-use Encode qw(encode);
++use Encode ();
+ use URI;
+ use LWP::UserAgent;
+ use WebService::Solr::Response;
+@@ -14,6 +14,9 @@ use XML::Easy::Element;
+ use XML::Easy::Content;
+ use XML::Easy::Text ();
+ 
++our $ENCODE = 1;
++our $DECODE = 0;
++
+ has 'url' => (
+     is      => 'ro',
+     isa     => InstanceOf['URI'],
+@@ -42,7 +45,7 @@ has 'last_response' => (
+     isa => Maybe[InstanceOf['WebService::Solr::Response']],
+ );
+ 
+-our $VERSION = '0.23';
++our $VERSION = '0.24';
+ 
+ sub BUILDARGS {
+     my ( $self, $url, $options ) = @_;
+@@ -183,13 +186,15 @@ sub _send_update {
+     my ( $self, $xml, $params, $autocommit ) = @_;
+     $autocommit = $self->autocommit unless defined $autocommit;
+ 
++    $xml= _encode($xml);
++
+     $params ||= {};
+     my $url = $self->_gen_url( 'update' );
+     $url->query_form( { $self->default_params, %$params } );
+     my $req = HTTP::Request->new(
+         POST => $url,
+         HTTP::Headers->new( Content_Type => 'text/xml; charset=utf-8' ),
+-        '<?xml version="1.0" encoding="UTF-8"?>' . encode( 'utf8', "$xml" )
++        '<?xml version="1.0" encoding="UTF-8"?>' . $xml 
+     );
+ 
+     my $http_response = $self->agent->request( $req );
+@@ -204,6 +209,16 @@ sub _send_update {
+     return $self->last_response;
+ }
+ 
++sub _encode {
++  return $ENCODE?Encode::encode_utf8($_[0]):$_[0]; 
++}
++
++sub _decode {
++  return $DECODE?Encode::decode_utf8($_[0]):$_[0]; 
++}
++
++
++
+ no Moo;
+ 
+ 1;
+diff --git a/lib/WebService/Solr/Field.pm b/lib/WebService/Solr/Field.pm
+index 0f95876..7917392 100644
+--- a/lib/WebService/Solr/Field.pm
++++ b/lib/WebService/Solr/Field.pm
+@@ -1,5 +1,6 @@
+ package WebService::Solr::Field;
+ 
++use WebService::Solr ();
+ use XML::Easy::Element;
+ use XML::Easy::Content;
+ use XML::Easy::Text ();
+@@ -13,7 +14,7 @@ sub new {
+ 
+     my $self = {
+         name  => $name,
+-        value => $value,
++        value => WebService::Solr::_decode($value),
+         %{ $opts },
+     };
+ 
+@@ -28,7 +29,7 @@ sub name {
+ 
+ sub value {
+     my $self = shift;
+-    $self->{ value } = $_[ 0 ] if @_;
++    $self->{ value } = WebService::Solr::_decode($_[ 0 ]) if @_;
+     return $self->{ value };
+ }
+ 
+diff --git a/lib/WebService/Solr/Response.pm b/lib/WebService/Solr/Response.pm
+index 08fc3db..e399488 100644
+--- a/lib/WebService/Solr/Response.pm
++++ b/lib/WebService/Solr/Response.pm
+@@ -4,8 +4,6 @@ use Moo;
+ 
+ use Types::Standard qw(Object HashRef Maybe InstanceOf ArrayRef);
+ use WebService::Solr::Document;
+-use Data::Page;
+-use Data::Pageset;
+ use JSON::XS ();
+ 
+ has 'raw_response' => (
+@@ -30,13 +28,6 @@ around docs => sub {
+     return wantarray ? @$ret : $ret;
+ };
+ 
+-has 'pager' => ( is => 'lazy', isa => Maybe[InstanceOf['Data::Page']] );
+-
+-has '_pageset_slide' =>
+-    ( is => 'rw', isa => Maybe[InstanceOf['Data::Pageset']], predicate => 1 );
+-has '_pageset_fixed' =>
+-    ( is => 'rw', isa => Maybe[InstanceOf['Data::Pageset']], predicate => 1 );
+-
+ sub BUILDARGS {
+     my ( $self, $res ) = @_;
+     return { raw_response => $res };

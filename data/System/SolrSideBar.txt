@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="daum" comment="" date="1445009153" format="1.1" version="4"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1485183295" format="1.1" version="1"}%
 ---+!! %TOPIC%
 
 This is a set of widgets to be used in a sidebar navigation. This is used like this:
@@ -84,3 +84,6 @@ Renders a list of the five most recent changes in the current web.
     </li>"
 }%%ENDSECTION{"recentchanges"}%
 </verbatim>
+
+%META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
+%META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%

@@ -820,13 +820,15 @@
       <str name="echoParams">explicit</str>
       <float name="tie">0.01</float>
       <str name="qf"> 
-        title_std^5.0 
-        title_search^5.0 
-        topic_std^4.0 
-        topic_search^4.0 
-        web_search^3.0
-        category_search^2.0 
-        tag_search^2.0 
+<!--
+        title_std^2.0 
+        topic_std^2.0 
+-->
+        title_search^2.0 
+        topic_search^2.0 
+        web_search
+        category_search
+        tag_search^0.5
         catchall
         substrings
         charnorm
@@ -834,18 +836,20 @@
       </str>
       <!-- boost more recent documents -->
       <str name="bf">
-        product(recip(ms(NOW/HOUR,date),3.16e-11,1,1),sum(1,total_likes))
+        sum(recip(ms(NOW/HOUR,date),3.16e-11,1,1),product(0.1,total_likes))
       </str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic</str>
       <str name="pf">
-        title_std^5.0 
-        title_search^5.0 
-        topic_std^4.0 
-        topic_search^4.0 
-        web_search^3.0 
-        category_search^2.0 
-        tag_search^2.0 
+<!--
+        title_std^2.0 
+        topic_std^2.0 
+-->
+        title_search^2.0 
+        topic_search^2.0 
+        web_search 
+        category_search
+        tag_search^0.5 
         catchall
         substrings
         charnorm
@@ -876,13 +880,15 @@
       <str name="echoParams">explicit</str>
       <float name="tie">0.01</float>
       <str name="qf"> 
-        title_std^5.0 
-        title_search^5.0 
-        topic_std^4.0 
-        topic_search^4.0 
-        web_search^3.0 
-        category_search^2.0 
-        tag_search^2.0 
+<!--
+        title_std^2.0 
+        topic_std^2.0 
+-->
+        title_search^2.0 
+        topic_search^2.0 
+        web_search 
+        category_search
+        tag_search^0.5
         catchall
         substrings
         charnorm
@@ -890,18 +896,20 @@
       </str>
       <!-- boost more recent documents -->
       <str name="boost">
-        product(recip(ms(NOW/HOUR,date),3.16e-11,0.08,0.05),sum(1,total_likes))
+        sum(recip(ms(NOW/HOUR,date),3.16e-11,1,1),product(0.1,total_likes))
       </str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic</str>
       <str name="pf">
-        title_std^5.0 
-        title_search^5.0 
-        topic_std^4.0 
-        topic_search^4.0 
-        web_search^5.0 
-        category_search^2.0 
-        tag_search^2.0
+<!--
+        title_std^2.0 
+        topic_std^2.0 
+-->
+        title_search^2.0 
+        topic_search^2.0 
+        web_search
+        category_search
+        tag_search^0.5
         catchall
         substrings
         charnorm
@@ -978,13 +986,11 @@
         <str name="mlt.match.include">false</str>
         <str name="mlt.boost">true</str> 
      </lst> 
-<!--
      <arr name="components">
        <str>query</str>
        <str>mlt</str>
        <str>facet</str>
      </arr>
--->
   </requestHandler> 
 
   <!-- Update Request Handler.
@@ -1133,7 +1139,7 @@
       <str name="q">solrpingquery</str>
     </lst>
     <lst name="defaults">
-      <str name="echoParams">all</str>
+      <str name="echoParams">explicit</str>
     </lst>
     <!-- An optional feature of the PingRequestHandler is to configure the 
          handler with a "healthcheckFile" which can be used to enable/disable 

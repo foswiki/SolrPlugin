@@ -255,6 +255,23 @@
 .solrFacetContainer .jqSerialPager li {
   white-space:nowrap;
 }
+.solrFacetContainer h2 {
+  position:relative;
+}
+.solrFacetContainer h2 .foswikiIcon {
+  font-size:0.8em;
+  color:#bbb;
+}
+.solrFacetContainer .solrFacetFieldFilter {
+  font-size:0.8em;
+  margin:0 1.5em 0 0;
+  position:absolute;
+  bottom:0;
+  right:0;
+}
+.solrFacetContainer .solrFacetFieldFilter .foswikiInputField {
+  border-bottom:0;
+} 
 
 .solrFacetField,
 .solrWebFacetField {

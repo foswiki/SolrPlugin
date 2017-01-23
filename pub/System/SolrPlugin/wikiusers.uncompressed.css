@@ -11,7 +11,8 @@
 .solrSearchHits h4 a:hover {
   text-decoration:underline;
 }
-.solrSearchHits .foswikiProfileInfo {
+.solrSearchHits .foswikiProfileInfo,
+.solrSearchHits .foswikiProfileInfo:first-child {
   border:1px solid #d1d1d1;
   border-radius:5px;
   box-shadow:0 0 10px #ececec;

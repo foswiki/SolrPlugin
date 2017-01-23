@@ -44,6 +44,9 @@
   background: linear-gradient(top, #ffffff 0%,#f0f0f0 100%); /* W3C */
   background: linear-gradient(top, #ffffff 0%,#f0f0f0 100%); /* W3C */
 }
+.ui-autosuggest .ui-menu-item {
+  list-style:none;
+}
 .ui-autosuggest .ui-menu-item:first-child {
   overflow:hidden;
   border-top-right-radius:5px;
@@ -88,20 +91,27 @@
 .ui-autosuggest .ui-autosuggest-first-in-group:first-child .ui-autosuggest-link {
   margin-top:0px;
 }
-.ui-autosuggest .ui-autosuggest-title {
+.ui-autosuggest .ui-menu-item .ui-autosuggest-title {
   text-align:right;
   width:8em;
-  float:left;
   font-weight:bold;
-  margin-top:3px;
+  position:absolute;
+  top:0;
+  left:0;
 }
 .ui-autosuggest .ui-autosuggest-more {
   text-align:right;
   color:#bcbcbc;
 }
-.ui-autosuggest .ui-autosuggest-link {
+.ui-autosuggest .ui-menu-item .ui-autosuggest-link {
   margin-left:9em;
   background-color:#fff;
+}
+.ui-autosuggest .ui-menu-item .ui-autosuggest-link.ui-state-active {
+  margin-left:9em;
+}
+.ui-autosuggest .ui-menu-item .ui-autosuggest-title.ui-state-active {
+  background:transparent;
 }
 
 .ui-autosuggest .ui-menu-item .thumbnail.dummy {
@@ -117,7 +127,7 @@
 .ui-autosuggest .ui-menu-item {
   position:relative;
 }
-.ui-autosuggest .ui-autosuggest-phone-number {
+.ui-autosuggest .ui-menu-item .ui-autosuggest-phone-number {
   position:absolute;
   top:50%;
   right:20px;
@@ -125,6 +135,5 @@
   width:16px;
   height:16px;
   padding:0 !important;
-  margin:-8px 0 0 0;
   z-index:1;
 }

@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2015 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2017 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -410,7 +410,7 @@ sub plainify {
 
   # don't remove ALL macros, only some, todo: add some more
   #  $text =~ s/%$Foswiki::regex{tagNameRegex}({.*?})?%//g;
-  $text =~ s/%(?:STARTSECTION|BEGINSECTION|ENDSECTION|STOPSECTION|STARTINCLUDE|STOPINCLUDE)(?:\{.*?\})?%//g;
+  $text =~ s/%(?:STARTSECTION|BEGINSECTION|ENDSECTION|STOPSECTION|STARTINCLUDE|STOPINCLUDE|TOC|JQICON|FORMFIELD|CLEAR|SCRIPTURLPATH|SCRIPTURL|TWISTY|BUTTON)(?:\{.*?\})?%//g;
 
   # Format e-mail to add spam padding (HTML tags removed later)
   $text =~ s/$STARTWW((mailto\:)?[a-zA-Z0-9-_.+]+@[a-zA-Z0-9-_.]+\.[a-zA-Z0-9-_]+)$ENDWW//gm;
@@ -464,6 +464,19 @@ sub discardIllegalChars {
   $string =~ s/\p{C}/ /g;
 
   return $string;
+}
+
+################################################################################
+sub getRawResponse {
+  my ($this, $response) = @_;
+
+  my $result = $response->raw_response->content();
+
+  # delete stack trace from error message
+  # SMELL: shall we decode-encode the json instead of regex-ing it out?
+  $result =~ s/"trace"\s*:\s*"java.*"\s*,\s*("code"\s*:\s*"?500"?)/$1/gs;
+
+  return $result;
 }
 
 ##############################################################################

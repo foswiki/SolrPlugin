@@ -18,9 +18,9 @@ AjaxSolr.Manager = AjaxSolr.AbstractManager.extend(
       jQuery.post(this.proxyUrl, { query: string }, handler, 'json');
     }
     else {
-      //jQuery.getJSON(this.solrUrl + servlet + '?' + string + '&wt=json&json.wrf=?', {}, handler);
+      //jQuery.getJSON(this.solrUrl + servlet + '?' + string + '&wt=json', {}, handler);
       jQuery.ajax({
-        url: this.solrUrl + servlet + '?' + string + '&wt=json&json.wrf=?',
+        url: this.solrUrl + servlet + '?' + string + '&wt=json',
         dataType: 'json',
         success: handler,
         error: function(xhr, status, error) {

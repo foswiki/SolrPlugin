@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1442835433" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1485183295" format="1.1" version="1"}%
 %{<verbatim class="tml">}%
 %TMPL:INCLUDE{"WebChangesView"}%
 %{</verbatim>}%
@@ -8,5 +8,5 @@
 %TMPL:DEF{"solr::extrafilter"}%%IF{"defined 'SOLR_EXTRAFILTER'" then="%SOLR_EXTRAFILTER%" else="-field_TopicType_lst:Category"}% type:topic%TMPL:END%
 %{</verbatim>}%
 
-%META:PREFERENCE{name="DENYTOPICVIEW" title="DENYTOPICVIEW" type="Set" value=" "}%
+%META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
 %META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%

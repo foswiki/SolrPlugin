@@ -179,6 +179,7 @@
     defaults: {
       templateName: '#solrFacetFieldTemplate',
       container: '.solrFacetFieldContainer',
+      filterField: '.solrFacetFieldFilter>input',
       hideNullValues: true,
       hideSingle: true,
       name: null,
@@ -187,6 +188,7 @@
     facetType: 'facet_queries',
     template: null,
     container: null,
+    filterField: null,
     paramString: null,
     inputType: null,
 
@@ -279,6 +281,13 @@
         }
       });
 
+      if (self.filterField && self.filterField.is(":visible")) {
+        var val = self.filterField.val();
+        if (val) {
+          self.container.find(".jqSerialPager").data("filter", val);
+        }
+      }
+
       self.$target.children("h2").each(function() {
         var text = $(this).text();
         if (text) {
@@ -288,15 +297,48 @@
     },
 
     init: function() {
-      var self = this;
+      var self = this, timer;
 
       self.initQueries();
 
       self._super();
       self.template = $.templates(self.options.templateName);
       self.container = self.$target.find(self.options.container);
+      self.filterField = self.$target.find(self.options.filterField);
       self.inputType = 'checkbox'; //(self.options.multiSelect)?'checkbox':'radio';
       self.$target.addClass("solrFacetContainer");
+
+      self.$target.find(".solrFacetFieldTwisty").on("afterClose.twisty", function() {
+        var val = self.filterField.val();
+        if (val) {
+          self.container.find(".jqSerialPager").trigger("refresh");
+        }
+        self.filterField.blur();
+      }).on("afterOpen.twisty", function() {
+        var val = self.filterField.val();
+        if (val) {
+          self.container.find(".jqSerialPager").trigger("refresh", val);
+        }
+        self.filterField.focus();
+      });
+
+      self.filterField.on("keyup", function(ev) {
+        var $input = $(this),
+            val = $input.val(),
+            pager = self.container.find(".jqSerialPager");
+
+        if (pager.length) {
+          if (typeof(timer) !== 'undefined') {
+            clearTimeout(timer);
+            timer = undefined;
+          }
+          timer =setTimeout(function() {
+            pager.trigger("refresh", val);
+            timer = undefined;
+          }, 250);
+        }
+      });
+
     }
 
   });
@@ -350,6 +392,7 @@
     options: {
       templateName: '#solrToggleFacetTemplate',
       value: null,
+      inverseValue: null,
       inverse: false
     },
     checkbox: null,
@@ -386,20 +429,40 @@
           if ($(this).is(":checked")) {
             if (self.options.inverse) {
               self.unclickHandler(self.options.value).call(self);
+              if (self.options.inverseValue) {
+                self.clickHandler(self.options.inverseValue).call(self);
+              }
             } else {
               self.clickHandler(self.options.value).call(self);
+              if (self.options.inverseValue) {
+                self.unclickHandler(self.options.inverseValue).call(self);
+              }
             }
           } else {
             if (self.options.inverse) {
               self.clickHandler(self.options.value).call(self);
+              if (self.options.inverseValue) {
+                self.unclickHandler(self.options.inverseValue).call(self);
+              }
             } else {
               self.unclickHandler(self.options.value).call(self);
+              if (self.options.inverseValue) {
+                self.clickHandler(self.options.inverseValue).call(self);
+              }
             }
           }
         });
 
       if (self.options.inverse) {
         self.add(self.options.value);
+        if (self.options.inverseValue) {
+          self.remove(self.options.inverseValue);
+        }
+      } else {
+        if (self.options.inverseValue) {
+          self.add(self.options.inverseValue);
+        }
+        self.remove(self.options.value);
       }
     }
 
@@ -645,7 +708,7 @@
         }
 
         if (typeof(containerWeb) === 'undefined' || typeof(containerTopic) === 'undefined') {
-          if (doc.container_id.match(/^(.*)\.(.*)$/)) {
+          if (typeof(doc.container) !== 'undefined' && doc.container_id.match(/^(.*)\.(.*)$/)) {
             containerWeb = RegExp.$1;
             containerTopic = RegExp.$2;
           }
@@ -688,6 +751,11 @@
               return "#solrHitTemplate_comment";
             } 
 
+            templateName = "#solrHitTemplate_"+type;
+            if ($(templateName).length) {
+               return templateName;
+            }
+
             return "#solrHitTemplate_misc";
           },
           renderList: function(fieldName, separator, limit) {
@@ -710,12 +778,12 @@
             return result;
           },
           renderTopicInfo: function() {
-            var cats = this.data.field_Category_flat_lst, 
+            var cats = this.data.field_Category_title_lst, 
                 tags = this.data.tag,
                 lines, result = '';
 
             if (cats && cats.length) {
-              result += _('Filed in', self.options.dictionary)+" ";
+              result += '<i class="fa fa-folder" /> ';
               lines = [];
               $.each(cats.sort().slice(0, 10), function(i, v) {
                 lines.push(_(v, self.options.dictionary));
@@ -727,10 +795,9 @@
             } 
             if (tags && tags.length) {
               if (cats && cats.length) {
-                result += ", "+_("tagged", self.options.dictionary)+" ";
-              } else {
-                result += _("Tagged", self.options.dictionary)+" ";
-              }
+                result += " &#124; ";
+              } 
+              result += '<i class="fa fa-tag" /> ';
               result += tags.sort().slice(0, 10).join(", ");
               if (tags.length > 10) {
                 result += " ...";

@@ -54,7 +54,7 @@
         }
 
         if (typeof(containerWeb) === 'undefined' || typeof(containerTopic) === 'undefined') {
-          if (doc.container_id.match(/^(.*)\.(.*)$/)) {
+          if (typeof(doc.container) !== 'undefined' && doc.container_id.match(/^(.*)\.(.*)$/)) {
             containerWeb = RegExp.$1;
             containerTopic = RegExp.$2;
           }
@@ -97,6 +97,11 @@
               return "#solrHitTemplate_comment";
             } 
 
+            templateName = "#solrHitTemplate_"+type;
+            if ($(templateName).length) {
+               return templateName;
+            }
+
             return "#solrHitTemplate_misc";
           },
           renderList: function(fieldName, separator, limit) {
@@ -119,12 +124,12 @@
             return result;
           },
           renderTopicInfo: function() {
-            var cats = this.data.field_Category_flat_lst, 
+            var cats = this.data.field_Category_title_lst, 
                 tags = this.data.tag,
                 lines, result = '';
 
             if (cats && cats.length) {
-              result += _('Filed in', self.options.dictionary)+" ";
+              result += '<i class="fa fa-folder" /> ';
               lines = [];
               $.each(cats.sort().slice(0, 10), function(i, v) {
                 lines.push(_(v, self.options.dictionary));
@@ -136,10 +141,9 @@
             } 
             if (tags && tags.length) {
               if (cats && cats.length) {
-                result += ", "+_("tagged", self.options.dictionary)+" ";
-              } else {
-                result += _("Tagged", self.options.dictionary)+" ";
-              }
+                result += " &#124; ";
+              } 
+              result += '<i class="fa fa-tag" /> ';
               result += tags.sort().slice(0, 10).join(", ");
               if (tags.length > 10) {
                 result += " ...";

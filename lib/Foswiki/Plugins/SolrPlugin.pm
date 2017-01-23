@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2015 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2017 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -30,8 +30,8 @@ BEGIN {
   }
 }
   
-our $VERSION = '4.30';
-our $RELEASE = '18 Oct 2015';
+our $VERSION = '5.00';
+our $RELEASE = '23 Jan 2017';
 our $SHORTDESCRIPTION = 'Enterprise Search Engine for Foswiki based on [[http://lucene.apache.org/solr/][Solr]]';
 our $NO_PREFS_IN_TOPIC = 1;
 our %searcher;
@@ -164,13 +164,13 @@ sub initPlugin {
     http_allow => 'GET,POST',
   );
 
-  Foswiki::Func::registerRESTHandler('purgeCache', sub { return getIndexer()->cache->purge; return; },
+  Foswiki::Func::registerRESTHandler('purgeCache', sub { getIndexer()->cache->purge; return; },
     authenticate => 0,
     validate => 0,
     http_allow => 'GET,POST',
   );
 
-  Foswiki::Func::registerRESTHandler('clearCache', sub { return getIndexer()->cache->clear; return; },
+  Foswiki::Func::registerRESTHandler('clearCache', sub { getIndexer()->cache->clear; return; },
     authenticate => 0,
     validate => 0,
     http_allow => 'GET,POST',
@@ -197,7 +197,6 @@ sub getWebHierarchy {
 
   return $handler;
 }
-
 
 sub getSearcher {
 
