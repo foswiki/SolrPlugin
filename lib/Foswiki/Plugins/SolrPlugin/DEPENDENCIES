@@ -10,7 +10,7 @@ Foswiki::Plugins::FilterPlugin,>=2.0,perl,Required
 Foswiki::Plugins::FlexWebListPlugin,>=1.91,perl,Required
 Foswiki::Plugins::ImagePlugin,>=3.0,perl,Required
 Foswiki::Plugins::JQueryPlugin,>=6.00,perl,Required
-Cache::FileCache,>0,cpan,Required
+Cache::Cache,>0,cpan,Required
 HTML::Entities,>=3.64,cpan,Required
 Image::Magick,>=6.2.4.5,cpan,Required
 JSON::XS,>=2.231,cpan,Required
