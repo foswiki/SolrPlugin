@@ -214,8 +214,7 @@
       </analyzer>
     </fieldType>
 
-    <!-- same as text_generic but with substring match -->
-    <fieldType name="text_substring" class="solr.TextField" indexed="true" positionIncrementGap="100">
+    <fieldType name="text_prefix" class="solr.TextField" indexed="true" positionIncrementGap="100">
       <analyzer type="index">
         <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.WordDelimiterFilterFactory" 
@@ -228,9 +227,7 @@
           preserveOriginal="1" 
         />
         <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords.txt" />
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="15" />
-        <!-- <filter class="solr.ReverseStringFilterFactory" /> -->
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="15" />
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
       <analyzer type="query">
@@ -245,8 +242,39 @@
           preserveOriginal="1" 
         />
         <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords.txt" />
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
+      </analyzer>
+    </fieldType>
+    <fieldType name="text_suffix" class="solr.TextField" indexed="true" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.WordDelimiterFilterFactory" 
+          splitOnCaseChange="1" 
+          generateWordParts="1" 
+          generateNumberParts="1" 
+          catenateWords="0" 
+          catenateNumbers="0" 
+          catenateAll="0" 
+          preserveOriginal="1" 
+        />
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.ReverseStringFilterFactory" />
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="15" />
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.WordDelimiterFilterFactory" 
+          splitOnCaseChange="1" 
+          generateWordParts="1" 
+          generateNumberParts="1" 
+          catenateWords="0" 
+          catenateNumbers="0" 
+          catenateAll="0" 
+          preserveOriginal="1" 
+        />
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.ReverseStringFilterFactory" />
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
     </fieldType>
@@ -1067,7 +1095,8 @@
    <field name="createauthor" type="string" />
    <field name="createdate" type="tdate" />
    <field name="catchall" type="text_generic" multiValued="true" stored="false" />
-   <field name="substrings" type="text_substring" multiValued="true" stored="false" />
+   <field name="text_prefix" type="text_prefix" multiValued="true" stored="false" />
+   <field name="text_suffix" type="text_suffix" multiValued="true" stored="false" />
    <field name="phonetic" type="phonetic" multiValued="true" />
    <field name="charnorm" type="text_charnorm" multiValued="true" stored="false" />
 
@@ -1259,19 +1288,33 @@
    <copyField source="concept" dest="charnorm"/>
    <copyField source="sentence" dest="charnorm"/>
 
-   <copyField source="attachment" dest="substrings"/>
-   <copyField source="category" dest="substrings"/>
-   <copyField source="comment" dest="substrings"/>
-   <copyField source="field_*" dest="substrings"/>
-   <copyField source="form" dest="substrings"/>
-   <copyField source="name" dest="substrings"/>
-   <copyField source="tag" dest="substrings"/>
-   <copyField source="text" dest="substrings"/>
-   <copyField source="title" dest="substrings"/>
-   <copyField source="topic" dest="substrings"/>
-   <copyField source="type" dest="substrings"/>
-   <copyField source="concept" dest="substrings"/>
-   <copyField source="sentence" dest="substrings"/>
+   <copyField source="attachment" dest="text_prefix"/>
+   <copyField source="category" dest="text_prefix"/>
+   <copyField source="comment" dest="text_prefix"/>
+   <copyField source="field_*" dest="text_prefix"/>
+   <copyField source="form" dest="text_prefix"/>
+   <copyField source="name" dest="text_prefix"/>
+   <copyField source="tag" dest="text_prefix"/>
+   <copyField source="text" dest="text_prefix"/>
+   <copyField source="title" dest="text_prefix"/>
+   <copyField source="topic" dest="text_prefix"/>
+   <copyField source="type" dest="text_prefix"/>
+   <copyField source="concept" dest="text_prefix"/>
+   <copyField source="sentence" dest="text_prefix"/>
+
+   <copyField source="attachment" dest="text_suffix"/>
+   <copyField source="category" dest="text_suffix"/>
+   <copyField source="comment" dest="text_suffix"/>
+   <copyField source="field_*" dest="text_suffix"/>
+   <copyField source="form" dest="text_suffix"/>
+   <copyField source="name" dest="text_suffix"/>
+   <copyField source="tag" dest="text_suffix"/>
+   <copyField source="text" dest="text_suffix"/>
+   <copyField source="title" dest="text_suffix"/>
+   <copyField source="topic" dest="text_suffix"/>
+   <copyField source="type" dest="text_suffix"/>
+   <copyField source="concept" dest="text_suffix"/>
+   <copyField source="sentence" dest="text_suffix"/>
 
    <copyField source="attachment" dest="phonetic"/>
    <copyField source="category" dest="phonetic"/>

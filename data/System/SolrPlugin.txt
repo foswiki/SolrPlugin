@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1485183295" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" date="1505725909" format="1.1" version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -679,7 +679,8 @@ useful for spatial search.
 | text_generic | same as =text= but also splits words on case change while generating word parts. \
          a general unstemmed text field - good if one does not know the language of the field. \
          this field type is usful when searching for parts of a !WikiWord |
-| text_substring | same as =text_generic= but with substring decomposition |
+| text_prefix | substring decomposition starting at the front of the string |
+| text_suffix | substring decomposition starting at the back of the string |
 | text_spell | generic text analysis for spell checking |
 | text_sort | this is a text field suitable for sorting alphabetically |
 | text_rev | a general unstemmed text field that indexes tokens normally and also \
@@ -720,7 +721,8 @@ useful for spatial search.
 | size | tint | | stored | size of an attachment in bytes |
 | spell | text_spell | multivalued | | used for spellchecking |
 | state | string | | | used by comments or any other application that tracks specific states of a document, such as "new", "unapproved", "approved", "draft", "unpublished", "published", ... |
-| substrings | text_substring | multivalued | | holds substring analysis of the most important search fields |
+| text_prefix | text_text_prefix | multivalued | | holds substring analysis of the most important search fields, starting at the front |
+| text_suffix | text_text_suffix | multivalued | | holds substring analysis of the most important search fields, starting at the back |
 | summary | text_generic | | stored | this is a plainified summary of the topic text |
 | tag | string | multivalued | stored | list of tags assigned to this document; note: this field will only be used if Foswiki:Extensions/ClassificationPlugin is installed; content of this field is copied to =category_search= as well (see generic fields below) |
 | text | text_generic | | | document text |
@@ -811,18 +813,30 @@ specific search applications. The destination fields are then analysed using the
 | topic | catchall |
 | type | catchall |
 | state | catchall |
-| attachment | substrings |
-| category | substrings |
-| comment | substrings |
-| contributor | substrings |
-| field_* | substrings |
-| form | substrings |
-| name | substrings |
-| tag | substrings |
-| text | substrings |
-| title | substrings |
-| topic | substrings |
-| type | substrings |
+| attachment | text_prefix |
+| category | text_prefix |
+| comment | text_prefix |
+| contributor | text_prefix |
+| field_* | text_prefix |
+| form | text_prefix |
+| name | text_prefix |
+| tag | text_prefix |
+| text | text_prefix |
+| title | text_prefix |
+| topic | text_prefix |
+| type | text_prefix |
+| attachment | text_suffix |
+| category | text_suffix |
+| comment | text_suffix |
+| contributor | text_suffix |
+| field_* | text_suffix |
+| form | text_suffix |
+| name | text_suffix |
+| tag | text_suffix |
+| text | text_suffix |
+| title | text_suffix |
+| topic | text_suffix |
+| type | text_suffix |
 | attachment | phonetic |
 | category | phonetic |
 | comment | phonetic |
@@ -860,6 +874,7 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  18 Sep 2017: | replacing =text_substring= with =text_prefix= and =text_suffix= to improve substring matching |
 |  23 Jan 2017: | converted WebServices::Solr to Moo; \
                   fixed documentation for iwatch realtime indexing; \
                   documentation of SOLRSCRIPTURL macro; \
@@ -982,5 +997,5 @@ specific search applications. The destination fields are then analysed using the
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1485183295" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1485183295" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1505725909" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1505725909" size="158013" user="ProjectContributor" version="1"}%
