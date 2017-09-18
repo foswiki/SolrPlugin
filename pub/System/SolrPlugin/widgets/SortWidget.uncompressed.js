@@ -22,8 +22,8 @@
         val = currentSort.val();
       }
       val = val || self.defaults.defaultSort;
-      self.$target.find("option").removeAttr("selected");
-      self.$target.find("[value='"+val+"']").attr('selected', 'selected');
+      self.$target.find("option").prop("selected", false);
+      self.$target.find("[value='"+val+"']").prop('selected', true);
     },
 
     init: function() {

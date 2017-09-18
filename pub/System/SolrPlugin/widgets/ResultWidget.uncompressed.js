@@ -75,7 +75,7 @@
             return encodeURIComponent(text);
           },
           getTemplateName: function() {
-            var type = this.data.type, 
+            var type = this.data.type.replace(/%\d+/g, ""),  // clean up errors in data
                 topicType = this.data.field_TopicType_lst || [],
                 templateName;
 
@@ -181,6 +181,9 @@
 
             return moment(dateString).format(dateFormat || self.options.dateFormat);
             //return moment(dateString).calendar();
+          },
+          contains: function(arr, val) {
+             return $.inArray(val, arr) >= 0;
           }
         }
       ));
@@ -207,7 +210,7 @@
       $(self.options.displayAs).change(function() {
         self.update();
       });
-      $(self.options.displayAs).filter("[value='"+self.options.defaultDisplay+"']").attr("checked", "checked");
+      $(self.options.displayAs).filter("[value='"+self.options.defaultDisplay+"']").prop("checked", true);
       self._isFirst = true;
 
       self.update();

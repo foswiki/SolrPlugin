@@ -75,7 +75,10 @@
       var self = this,
           elem = self.menu.element;
 
-      self.options.thumbnailBase = foswiki.getPreference("SCRIPTURL") + "/rest/ImagePlugin/resize?size=48&crop=on";
+      self.options.thumbnailBase = foswiki.getScriptUrl("rest", "ImagePlugin", "resize", {
+        "size": 48,
+        "crop": "on"
+      });
 
       elem.addClass("ui-autosuggest").removeClass("ui-autocomplete");
       if (self.options.menuClass) {
@@ -90,7 +93,7 @@
       var self = this;
 
       self.cache = {};
-      self.options.source = self.options.source || foswiki.getPreference("SCRIPTURL") + '/rest/SolrPlugin/autosuggest';
+      self.options.source = self.options.source || foswiki.getScriptUrl("rest", "SolrPlugin", "autosuggest");
 
       self.source = function(request, response) {
         var term = request.term.replace(/(^\s+)|(\s+$)/g, ""),

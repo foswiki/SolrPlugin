@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1485183295" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1505725909" format="1.1"  version="1"}%
 %META:TOPICPARENT{name="SolrPlugin"}%
 %{<verbatim class="tml">}%
 %{ ###########################################################################
@@ -285,7 +285,7 @@
             <td width='12px'>
               <input type='{{:~widget.inputType}}' name='{{:~widget.field}}' title='{{:~getFacetKey(facet)}}' value='{{:~getFacetValue(facet)}}' id='{{:~widget.field}}_{{:#index}}' autocomplete='off' class='solrFacetValue' {{:~checked(facet)}} />
             </td>
-            <td><label for='{{:~widget.field}}_{{:#index}}' style='display:block'>{{:~getFacetKey(facet)}} ({{:count}})</label></td>
+            <td><label for='{{:~widget.field}}_{{:#index}}' style='display:block'>{{:~getFacetKey(facet)}} <span class='foswikiGrayText'>({{:count}})</span></label></td>
             </tr>
           </table>
         </li>
@@ -341,7 +341,6 @@
 </li>
 </script>%TMPL:END%
 %{</verbatim>}%
-
 
 %{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::resultsperpage"}%<script id="solrResultsPerPageTemplate" type="text/x-jsrender">
@@ -442,7 +441,7 @@
           <input type='text' autocomplete='off' class='foswikiInputField jqFocus solrSearchField' size='50' style='margin-right:8px;' />
         </td>
         <td>
-          %BUTTON{"%MAKETEXT{"Search"}%" type="submit" title="%MAKETEXT{"submit the query"}%" icon="find" class="solrSubmitButton"}%
+          %BUTTON{"%MAKETEXT{"Search"}%" type="submit" icon="find" class="solrSubmitButton"}%
         </td>
       </tr>
     </table>
@@ -517,13 +516,13 @@
 %TMPL:P{"solr::facet"
   id="language"
   title="%MAKETEXT{"Language"}%"
-  hidefilter="on"
+  hidefilter="true"
 }%
 %TMPL:P{"solr::facet"
   id="author"
   exclude="UnknownUser|AdminUser|RegistrationAgent|AdminGroup|WikiGuest|FoswikiContributor|ProjectContributor|TestUser"
   title="%MAKETEXT{"Author"}%"
-  hidefilter="on"
+  hidefilter="true"
 }%
 <!-- -->%TMPL:END%
 %{</verbatim>}%
@@ -546,6 +545,7 @@
       * hidesingle - boolean
       * hidenullvalues - boolean
       * hidefilter - boolean
+      * initialstate - boolean: open (default)/ close
       * limit - max number of facet values to return
 }%
 %TMPL:DEF{"solr::facet"}%<div data-field='%id%' %IF{
@@ -587,9 +587,9 @@
   then="data-facet-sort-reverse='%reverse%'"
 }%>
 <h2 class='clearfix'>
-<span class='jqTwisty' data-initial-state='open' data-target='#solrFacetField_%id%'>%title%</span>
+<span class='jqTwisty' data-initial-state='%IF{"not '%initialstate%'=~'^([%]initialstate%)?$'" then="%initialstate%" else="open"}%' data-target='#solrFacetField_%id%'>%title%</span>
 %IF{
-  "'%hidefilter%'!='on'"
+  "'%hidefilter%'!='on' and '%hidefilter%'!='true'"
   then="<div class='jqTwisty solrFacetFieldTwisty foswikiRight' data-initial-state='close'>%JQICON{"fa-binoculars"}%</div>
         <div class='solrFacetFieldFilter foswikiRight'><input type='text' size='20' class='foswikiInputField' placeholder='%MAKETEXT{"Filter"}%' /></div>"
 }%</h2>
@@ -699,7 +699,7 @@
 %{ ###########################################################################
    solr::hits - display all search hits
 }%
-%TMPL:DEF{"solr::hits"}%<div class="solrSearchHits jqPhotoSwipe clearfix" data-history="false" data-item-selector=".solrImageFrame a" data-block-ui="window"></div>%TMPL:END%
+%TMPL:DEF{"solr::hits"}%<div class="solrSearchHits jqPhotoSwipe" data-history="false" data-item-selector=".solrImageFrame a" data-block-ui="window"></div>%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%

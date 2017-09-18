@@ -5,6 +5,17 @@
 .solrSpellchecking {
   margin-top:1em;
 }
+.solrSearchHits {
+  display: -webkit-flex; 
+  display:         flex;
+
+  -webkit-flex-wrap:wrap;
+          flex-wrap:wrap;
+}
+.solrSearchHits h4 {
+  margin:0 0 0.5em 0;
+  padding:0;
+}
 .solrSearchHits h4 a {
   text-decoration:none;
 }
@@ -14,24 +25,33 @@
 .solrSearchHits .foswikiProfileInfo,
 .solrSearchHits .foswikiProfileInfo:first-child {
   border:1px solid #d1d1d1;
+  padding:0.5em 0.5em 0.5em 90px;
+}
+.solrSearchHits:after,
+.solrSearchHits .foswikiProfileInfo {
+  overflow:hidden;
+  position:relative;
   border-radius:5px;
   box-shadow:0 0 10px #ececec;
   box-sizing:border-box;
   background-color:#fcfcfc;
-  float:left;
   font-size:95%;
   margin:2% 2% 0 0;
-  height:120px;
-  width:31%;
-  position:relative;
-  padding:0.5em 0.5em 0.5em 90px;
-  overflow:hidden;
+  min-height:120px;
+  min-width:18em;
+
+  -webkit-flex-basis:31%; 
+          flex-basis:31%;
+  -webkit-flex-grow:1; 
+          flex-grow:1;
+  -webkit-flex-shrink:0;
+          flex-shrink:0;
 }
-.solrSearchHits .foswikiProfileInfo.first { /* IE7, IE8 */
-  clear:both;
-}
-.solrSearchHits .foswikiProfileInfo:nth-child(3n+1) {
-  clear:both;
+.solrSearchHits:after {
+  visibility:hidden;
+  content:"";
+  -webkit-flex-grow:9999999; 
+          flex-grow:9999999;
 }
 .solrSearchHits .foswikiProfileInfo .foswikiImage {
   position:absolute;
@@ -44,13 +64,9 @@
   background-size:cover;
   background-position:center center;
 }
-.solrSearchHits h4 {
-  margin:0 0 0.5em 0;
-  padding:0;
-}
 .solrSearchHits .foswikiTopicInfo {
   margin:0;
   padding:0;
   list-style:none;
+  white-space:nowrap;
 }
-

@@ -874,7 +874,10 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
-|  18 Sep 2017: | replacing =text_substring= with =text_prefix= and =text_suffix= to improve substring matching |
+|  18 Sep 2017: | replacing =text_substring= with =text_prefix= and =text_suffix= to improve substring matching; \
+                  truncate document values larger than 32k to prevent solr from crashing; \
+                  use flexbox for people search interface; \
+                  fixed creating urls to <nop>ImagePlugin rest interface to generate thumbnail previews |
 |  23 Jan 2017: | converted WebServices::Solr to Moo; \
                   fixed documentation for iwatch realtime indexing; \
                   documentation of SOLRSCRIPTURL macro; \

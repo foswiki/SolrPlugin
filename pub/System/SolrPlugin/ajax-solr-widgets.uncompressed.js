@@ -283,7 +283,7 @@
 
       if (self.filterField && self.filterField.is(":visible")) {
         var val = self.filterField.val();
-        if (val) {
+        if (typeof(val) !== 'undefined') {
           self.container.find(".jqSerialPager").data("filter", val);
         }
       }
@@ -310,13 +310,13 @@
 
       self.$target.find(".solrFacetFieldTwisty").on("afterClose.twisty", function() {
         var val = self.filterField.val();
-        if (val) {
+        if (typeof(val) !== 'undefined') {
           self.container.find(".jqSerialPager").trigger("refresh");
         }
         self.filterField.blur();
       }).on("afterOpen.twisty", function() {
         var val = self.filterField.val();
-        if (val) {
+        if (typeof(val) !== 'undefined') {
           self.container.find(".jqSerialPager").trigger("refresh", val);
         }
         self.filterField.focus();
@@ -332,7 +332,7 @@
             clearTimeout(timer);
             timer = undefined;
           }
-          timer =setTimeout(function() {
+          timer = window.setTimeout(function() {
             pager.trigger("refresh", val);
             timer = undefined;
           }, 250);
@@ -402,15 +402,15 @@
 
       if (self.isSelected(self.options.value)) {
         if (self.options.inverse) {
-          self.checkbox.removeAttr("checked");
+          self.checkbox.prop("checked", false);
         } else {
-          self.checkbox.attr("checked", "checked");
+          self.checkbox.prop("checked", true);
         }
       } else {
         if (self.options.inverse) {
-          self.checkbox.attr("checked", "checked");
+          self.checkbox.prop("checked", true);
         } else {
-          self.checkbox.removeAttr("checked");
+          self.checkbox.prop("checked", false);
         }
       }
     },
@@ -624,7 +624,7 @@
       if (numFound > 0) {
         self.$target
           .find(".solrRows").show()
-          .find("option[value='"+rows+"']").attr("selected", "selected")
+          .find("option[value='"+rows+"']").prop("selected", true)
           .end().find("select").change(function() {
             var rows = $(this).val();
             self.manager.store.get('rows').val(rows);
@@ -729,7 +729,7 @@
             return encodeURIComponent(text);
           },
           getTemplateName: function() {
-            var type = this.data.type, 
+            var type = this.data.type.replace(/%\d+/g, ""),  // clean up errors in data
                 topicType = this.data.field_TopicType_lst || [],
                 templateName;
 
@@ -835,6 +835,9 @@
 
             return moment(dateString).format(dateFormat || self.options.dateFormat);
             //return moment(dateString).calendar();
+          },
+          contains: function(arr, val) {
+             return $.inArray(val, arr) >= 0;
           }
         }
       ));
@@ -861,7 +864,7 @@
       $(self.options.displayAs).change(function() {
         self.update();
       });
-      $(self.options.displayAs).filter("[value='"+self.options.defaultDisplay+"']").attr("checked", "checked");
+      $(self.options.displayAs).filter("[value='"+self.options.defaultDisplay+"']").prop("checked", true);
       self._isFirst = true;
 
       self.update();
@@ -1104,8 +1107,8 @@
         val = currentSort.val();
       }
       val = val || self.defaults.defaultSort;
-      self.$target.find("option").removeAttr("selected");
-      self.$target.find("[value='"+val+"']").attr('selected', 'selected');
+      self.$target.find("option").prop("selected", false);
+      self.$target.find("[value='"+val+"']").prop('selected', true);
     },
 
     init: function() {

@@ -32,7 +32,7 @@
       if (numFound > 0) {
         self.$target
           .find(".solrRows").show()
-          .find("option[value='"+rows+"']").attr("selected", "selected")
+          .find("option[value='"+rows+"']").prop("selected", true)
           .end().find("select").change(function() {
             var rows = $(this).val();
             self.manager.store.get('rows').val(rows);

@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1485183295" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1505725909" format="1.1"  version="1"}%
 %META:TOPICPARENT{name="SolrSearchViewTemplate"}%
 %{<verbatim class="tml">}%
 %TMPL:INCLUDE{"SolrSearchView"}%
@@ -7,6 +7,7 @@
 %{<verbatim class="tml">}%
 %TMPL:DEF{"sidebar"}%%TMPL:P{"solr::sidebar"}%%TMPL:END%
 %TMPL:DEF{"searchbox"}%%TMPL:END%
+%TMPL:DEF{"paneltoggle"}%%TMPL:END%
 %TMPL:DEF{"topicactions"}%%TMPL:END%
 %TMPL:DEF{"revinfo"}%%TMPL:END%
 %TMPL:DEF{"form"}%%TMPL:END%

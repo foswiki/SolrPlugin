@@ -109,7 +109,7 @@
 
       if (self.filterField && self.filterField.is(":visible")) {
         var val = self.filterField.val();
-        if (val) {
+        if (typeof(val) !== 'undefined') {
           self.container.find(".jqSerialPager").data("filter", val);
         }
       }
@@ -136,13 +136,13 @@
 
       self.$target.find(".solrFacetFieldTwisty").on("afterClose.twisty", function() {
         var val = self.filterField.val();
-        if (val) {
+        if (typeof(val) !== 'undefined') {
           self.container.find(".jqSerialPager").trigger("refresh");
         }
         self.filterField.blur();
       }).on("afterOpen.twisty", function() {
         var val = self.filterField.val();
-        if (val) {
+        if (typeof(val) !== 'undefined') {
           self.container.find(".jqSerialPager").trigger("refresh", val);
         }
         self.filterField.focus();
@@ -158,7 +158,7 @@
             clearTimeout(timer);
             timer = undefined;
           }
-          timer =setTimeout(function() {
+          timer = window.setTimeout(function() {
             pager.trigger("refresh", val);
             timer = undefined;
           }, 250);

@@ -15,15 +15,15 @@
 
       if (self.isSelected(self.options.value)) {
         if (self.options.inverse) {
-          self.checkbox.removeAttr("checked");
+          self.checkbox.prop("checked", false);
         } else {
-          self.checkbox.attr("checked", "checked");
+          self.checkbox.prop("checked", true);
         }
       } else {
         if (self.options.inverse) {
-          self.checkbox.attr("checked", "checked");
+          self.checkbox.prop("checked", true);
         } else {
-          self.checkbox.removeAttr("checked");
+          self.checkbox.prop("checked", false);
         }
       }
     },
