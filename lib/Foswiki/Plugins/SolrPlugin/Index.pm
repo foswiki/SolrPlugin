@@ -483,6 +483,11 @@ sub indexTopic {
           # bit of cleanup
           $value =~ s/<!--.*?-->//gs;
 
+          # truncate field value to 32760
+          $value = substr($value, 0, 32760);
+
+          #print STDERR "value length of field $name=".length($value)."\n";
+
           # create a dynamic field indicating the field type to solr
 
           # date
