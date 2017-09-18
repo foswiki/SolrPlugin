@@ -667,9 +667,9 @@ sub restSOLRAUTOSUGGEST {
   my $query = Foswiki::Func::getCgiQuery();
 
   my $theQuery = $query->param('term') || '*';
-  unless ($theQuery =~ /[":\s\*]/) {
-    $theQuery .= "*";
-  }
+# unless ($theQuery =~ /[":\s\*]/) {
+#   $theQuery .= "*";
+# }
 
   my $theRaw = Foswiki::Func::isTrue(scalar $query->param('raw'));
 
@@ -734,7 +734,8 @@ sub restSOLRAUTOSUGGEST {
       "category_search",
       "tag_search^0.5",
       "catchall",
-      "substring",
+      "text_prefix",
+      "text_suffix",
       "charnorm",
       "phonetic",
     ],
