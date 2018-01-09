@@ -30,7 +30,8 @@ sub new {
       css => ['jquery.autosuggest.css'],
       javascript => ['jquery.autosuggest.js', ],
       puburl => '%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin',
-      dependencies => ['ui::autocomplete', 'render', 'blockUI'],
+      dependencies => ['ui::autocomplete', 'render', 'blockUI', 'i18n'],
+      i18n => $Foswiki::cfg{SystemWebName} . "/SolrPlugin/i18n",
     ),
     $class
   );

@@ -51,6 +51,7 @@ locale/SolrPlugin/tr.po 0644
 locale/SolrPlugin/uk.po 0644
 locale/SolrPlugin/zh-cn.po 0644
 locale/SolrPlugin/zh-tw.po 0644
+Makefile 0644
 pub/System/SolrPlugin/ajax-solr-dictionary.js 0644
 pub/System/SolrPlugin/ajax-solr-dictionary.uncompressed.js 0644
 pub/System/SolrPlugin/ajax-solr-helpers.js 0644
@@ -64,6 +65,8 @@ pub/System/SolrPlugin/ajax-solr.uncompressed.js 0644
 pub/System/SolrPlugin/ajax-solr-widgets.js 0644
 pub/System/SolrPlugin/ajax-solr-widgets.js.gz 0644
 pub/System/SolrPlugin/ajax-solr-widgets.uncompressed.js 0644
+pub/System/SolrPlugin/i18n/de.js 0644
+pub/System/SolrPlugin/i18n/en.js 0644
 pub/System/SolrPlugin/jquery.autosuggest.css 0644
 pub/System/SolrPlugin/jquery.autosuggest.css.gz 0644
 pub/System/SolrPlugin/jquery.autosuggest.js 0644

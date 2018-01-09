@@ -8,8 +8,8 @@
  *   http://www.gnu.org/licenses/gpl.html
  *
  */
-(function($) {
 "use strict";
+(function($) {
 
   $.widget( "solr.autosuggest", $.ui.autocomplete, {
     options: {
@@ -24,14 +24,6 @@
         my: "right top",
         at: "right+5 bottom+11",
         collision: "none"
-      },
-
-      locales: {
-        persons: 'People',
-        topics: 'Topics',
-        attachments: 'Attachments',
-        loading: "Loading ...",
-        more: "... more"
       },
 
       templates: {
@@ -59,7 +51,7 @@
       },
 
       select: function(event, data) {
-        if (event.keyCode == 13 || $.browser.msie) {
+        if (event.keyCode === 13 || $.browser.msie) {
           window.location.href = data.item.url;
         }
         return false;
@@ -103,6 +95,7 @@
         request.term = term;
 
         // add extra parameters 
+        //console.log("extraParams=",self.options.extraParams);
         if (typeof(self.options.extraParams) != 'undefined') {
           $.each(self.options.extraParams, function(key, param) {
             var val = typeof(param) === "function" ? param(self) : param;
@@ -141,7 +134,7 @@
               response(data);
             }
           },
-          error: function(data) {
+          error: function() {
             response([]);
           }
         });
@@ -165,24 +158,23 @@
     },
 
     _renderMenu: function(ul, items) {
-        var self = this, 
-            term = self.element.val();
+        var self = this;
 
         $.each(items, function(key, section) {
-          var header, footer, numDocs = section.docs.length
+          var header, footer, numDocs = section.docs.length;
 
           if (!numDocs) {
-            return
+            return;
           }
               
           header = self._getTemplate("header").render({
             group: section.group,
-            title: self.options.locales[section.group] || section.group
+            title: $.i18n(section.group)
           });
 
           footer = self._getTemplate("footer").render({
             moreUrl: section.moreUrl,
-            title: self.options.locales['more'] || 'more'
+            title: $.i18n('... more')
           });
 
           $.each(section.docs, function(index, item) {
@@ -194,7 +186,7 @@
             item.phoneNumber = item.field_Telephone_s || item.field_Phone_s || item.field_Mobile_s;
             item.group = section.group;
 
-            if (index == 0) {
+            if (index === 0) {
               item.isFirst = 'ui-autosuggest-first-in-group';
               item.header = header;
             } else {
@@ -202,7 +194,7 @@
               item.header = '';
             }
 
-            if (index == self.options.extraParams.limit - 1 || index == numDocs - 1) {
+            if (index === self.options.extraParams.limit - 1 || index === numDocs - 1) {
               item.isLast = 'ui-autosuggest-last-in-group';
               if (numDocs < self.options.extraParams.limit) {
                 item.footer = '';
@@ -227,8 +219,8 @@
         if (!item._done) {
           item._done = true;
           if (typeof(item.thumbnail) !== 'undefined') {
-            if (/^fa\-/.test(item.thumbnail) && typeof("item.icon") != 'undefined') {
-              item.thumbnail = "<i  class='fa "+item.icon+"' />"
+            if (/^fa-/.test(item.thumbnail) && typeof("item.icon") != 'undefined') {
+              item.thumbnail = "<i  class='fa "+item.icon+"' />";
             } else {
               if (/^(\/|https?:)/.test(item.thumbnail)) {
                 item.thumbnailUrl = item.thumbnail;
@@ -242,7 +234,7 @@
           }
         }
 
-        li = $(template.render(item)).data("ui-autocomplete-item", item)
+        li = $(template.render(item)).data("ui-autocomplete-item", item);
 
         return ul.append(li);
       },
