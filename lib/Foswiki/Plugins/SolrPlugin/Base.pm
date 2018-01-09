@@ -480,18 +480,6 @@ sub getRawResponse {
 }
 
 ##############################################################################
-sub fromSiteCharSet {
-  my $this = shift;
-  return Encode::decode($Foswiki::cfg{Site}{CharSet}, $_[0]);
-}
-
-##############################################################################
-sub toSiteCharSet {
-  my $this = shift;
-  return Encode::encode($Foswiki::cfg{Site}{CharSet}, $_[0]);
-}
-
-##############################################################################
 sub fromUtf8 {
   my $this = shift;
 

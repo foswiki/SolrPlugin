@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="foswiki" version="1.6">
+<schema name="foswiki" version="1.7">
 
   <types>
     <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
@@ -215,7 +215,7 @@
     </fieldType>
 
     <fieldType name="text_prefix" class="solr.TextField" indexed="true" positionIncrementGap="100">
-      <analyzer type="index">
+      <analyzer>
         <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.WordDelimiterFilterFactory" 
           splitOnCaseChange="1" 
@@ -228,25 +228,12 @@
         />
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="15" />
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
-      </analyzer>
-      <analyzer type="query">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.WordDelimiterFilterFactory" 
-          splitOnCaseChange="1" 
-          generateWordParts="1" 
-          generateNumberParts="1" 
-          catenateWords="0" 
-          catenateNumbers="0" 
-          catenateAll="0" 
-          preserveOriginal="1" 
-        />
-        <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
     </fieldType>
+
     <fieldType name="text_suffix" class="solr.TextField" indexed="true" positionIncrementGap="100">
-      <analyzer type="index">
+      <analyzer>
         <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.WordDelimiterFilterFactory" 
           splitOnCaseChange="1" 
@@ -260,21 +247,6 @@
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.ReverseStringFilterFactory" />
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="15" />
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
-      </analyzer>
-      <analyzer type="query">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.WordDelimiterFilterFactory" 
-          splitOnCaseChange="1" 
-          generateWordParts="1" 
-          generateNumberParts="1" 
-          catenateWords="0" 
-          catenateNumbers="0" 
-          catenateAll="0" 
-          preserveOriginal="1" 
-        />
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.ReverseStringFilterFactory" />
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
     </fieldType>
@@ -1095,8 +1067,6 @@
    <field name="createauthor" type="string" />
    <field name="createdate" type="tdate" />
    <field name="catchall" type="text_generic" multiValued="true" stored="false" />
-   <field name="text_prefix" type="text_prefix" multiValued="true" stored="false" />
-   <field name="text_suffix" type="text_suffix" multiValued="true" stored="false" />
    <field name="phonetic" type="phonetic" multiValued="true" />
    <field name="charnorm" type="text_charnorm" multiValued="true" stored="false" />
 
@@ -1175,6 +1145,8 @@
    <!-- search & sort fields  -->
    <dynamicField name="*_search" type="text_generic" stored="false" termVectors="true" />
    <dynamicField name="*_sort" type="text_sort" stored="false" />
+   <dynamicField name="*_prefix" type="text_prefix" multiValued="true" stored="false" />
+   <dynamicField name="*_suffix" type="text_suffix" multiValued="true" stored="false" />
 
    <!-- fields for specific applications -->
    <dynamicField name="*_coordinate"  type="tdouble" indexed="true"  stored="false" />
@@ -1244,6 +1216,7 @@
    <copyField source="web" dest="web_sort" omitNorms="true" />
    <copyField source="topic" dest="topic_sort" omitNorms="true" />
    <copyField source="title" dest="title_sort" omitNorms="true" />
+   <copyField source="title" dest="title_prefix" omitNorms="true" />
 
    <copyField source="category" dest="category_search"/>
    <copyField source="tag" dest="tag_search"/>

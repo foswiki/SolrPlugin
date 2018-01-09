@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1505725909" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" date="1515499594" format="1.1" version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -229,7 +229,7 @@ The service is configured by placing below configuration script at =/etc/iwatch/
   <watchlist>
     <title>Foswiki</title>
     <contactpoint email="root@localhost" name="Administrator"/>
-    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="sudo -u <httpd-user> <foswiki-dir>/tools/solrjob"><foswiki-dir>/data</path>
+    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su -l <httpd-user> -c '<foswiki-dir>/tools/solrjob'"><foswiki-dir>/data</path>
     <path type="regexception">\.tmp|\.sw\w|\.svn|\.lease|\.lock|,$|\.changes|,v|^_[0-9]|^log|^Temporary|^UnitTestCheck</path>
   </watchlist>
 </config>
@@ -874,6 +874,7 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  09 Jan 2018: | added support for jquery.i18n; improved solr schema for better findability; fixed solr sidebar in subwebs |
 |  18 Sep 2017: | replacing =text_substring= with =text_prefix= and =text_suffix= to improve substring matching; \
                   truncate document values larger than 32k to prevent solr from crashing; \
                   use flexbox for people search interface; \
@@ -1000,5 +1001,5 @@ specific search applications. The destination fields are then analysed using the
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1505725909" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1505725909" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1515499594" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1515499594" size="158013" user="ProjectContributor" version="1"}%

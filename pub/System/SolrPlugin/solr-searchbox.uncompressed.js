@@ -1,7 +1,9 @@
 "use strict";
 jQuery(function($) {
-  $(".solrSearchBox form").livequery(function() {
-    var $form = $(this),
+  $(".solrSearchBox:not(.solrSearchBoxInited)").livequery(function() {
+    var $this = $(this),
+        extraFilter = $this.data("solrExtraFilter"),
+	$form = $this.find("form:first"),
         action = $form.attr("action"),
         $input = $form.find("input[type=text]"),
         position = $.extend({
@@ -12,17 +14,33 @@ jQuery(function($) {
           at: $form.data("position-at"),
         });
 
+    $this.addClass("solrSearchBoxInited");
+
     $form.submit(function() {
       var search = $form.find("input[name='search']"),
           href = action + ((search && search.val())?'#q='+search.val():'');
+
+      // TODO: add extraFilter to url
       window.location.href = href;
       return false;
     });
 
     if (typeof($.fn.autosuggest) === 'function') { // make sure autosuggest realy is present
       $input.autosuggest({
+        extraParams: {
+          filter: extraFilter
+        },
         position: position,
-        menuClass: 'natSearchBoxMenu'
+        menuClass: 'natSearchBoxMenu',
+        search: function() {
+          $form.addClass("ui-autocomplete-busy");
+        },
+        response: function() {
+          $form.removeClass("ui-autocomplete-busy");
+        },
+        open: function() {
+          $form.removeClass("ui-autocomplete-busy");
+        }
       });
     }
   });

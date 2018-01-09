@@ -667,10 +667,6 @@ sub restSOLRAUTOSUGGEST {
   my $query = Foswiki::Func::getCgiQuery();
 
   my $theQuery = $query->param('term') || '*';
-# unless ($theQuery =~ /[":\s\*]/) {
-#   $theQuery .= "*";
-# }
-
   my $theRaw = Foswiki::Func::isTrue(scalar $query->param('raw'));
 
   my $theLimit = $query->param('limit');
@@ -727,18 +723,6 @@ sub restSOLRAUTOSUGGEST {
   my %params = (
     q => $theQuery,
     qt => "edismax",
-    qf => [
-      "title_search^2.0",
-      "topic_search^2.0",
-      "web_search",
-      "category_search",
-      "tag_search^0.5",
-      "catchall",
-      "text_prefix",
-      "text_suffix",
-      "charnorm",
-      "phonetic",
-    ],
     indent => "true",
     group => "true",
     fl => $theFields,
@@ -757,7 +741,7 @@ sub restSOLRAUTOSUGGEST {
 
   my $result = '';
   my $status = 200;
-  my $contentType = "application/json; charset=$Foswiki::cfg{Site}{CharSet}";
+  my $contentType = "application/json; charset=utf-8";
 
   try {
     if ($theRaw) {
@@ -817,8 +801,8 @@ sub restSOLRAUTOSUGGEST {
         "docs" => \@docs,
         "moreUrl" => $this->getAjaxScriptUrl($Foswiki::cfg{UsersWebName}, $Foswiki::cfg{UsersTopicName}, {
           topic => $Foswiki::cfg{UsersTopicName},
-          #fq => $filter{persons},
-          search => $theQuery #$this->fromSiteCharSet($theQuery)
+          #fq => ..., # SMELL: what about the other filters
+          search => $theQuery 
         })
       } if @docs;
     }
@@ -840,8 +824,8 @@ sub restSOLRAUTOSUGGEST {
         "docs" => \@docs,
         "moreUrl" => $this->getAjaxScriptUrl($this->{session}{webName}, 'WebSearch', {
           topic => 'WebSearch',
-          fq => $filter{topics},
-          search => $theQuery #$this->fromSiteCharSet($theQuery)
+          fq => $filter{topics}, # SMELL: what about the other filters
+          search => $theQuery 
         })
       } if @docs;
     }
@@ -870,8 +854,8 @@ sub restSOLRAUTOSUGGEST {
         "docs" => \@docs,
         "moreUrl" => $this->getAjaxScriptUrl($this->{session}{webName}, 'WebSearch', {
           topic => 'WebSearch',
-          fq => $filter{attachments},
-          search => $theQuery #$this->fromSiteCharSet($theQuery)
+          fq => $filter{attachments}, # SMELL: what about the other filters
+          search => $theQuery 
         })
       } if @docs;
     }

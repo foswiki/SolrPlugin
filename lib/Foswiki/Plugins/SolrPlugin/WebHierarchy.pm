@@ -156,7 +156,7 @@ sub restWebHierarchy {
   }
 
   $response->header(
-    "-content_type" => "application/json; charset=".$Foswiki::cfg{Site}{CharSet},
+    "-content_type" => "application/json; charset=utf-8",
     #"-cache-control" => "max-age=1000", # SMELL: make configurable
   );
 

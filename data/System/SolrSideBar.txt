@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1505725909" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1515499594" format="1.1" version="1"}%
 ---+!! %TOPIC%
 
 This is a set of widgets to be used in a sidebar navigation. This is used like this:
@@ -35,8 +35,8 @@ part of the %SYSTEMWEB%.SolrPlugin documentation.
 
 <verbatim class="tml">
 %STARTSECTION{"solrsimilar"}%<!-- -->
-%SOLRSIMILAR{"id:%BASEWEB%.%BASETOPIC%" 
-   filter="web:%BASEWEB% type:topic %IF{"defined FILTER" then="%FILTER%"}% -preference_BASETRANSLATION_s:%BASETOPIC% -webtopic:%BASEWEB%.%BASETRANSLATION{default=""}%"
+%SOLRSIMILAR{"id:%ENCODE{"%BASEWEB%" old="/" new="."}%.%BASETOPIC%" 
+   filter="web:%ENCODE{"%BASEWEB%" old="/" new="."}% type:topic %IF{"defined FILTER" then="%FILTER%"}% -preference_BASETRANSLATION_s:%BASETOPIC% -webtopic:%ENCODE{"%BASEWEB%" old="/" new="."}%.%BASETRANSLATION{default=""}%"
    like="%SOLRSIMILAR_LIKE{default="field_Category_flat_lst^5,tag"}%"
    fields="web,topic,title,score,summary"
    rows="5"
@@ -48,9 +48,8 @@ part of the %SYSTEMWEB%.SolrPlugin documentation.
             SIZE=\"40x40>\" 
             TYPE=\"plain\"
             CROP=\"west\"
-         }$percnt <!-- -->
-         <!-- -->$title<br />
-         <span class='foswikiGrayText'>$summary</span>
+         }$percnt <!-- -->$title
+         <div class='foswikiGrayText'>$summary</div>
          %CLEAR%
        </a>
      </li>"
@@ -65,7 +64,7 @@ Renders a list of the five most recent changes in the current web.
 <verbatim class="tml">
 %STARTSECTION{"recentchanges"}%<!-- -->
 %SOLRSEARCH{
-  "web:%BASEWEB% type:topic %IF{"defined FILTER" then="%FILTER%"}% -topic:(WebHome OR WebLinks OR WebSideBar OR WebPreferences OR WebStatistics OR WebTopicList OR WebSearch OR WebIndex OR WebAdvancedSearch OR SitePreferences OR SiteHtmlHead)"
+  "web:%ENCODE{"%BASEWEB%" old="/" new="."}% type:topic %IF{"defined FILTER" then="%FILTER%"}% -topic:(WebHome OR WebLinks OR WebSideBar OR WebPreferences OR WebStatistics OR WebTopicList OR WebSearch OR WebIndex OR WebAdvancedSearch OR SitePreferences OR SiteHtmlHead)"
   sort="date desc" 
   rows="5"
   fields="web,topic,title,summary"

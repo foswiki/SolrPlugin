@@ -824,16 +824,16 @@
         title_std^2.0 
         topic_std^2.0 
 -->
-        title_search^2.0 
+        title_search^5.0 
         topic_search^2.0 
         web_search
         category_search
         tag_search^0.5
         catchall
-        text_prefix
-        text_suffix
+        text_prefix^0.5
+        text_suffix^0.5
         charnorm
-        phonetic
+        <!-- phonetic -->
       </str>
       <!-- boost more recent documents -->
       <str name="bf">
@@ -846,16 +846,16 @@
         title_std^2.0 
         topic_std^2.0 
 -->
-        title_search^2.0 
+        title_search^5.0 
         topic_search^2.0 
         web_search 
         category_search
         tag_search^0.5 
         catchall
-        text_prefix
-        text_suffix
+        text_prefix^0.5
+        text_suffix^0.5
         charnorm
-        phonetic
+        <!-- phonetic -->
       </str>
       <int name="ps">1</int>
       <int name="qs">1</int>
@@ -882,42 +882,40 @@
       <str name="echoParams">explicit</str>
       <float name="tie">0.01</float>
       <str name="qf"> 
-<!--
-        title_std^2.0 
-        topic_std^2.0 
--->
-        title_search^2.0 
+        title_std^7.0 
+        topic_std^7.0 
+        title_search^5.0 
+        title_prefix^2.0 
         topic_search^2.0 
         web_search 
         category_search
         tag_search^0.5
         catchall
-        text_prefix
-        text_suffix
+        text_prefix^0.5
+        text_suffix^0.5
         charnorm
-        phonetic
+        <!-- phonetic -->
       </str>
       <!-- boost more recent documents -->
-      <str name="boost">
+      <str name="bf">
         sum(recip(ms(NOW/HOUR,date),3.16e-11,1,1),product(0.1,total_likes))
       </str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic</str>
       <str name="pf">
-<!--
-        title_std^2.0 
-        topic_std^2.0 
--->
-        title_search^2.0 
+        title_std^7.0 
+        topic_std^7.0 
+        title_search^5.0 
+        title_prefix^2.0 
         topic_search^2.0 
         web_search
         category_search
         tag_search^0.5
         catchall
-        text_prefix
-        text_suffix
+        text_prefix^0.5
+        text_suffix^0.5
         charnorm
-        phonetic
+        <!-- phonetic -->
       </str>
       <int name="ps">1</int>
       <int name="qs">1</int>

@@ -1085,7 +1085,6 @@ sub getStringifiedVersion {
     $attText = Foswiki::Contrib::Stringifier->stringFor($filename) || '';
     $this->cache->set($key, $attText);
   } else {
-
     #$this->log("found stringified version of $attachment in cache");
     $attText = $this->cache->get($key) || '';
   }
