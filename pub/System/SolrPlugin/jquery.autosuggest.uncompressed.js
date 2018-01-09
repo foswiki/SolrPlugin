@@ -1,7 +1,7 @@
 /*
- * jQuery autosuggest plugin 2.01
+ * jQuery autosuggest plugin 2.10
  *
- * Copyright (c) 2013-2017 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2018 Michael Daum http://michaeldaumconsulting.com
  *
  * Dual licensed under the MIT and GPL licenses:
  *   http://www.opensource.org/licenses/mit-license.php
