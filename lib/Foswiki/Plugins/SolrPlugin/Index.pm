@@ -349,8 +349,8 @@ sub indexTopic {
   my %contributors = map {$_ => 1} @contributors;
   $doc->add_fields(contributor => [keys %contributors]);
 
-  my $author = $contributors[0];
-  my $createAuthor = $contributors[ scalar(@contributors) - 1 ];
+  my $author = $contributors[0] || 'UnknownUser';
+  my $createAuthor = $contributors[ scalar(@contributors) - 1 ] || $author;
 
   # gather all webs and parent webs
   my @webCats = ();
@@ -369,20 +369,22 @@ sub indexTopic {
     web => $web,
     webcat => [@webCats],
     webtopic => "$web.$topic",
-    title => $this->getTopicTitle($web, $topic, $meta),
+    title => Foswiki::Func::getTopicTitle($web, $topic, $meta),
     text => $text,
     summary => $this->getTopicSummary($web, $topic, $meta, $text),
     author => $author,
+    author_title => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $author),
     date => $date,
     version => $rev,
     createauthor => $createAuthor,
+    createauthor_title => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $createAuthor),
     createdate => $createDate,
     type => 'topic',
     container_id => $web . '.'. $Foswiki::cfg{HomeTopicName},
     container_web => $web,
     container_topic => $Foswiki::cfg{HomeTopicName},
     container_url => $this->getScriptUrlPath($web, $Foswiki::cfg{HomeTopicName}, "view"),
-    container_title => $this->getTopicTitle($web, $Foswiki::cfg{HomeTopicName}),
+    container_title => Foswiki::Func::getTopicTitle($web, $Foswiki::cfg{HomeTopicName}),
     icon => $this->mapToIconFileName('topic'),
 
     # topic specific
@@ -415,144 +417,12 @@ sub indexTopic {
       $this->log("ERROR: can't read form definition for $formName");
     };
 
-    $formName =~ s/\//\./g;
-    $doc->add_fields(form => $formName);
-
-    # check whether we are indexing a user profile
-    my $personDataFormPattern = $Foswiki::cfg{SolrPlugin}{PersonDataForm} || '*UserForm';
-    $personDataFormPattern =~ s/\*/.*/g;
-    $personDataFormPattern =~ s/OR/|/g;
-    my $isUserProfile = ($formName =~ /$personDataFormPattern/x) ? 1: 0;
-
     if ($formDef) {    # form definition found, if not the formfields aren't indexed
 
-      my %seenFields = ();
-      my $formFields = $formDef->getFields();
-      if ($formFields) {
-        foreach my $fieldDef (@{$formFields}) {
-          my $attrs = $fieldDef->{attributes};    # TODO: check for Facet
-          my $name = $fieldDef->{name};
-          my $type = $fieldDef->{type};
-          my $isMultiValued = $fieldDef->isMultiValued;
-          my $isValueMapped = $fieldDef->can("isValueMapped") && $fieldDef->isValueMapped;
-          my $field = $meta->get('FIELD', $name);
+      $formName =~ s/\//\./g;
+      $doc->add_fields(form => $formName);
 
-          next if !defined($field) && !$isUserProfile && $name ne 'Email';
-
-          # prevent from mall-formed formDefinitions
-          if ($seenFields{$name}) {
-            $this->log("WARNING: malformed form definition for $web.$formName - field $name appear twice must be unique");
-            next;
-          }
-          $seenFields{$name} = 1;
-
-          my $value = $field?$field->{value}:'';
-
-          # special handling for user profile's email: get it from the user mapper in case there is none in the form
-          if ($name eq 'Email' && $isUserProfile && !$value) {
-            my @emails = Foswiki::Func::wikinameToEmails($topic);
-            $value = $emails[0] if @emails;
-          }
-
-          if ($isValueMapped) {
-
-            # get mapped value
-            if ($fieldDef->can('getDisplayValue')) {
-              $value = $fieldDef->getDisplayValue($value);
-            } else {
-
-              # backwards compatibility
-              $fieldDef->getOptions();    # load value map
-              if (defined $fieldDef->{valueMap}) {
-                my @values = ();
-                foreach my $v (split(/\s*,\s*/, $value)) {
-                  if (defined $fieldDef->{valueMap}{$v}) {
-                    push @values, $fieldDef->{valueMap}{$v};
-                  } else {
-                    push @values, $v;
-                  }
-                }
-                $value = join(", ", @values);
-              }
-            }
-          }
-
-          # extract outgoing links for formfield values
-          $this->extractOutgoingLinks($web, $topic, $value, \%outgoingLinks);
-
-          # bit of cleanup
-          $value =~ s/<!--.*?-->//gs;
-
-          # truncate field value to 32760
-          $value = substr($value, 0, 32760);
-
-          #print STDERR "value length of field $name=".length($value)."\n";
-
-          # create a dynamic field indicating the field type to solr
-
-          # date
-          if ($type =~ /^date/) {
-            try {
-              my $epoch = $value;
-              $epoch = Foswiki::Time::parseTime($value) unless $epoch =~ /^\d+$/;
-              $epoch ||= 0;    # prevent formatTime to crap out
-              $value = Foswiki::Time::formatTime($epoch, 'iso', 'gmtime');
-              $doc->add_fields('field_' . $name . '_dt' => $value,);
-            } catch Error::Simple with {
-              $this->log("WARNING: malformed date value '$value'");
-            };
-          }
-
-          # multi-valued types
-          elsif ($isMultiValued || $name =~ /TopicType/ || $type eq 'radio') {    # TODO: make this configurable
-            my $fieldName = 'field_' . $name;
-            $fieldName =~ s/(_(?:i|s|l|t|b|f|dt|lst))$//;
-
-            $doc->add_fields($fieldName . '_lst' => [ split(/\s*,\s*/, $value) ]);
-          }
-
-          # finally make it a non-list field as well 
-          {
-            my $fieldName = 'field_' . $name;
-            my $fieldType = '_s';
-
-            # is there an explicit type info part of the formfield name?
-            if ($fieldName =~ s/(_(?:i|s|l|t|b|f|dt|lst))$//) {
-              $fieldType = $1;
-            }
-
-            # add an extra check for floats
-            if ($fieldType eq '_f') {
-              if ($value =~ /^\s*([\-\+]?\d+(\.\d+)?)\s*$/) {
-                $doc->add_fields($fieldName . '_f' => $1,);
-              } else {
-                $this->log("WARNING: malformed float value '$value'");
-              }
-            } 
-
-            # add an extra treatment for booleans
-            if ($fieldType eq '_b') {
-              $value = Foswiki::Func::isTrue($value, 0);
-              $doc->add_fields($fieldName . '_b' => $value);
-            }
-
-            # for explicit _s fields apply a full plainify
-            elsif ($fieldType eq '_s') {
-
-              # note this might alter the content too much in some cases. 
-              # so we try to remove only those characters that break the json parser
-              #$value = $this->plainify($value, $web, $topic);
-              $value =~ s/<!--.*?-->//gs;    # remove all HTML comments
-              $value =~ s/<[^>]*>/ /g;       # remove all HTML tags
-              $value = $this->discardIllegalChars($value);       # remove illegal characters
-
-              $doc->add_fields($fieldName . '_s' => $value) if defined $value && $value ne '';
-            } else {
-              $doc->add_fields($fieldName . $fieldType => $value) if defined $value && $value ne '';
-            }
-          }
-        }
-      }
+      $this->indexFormFields($web, $topic, $meta, $formDef, $doc, \%outgoingLinks);
     }
   }
 
@@ -680,6 +550,161 @@ sub indexTopic {
 }
 
 ################################################################################
+# index all formfields of a topic
+sub indexFormFields {
+  my ($this, $web, $topic, $meta, $formDef, $doc, $outgoingLinks) = @_;
+
+  # check whether we are indexing a user profile
+  my $personDataFormPattern = $Foswiki::cfg{SolrPlugin}{PersonDataForm} || '*UserForm';
+  $personDataFormPattern =~ s/\*/.*/g;
+  $personDataFormPattern =~ s/OR/|/g;
+  my $formName = $meta->getFormName();
+  my $isUserProfile = ($formName =~ /$personDataFormPattern/x) ? 1 : 0;
+
+  my %seenFields = ();
+  my $formFields = $formDef->getFields();
+  if ($formFields) {
+    foreach my $fieldDef (@{$formFields}) {
+      my $name = $fieldDef->{name};
+      my $field = $meta->get('FIELD', $name);
+
+      next if !defined($field) || ($isUserProfile && $name eq 'Email');
+
+      # prevent from mall-formed formDefinitions
+      if ($seenFields{$name}) {
+        $this->log("WARNING: malformed form definition for $web.$formName - field $name appear twice must be unique");
+        next;
+      }
+      $seenFields{$name} = 1;
+
+      # special handling for user profile's email: get it from the user mapper in case there is none in the form
+      if ($name eq 'Email' && $isUserProfile && !$field->{value}) {
+        my @emails = Foswiki::Func::wikinameToEmails($topic);
+        $field->{value} = $emails[0] if @emails;
+      }
+
+      $this->indexFormField($web, $topic, $fieldDef, $field->{value}, $doc, $outgoingLinks);
+    }
+  }
+}
+
+################################################################################
+# index a single formfield of a topic
+sub indexFormField {
+  my ($this, $web, $topic, $fieldDef, $value, $doc, $outgoingLinks) = @_;
+
+  my $name = $fieldDef->{name};
+  my $type = $fieldDef->{type};
+
+  unless ($type) {
+    $this->log("WARNING: unknown type for formfield '$name' at $web.$topic");
+    return;
+  }
+
+  my $isMultiValued = $fieldDef->isMultiValued;
+  my $isValueMapped = $fieldDef->can("isValueMapped") && $fieldDef->isValueMapped;
+
+  if ($isValueMapped) {
+
+    # get mapped value
+    if ($fieldDef->can('getDisplayValue')) {
+      $value = $fieldDef->getDisplayValue($value);
+    } else {
+
+      # backwards compatibility
+      $fieldDef->getOptions();    # load value map
+      if (defined $fieldDef->{valueMap}) {
+        my @values = ();
+        foreach my $v (split(/\s*,\s*/, $value)) {
+          if (defined $fieldDef->{valueMap}{$v}) {
+            push @values, $fieldDef->{valueMap}{$v};
+          } else {
+            push @values, $v;
+          }
+        }
+        $value = join(", ", @values);
+      }
+    }
+  }
+
+  # extract outgoing links for formfield values
+  $this->extractOutgoingLinks($web, $topic, $value, $outgoingLinks)
+    if defined $outgoingLinks;
+
+  # bit of cleanup
+  $value =~ s/<!--.*?-->//gs;
+
+  # truncate field value to 32760
+  $value = substr($value, 0, 32760);
+
+  # create a dynamic field indicating the field type to solr
+
+  # date
+  if ($type =~ /^date/) {
+    try {
+      my $epoch = $value;
+      $epoch = Foswiki::Time::parseTime($value) unless $epoch =~ /^\-?\d+$/;
+      $epoch ||= 0;    # prevent formatTime to crap out
+
+      $value = Foswiki::Time::formatTime($epoch, 'iso', 'gmtime');
+      $doc->add_fields('field_' . $name . '_dt' => $value,);
+    }
+    catch Error::Simple with {
+      $this->log("WARNING: malformed date value '$value'");
+    };
+  }
+
+  # multi-valued types
+  elsif ($isMultiValued || $name =~ /TopicType/ || $type eq 'radio') {    # TODO: make this configurable
+    my $fieldName = 'field_' . $name;
+    $fieldName =~ s/(_(?:i|s|l|t|b|f|dt|lst))$//;
+
+    $doc->add_fields($fieldName . '_lst' => [split(/\s*,\s*/, $value)]);
+  }
+
+  # finally make it a non-list field as well
+  {
+    my $fieldName = 'field_' . $name;
+    my $fieldType = '_s';
+
+    # is there an explicit type info part of the formfield name?
+    if ($fieldName =~ s/(_(?:i|s|l|t|b|f|dt|lst))$//) {
+      $fieldType = $1;
+    }
+
+    # add an extra check for floats
+    if ($fieldType eq '_f') {
+      if ($value =~ /^\s*([\-\+]?\d+(\.\d+)?)\s*$/) {
+        $doc->add_fields($fieldName . '_f' => $1,);
+      } else {
+        $this->log("WARNING: malformed float value '$value'");
+      }
+    }
+
+    # add an extra treatment for booleans
+    if ($fieldType eq '_b') {
+      $value = Foswiki::Func::isTrue($value, 0);
+      $doc->add_fields($fieldName . '_b' => $value);
+    }
+
+    # for explicit _s fields apply a full plainify
+    elsif ($fieldType eq '_s') {
+
+      # note this might alter the content too much in some cases.
+      # so we try to remove only those characters that break the json parser
+      #$value = $this->plainify($value, $web, $topic);
+      $value =~ s/<!--.*?-->//gs;    # remove all HTML comments
+      $value =~ s/<[^>]*>/ /g;       # remove all HTML tags
+      $value = $this->discardIllegalChars($value);    # remove illegal characters
+
+      $doc->add_fields($fieldName . '_s' => $value) if defined $value && $value ne '';
+    } else {
+      $doc->add_fields($fieldName . $fieldType => $value) if defined $value && $value ne '';
+    }
+  }
+}
+
+################################################################################
 # returns one of the SupportedLanguages or undef if not found
 sub getContentLanguage {
   my ($this, $web, $topic) = @_;
@@ -752,17 +777,9 @@ sub indexAttachment {
 
   my $name = $attachment->{'name'} || '';
 
-  #$this->log("Indexing attachment $web.$topic.$name") if VERBOSE;
-
-  # SMELL: while the below test weeds out attachments that somehow where gone physically it is too expensive for the
-  # average case to open all attachments
-  #unless (defined(Foswiki::Func::readAttachment($web, $topic, $name))) {
-  #  $this->log("... attachment $web.$topic.$name not found") if TRACE;
-  #  return;
-  #}
+  $this->log("Indexing attachment $web.$topic.$name") if VERBOSE;
 
   # the attachment extension has to be checked
-
   my $extension = '';
   my $title = $name;
   if ($name =~ /^(.+)\.(\w+?)$/) {
@@ -789,8 +806,8 @@ sub indexAttachment {
   my $size = $attachment->{'size'} || 0;
   my $date = $attachment->{'date'} || 0;
   $date = Foswiki::Func::formatTime($date, 'iso', 'gmtime');
-  my $author = getWikiName($attachment->{user});
   my $rev = $attachment->{'version'} || 1;
+  my $author = getWikiName($attachment->{user});
 
   unless ($rev =~ /^\d+$/) {
     $this->log("WARNING: invalid version '$rev' of attachment $name in $web.$topic");
@@ -799,11 +816,6 @@ sub indexAttachment {
 
   # get summary
   my $summary = "";#substr($attText, 0, 300);
-
-  #  my $author = $attachment->{'user'} || $attachment->{'author'} || '';
-  #  $author = Foswiki::Func::getWikiName($author) || 'UnknownUser';
-  #  # weed out some strangers
-  #  $author = 'UnknownUser' unless Foswiki::Func::isValidWikiWord($author);
 
   # get image info
   if ($name =~ /\.(png|jpe?g|gif|bmp|svg)$/i) {
@@ -817,6 +829,11 @@ sub indexAttachment {
   my @contributors = $this->getContributors($web, $topic, $attachment);
   my %contributors = map {$_ => 1} @contributors;
   $doc->add_fields(contributor => [keys %contributors]);
+
+  my $createAuthor = $contributors[ scalar(@contributors) - 1 ] || $author;
+  my ($createDate) = $this->getRevisionInfo($web, $topic, 1, $attachment);
+  $createDate ||= 0;    # prevent formatTime to crap out
+  $createDate = Foswiki::Func::formatTime($createDate, 'iso', 'gmtime');
 
   # normalize web name
   $web =~ s/\//\./g;
@@ -835,7 +852,6 @@ sub indexAttachment {
     push @webCats, join(".", @prefix);
   }
 
-  # TODO: what about createdate and createauthor for attachments
   $doc->add_fields(
     # common fields
     id => $id,
@@ -849,8 +865,12 @@ sub indexAttachment {
     text => $attText,
     summary => $summary,
     author => $author,
+    author_title => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $author),
     date => $date,
     version => $rev,
+    createauthor => $createAuthor,
+    createauthor_title => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $createAuthor),
+    createdate => $createDate,
 
     # attachment fields
     name => $name,
@@ -861,7 +881,7 @@ sub indexAttachment {
     container_web => $web,
     container_topic => $topic,
     container_url => $this->getScriptUrlPath($web, $topic, "view"),
-    container_title => $this->getTopicTitle($web, $topic),
+    container_title => Foswiki::Func::getTopicTitle($web, $topic),
   );
 
   # tag and analyze language
@@ -898,6 +918,7 @@ sub indexAttachment {
   #  my $elapsed = int(Time::HiRes::tv_interval($t0) * 1000);
   #  $this->log("took $elapsed ms to index attachment $web.$topic.$name");
   #}
+
 }
 
 ################################################################################
@@ -1467,6 +1488,8 @@ sub mage {
 ################################################################################
 sub pingImage {
   my ($this, $path) = @_;
+
+  #print STDERR "pinging $path\n";
 
   my ($width, $height, $filesize, $format) = $this->mage->Ping($path);
   $width ||= 0;

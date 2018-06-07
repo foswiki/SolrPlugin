@@ -1,5 +1,5 @@
 /*
- * jQuery autosuggest plugin 2.10
+ * jQuery autosuggest plugin 2.11
  *
  * Copyright (c) 2013-2018 Michael Daum http://michaeldaumconsulting.com
  *
@@ -25,23 +25,26 @@
         at: "right+5 bottom+11",
         collision: "none"
       },
+      itemData: {
+        phoneSchema: 'tel'
+      },
 
       templates: {
         "persons": "<li class='ui-autosuggest-item {{:group}} {{:isFirst}} {{:isLast}}'>{{:header}}"+
-            "{{if phoneNumber}}<a class='ui-autosuggest-phone-number' href='tel:{{:phoneNumber}}'></a>{{/if}}"+
+            "{{if phoneNumber}}<a class='ui-autosuggest-phone-number' href='{{:phoneSchema}}:{{:phoneNumber}}'></a>{{/if}}"+
             "<a href='{{:url}}' class='ui-autosuggest-link'>"+
               "<table class='foswikiNullTable'><tr>"+
                 "<th><div>{{:thumbnail}}</div></th>"+
                 "<td>{{:title}}<div class='foswikiGrayText'>{{:phoneNumber}}</div></td>"+
               "</tr></table></a>"+
-            "</li>{{:footer}}",
+            "</li>",
         "default": "<li class='ui-autosuggest-item {{:group}} {{:isFirst}} {{:isLast}}'>{{:header}}"+
             "<a href='{{:url}}' class='ui-autosuggest-link'>"+
               "<table class='foswikiNullTable'><tr>"+
                 "<th><div>{{:thumbnail}}</div></th>"+
                 "<td>{{:title}}<div class='foswikiGrayText'>{{:container_title}}</div></td>"+
               "</tr></table>"+
-            "</a></li>{{:footer}}",
+            "</a></li>",
         "header": "<div class='ui-autosuggest-title {{:group}}'>{{:title}}</div>",
         "footer": "<li class='ui-autosuggest-item ui-autosuggest-more'><a class='ui-autosuggest-link' href='{{:moreUrl}}'>{{:title}}</a></li>"
       },
@@ -50,8 +53,8 @@
         return false;
       },
 
-      select: function(event, data) {
-        if (event.keyCode === 13 || $.browser.msie) {
+      select: function(ev, data) {
+        if (ev.keyCode === 13 || $.browser.msie) {
           window.location.href = data.item.url;
         }
         return false;
@@ -161,7 +164,7 @@
         var self = this;
 
         $.each(items, function(key, section) {
-          var header, footer, numDocs = section.docs.length;
+          var header, numDocs = section.docs.length;
 
           if (!numDocs) {
             return;
@@ -170,11 +173,6 @@
           header = self._getTemplate("header").render({
             group: section.group,
             title: $.i18n(section.group)
-          });
-
-          footer = self._getTemplate("footer").render({
-            moreUrl: section.moreUrl,
-            title: $.i18n('... more')
           });
 
           $.each(section.docs, function(index, item) {
@@ -197,17 +195,21 @@
             if (index === self.options.extraParams.limit - 1 || index === numDocs - 1) {
               item.isLast = 'ui-autosuggest-last-in-group';
               if (numDocs < self.options.extraParams.limit) {
-                item.footer = '';
-              } else {
-                item.footer = footer;
               }
             } else {
               item.isLast = '';
-              item.footer = '';
             }
 
             self._renderItemData(ul, item);
           });
+
+          // render footer
+          $(self._getTemplate("footer").render({
+            moreUrl: section.moreUrl,
+            title: $.i18n('... more')
+          })).data("ui-autocomplete-item", {
+            url: section.moreUrl
+          }).appendTo(ul);
         });
       },
 
@@ -232,12 +234,13 @@
           } else {
             item.thumbnail = '';
           }
+          $.extend(item, self.options.itemData);
         }
 
         li = $(template.render(item)).data("ui-autocomplete-item", item);
-
         return ul.append(li);
       },
+
       _normalize: function( items ) {
         return items; // don't normalize 
       }

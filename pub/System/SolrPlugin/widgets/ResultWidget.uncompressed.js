@@ -97,6 +97,10 @@
               return "#solrHitTemplate_comment";
             } 
 
+            if (type.match(/listy/)) {
+              return "#solrHitTemplate_listy";
+            } 
+
             templateName = "#solrHitTemplate_"+type;
             if ($(templateName).length) {
                return templateName;

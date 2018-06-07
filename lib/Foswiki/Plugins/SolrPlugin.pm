@@ -30,9 +30,9 @@ BEGIN {
   }
 }
   
-our $VERSION = '6.10';
-our $RELEASE = '09 Jan 2018';
-our $SHORTDESCRIPTION = 'Enterprise Search Engine for Foswiki based on [[http://lucene.apache.org/solr/][Solr]]';
+our $VERSION = '7.00';
+our $RELEASE = '07 Jun 2018';
+our $SHORTDESCRIPTION = 'Enterprise Search Engine for Foswiki based on Solr';
 our $NO_PREFS_IN_TOPIC = 1;
 our %searcher;
 our %indexer;

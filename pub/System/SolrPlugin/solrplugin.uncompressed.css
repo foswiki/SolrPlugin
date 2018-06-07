@@ -93,7 +93,7 @@
 }
 
 .solrSearchHitsGrid .solrTopicHit,
-.solrSearchHitsGrid .solrAttachmentHit {
+.solrSearchHitsGrid .solrMiscHit {
   border-color:#eee;
   padding:0.5em;
 }
@@ -158,7 +158,8 @@
   margin:0.3846em 0em;
 }
 
-.solrHeader .solrPager {
+.solrHeader .solrPager,
+.solrHeader .solrAlphaPager {
   margin:1.3864em 0em; /* 18px 0px */
   border-bottom:1px solid #ddd;
 }
@@ -178,6 +179,7 @@
 }
 .solrPagerPrev,
 .solrPagerNext,
+.solrAlphaPager a,
 .solrPager a {
   margin:0px 1px;
   padding:2px 5px;
@@ -189,7 +191,10 @@
 }
 .solrPager a.current:visited,
 .solrPager a:hover,
-.solrPager a.current {
+.solrPager a.current,
+.solrAlphaPager a.current:visited,
+.solrAlphaPager a:hover,
+.solrAlphaPager a.current {
   color:#fff;
   background:#bb2222;
   text-decoration:none;

@@ -24,7 +24,7 @@
       "height",
       "field_TopicType_lst",
       "field_Category_title_lst",
-      "author"
+      "author_title"
     ],
     "qt": "edismax",
     "hl": true,
@@ -56,6 +56,7 @@
     $(".solrFacetField").solrFacetFieldWidget(manager);
     $(".solrWebFacetField").solrWebFacetWidget(manager);
     $(".solrToggleFacet").solrToggleFacetWidget(manager);
+    $(".solrToggle").solrToggleWidget(manager);
     $("#solrCurrentSelection").solrCurrentSelectionWidget(manager);
     $("#solrSearchBox").solrSearchBoxWidget(manager);
     $(".solrResultsPerPage").solrResultsPerPageWidget(manager);

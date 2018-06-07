@@ -21,12 +21,14 @@
         self.keyOfValue[facet] = facetCounts[i].key = _(facet.replace(/\./g,"/"));
       }
 
-      facetCounts.sort(function(a,b) {
-        var aName = a.key.toLowerCase(), bName = b.key.toLowerCase();
-        if (aName < bName) return -1;
-        if (aName > bName) return 1;
-        return 0;
-      });
+      if (self.options.facetSort === 'title') {
+        facetCounts.sort(function(a,b) {
+          var aName = a.key.toLowerCase(), bName = b.key.toLowerCase();
+          if (aName < bName) return -1;
+          if (aName > bName) return 1;
+          return 0;
+        });
+      } 
 
       return facetCounts;
     }

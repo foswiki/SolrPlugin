@@ -51,7 +51,6 @@ locale/SolrPlugin/tr.po 0644
 locale/SolrPlugin/uk.po 0644
 locale/SolrPlugin/zh-cn.po 0644
 locale/SolrPlugin/zh-tw.po 0644
-Makefile 0644
 pub/System/SolrPlugin/ajax-solr-dictionary.js 0644
 pub/System/SolrPlugin/ajax-solr-dictionary.uncompressed.js 0644
 pub/System/SolrPlugin/ajax-solr-helpers.js 0644
@@ -103,6 +102,7 @@ pub/System/SolrPlugin/widgets/SortWidget.uncompressed.js 0644
 pub/System/SolrPlugin/widgets/SpellcheckWidget.uncompressed.js 0644
 pub/System/SolrPlugin/widgets/TagCloudWidget.uncompressed.js 0644
 pub/System/SolrPlugin/widgets/ToggleFacetWidget.uncompressed.js 0644
+pub/System/SolrPlugin/widgets/ToggleWidget.uncompressed.js 0644
 pub/System/SolrPlugin/widgets/WebFacetWidget.uncompressed.js 0644
 pub/System/SolrPlugin/wikiusers.css 0644
 pub/System/SolrPlugin/wikiusers.css.gz 0644

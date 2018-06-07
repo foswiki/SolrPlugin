@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1505725909" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1528368504" format="1.1" version="1"}%
 %META:TOPICPARENT{name="WebHome"}%
 %{<verbatim class="tml">}%
 %TMPL:INCLUDE{"SolrSearchView"}%
@@ -10,10 +10,12 @@
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
-%TMPL:DEF{"solr::defaultrows"}%18%TMPL:END%
+%TMPL:DEF{"solr::defaultrows"}%9%TMPL:END%
 %TMPL:DEF{"solr::defaultsort"}%title_sort asc%TMPL:END%
 %TMPL:DEF{"solr::extrafilter"}%form:%QUERY{"{SolrPlugin}{PersonDataForm}"}% web:%USERSWEB%%TMPL:END%
 %TMPL:DEF{"solr::fields"}%field_Location_s, field_Profession_s, field_Email_s, field_LoginName_s, field_Telephone_s, web, topic, title, thumbnail%TMPL:END%
+%TMPL:DEF{"DISsolr::pager"}%<div class='solrAlphaPager' data-field="title_first_letter" data-title="%MAKETEXT{"alphabetical"}%" data-all-text="%MAKETEXT{"All"}%" ></div>%TMPL:END%
+%TMPL:DEF{"DISsolr::footer"}%<div class='solrFooter'></div>%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%

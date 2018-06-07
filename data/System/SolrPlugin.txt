@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1515499594" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" date="1528368504" format="1.1" version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -692,8 +692,8 @@ useful for spatial search.
 | *Name* | *Type* | *Multivalued* | *Stored* | *Description* |
 | access_granted | string | multivalued | | this field controls access of users to this topic or attachment in the search index; every query is augmented with an ACL check against this field; only users listed in this field are allowed view rights; special value is "all" when there are no view restrictions |
 | attachment | string | multivalued | stored | list of all attachment names of this topic |
-| author | string | | stored | the name of the user that changed the document most recently |
-| author_url | string | | stored | the url of the user that changed the document most recently |
+| author | string | | stored | the name of the person that changed the document most recently |
+| author_title | string | | stored | title name of the person that changed the document most recently |
 | catchall | text_generic | multivalued | stored | copy-field that gathers content from (allmost) all fields; this is the default search field for the "standard" query parser; note that fields to be queried can be configured per request using the "dismax" handler |
 | category | string | multivalued | stored | list of categories this document is in; note: this field will only be used if Foswiki:Extensions/ClassificationPlugin is installed; it will populate it with the list of all categories up to !TopCategory; content of this field is copied to =category_search= as well (see generic fields below) |
 | comment | text_generic | | stored | comment field of an attachment | 
@@ -705,6 +705,7 @@ useful for spatial search.
 | container_web | string | | stored | web of containing document |
 | contributor | string | multivalued | stored | list of users that contributed to this topic at some point in time |
 | createauthor | string | | stored | author of the initial version of this document |
+| createauthor_title | string | | stored | title name of the initial author of this document |
 | createdate | tdate | | stored | date when the initial version of this document was created |
 | date | tdate | | stored | time the the document was changed last |
 | form | string | | stored | name of the form attached to the current topic |
@@ -792,72 +793,70 @@ to be indexed is created by the crawler and indexer explicitly, some more are cr
 specific search applications. The destination fields are then analysed using the dynamic field definitions as given above.
 
 | *Source* | *Destination* | 
-| web | web_sort | 
-| topic | topic_sort |
-| title | title_sort |
-| category | category_search |
-| tag | tag_search |
-| title | title_search |
-| topic | topic_search |
-| web | web_search |
-| webtopic | webtopic_search |
 | attachment | catchall | 
-| category | catchall |
-| comment | catchall | 
-| field_* | catchall |
-| form | catchall |
-| name | catchall |
-| tag | catchall |
-| text | catchall |
-| title | catchall |
-| topic | catchall |
-| type | catchall |
-| state | catchall |
-| attachment | text_prefix |
-| category | text_prefix |
-| comment | text_prefix |
-| contributor | text_prefix |
-| field_* | text_prefix |
-| form | text_prefix |
-| name | text_prefix |
-| tag | text_prefix |
-| text | text_prefix |
-| title | text_prefix |
-| topic | text_prefix |
-| type | text_prefix |
-| attachment | text_suffix |
-| category | text_suffix |
-| comment | text_suffix |
-| contributor | text_suffix |
-| field_* | text_suffix |
-| form | text_suffix |
-| name | text_suffix |
-| tag | text_suffix |
-| text | text_suffix |
-| title | text_suffix |
-| topic | text_suffix |
-| type | text_suffix |
+| attachment | charnorm | 
 | attachment | phonetic |
-| category | phonetic |
-| comment | phonetic |
-| contributor | phonetic |
-| field_* | phonetic |
-| form | phonetic |
-| name | phonetic |
-| tag | phonetic |
-| text | phonetic |
-| title | phonetic |
-| topic | phonetic |
-| type | phonetic |
 | attachment | spell |
+| category | catchall |
+| category | category_search |
+| category | charnorm |
+| category | phonetic |
+| comment | catchall | 
+| comment | charnorm |
+| comment | phonetic |
 | comment | spell |
+| concept | catchall |
+| concept | charnorm |
+| concept | phonetic |
+| concept | spell |
+| field_* | catchall |
+| field_* | charnorm |
+| field_* | phonetic |
 | field_* | spell |
+| form | catchall |
+| form | charnorm |
+| form | phonetic |
 | form | spell |
+| name | catchall |
+| name | charnorm |
+| name | phonetic |
 | name | spell |
+| tag | catchall |
+| tag | charnorm |
+| tag | phonetic |
+| tag | tag_search |
+| text | catchall |
+| text | charnorm |
+| text | phonetic |
 | text | spell |
+| text | text_prefix |
+| text | text_std |
+| text | text_suffix |
+| title | catchall |
+| title | charnorm |
+| title | phonetic |
 | title | spell |
+| title | title_first_letter |
+| title | title_prefix |
+| title | title_search |
+| title | title_sort |
+| title | title_std |
+| title | title_suffix |
+| topic | catchall |
+| topic | charnorm |
+| topic | phonetic |
 | topic | spell |
+| topic | topic_search |
+| topic | topic_sort |
+| topic | topic_std |
+| type | catchall |
+| type | charnorm |
+| type | phonetic |
 | web | spell |
+| webtopic | webtopic_search |
+| web | web_search |
+| web | web_sort | 
+| web | web_std | 
 
 <verbatim class="foswikiHidden">
 ---++ Templates
@@ -874,6 +873,14 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  07 Jun 2018: | new index fields =author_title=, =createauthor_title=, =title_first_letter=; \
+                  added support indexing arbitrary [[Foswiki:Extensions/MetaDataPlugin][meta data]]; \
+                  added support for [[Foswiki:Extensions/ListyPlugin][ListyPlugin]]; \
+                  added toggle "exact search" to search interface; \
+                  depending on new [[Foswiki:Extensions/TopicTitlePlugin][TopicTitlePlugin]] now; \
+                  fixed keyboard interaction of autosuggest box; \
+                  fixed sorting facet values by title; \
+                  much improved relavancy sorting |
 |  09 Jan 2018: | added support for jquery.i18n; improved solr schema for better findability; fixed solr sidebar in subwebs |
 |  18 Sep 2017: | replacing =text_substring= with =text_prefix= and =text_suffix= to improve substring matching; \
                   truncate document values larger than 32k to prevent solr from crashing; \
@@ -1001,5 +1008,5 @@ specific search applications. The destination fields are then analysed using the
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1515499594" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1515499594" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1528368504" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1528368504" size="158013" user="ProjectContributor" version="1"}%

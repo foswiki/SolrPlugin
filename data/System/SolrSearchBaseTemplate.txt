@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1505725909" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1528368504" format="1.1"  version="1"}%
 %META:TOPICPARENT{name="SolrPlugin"}%
 %{<verbatim class="tml">}%
 %{ ###########################################################################
@@ -127,6 +127,7 @@
 %TMPL:P{"solr::templates::facetfield"}%
 %TMPL:P{"solr::templates::currentselection"}%
 %TMPL:P{"solr::templates::togglefacet"}%
+%TMPL:P{"solr::templates::toggle"}%
 %TMPL:P{"solr::templates::tagcloud"}%
 %TMPL:P{"solr::templates::hierarchy"}%
 %TMPL:P{"solr::templates::resultsperpage"}%
@@ -144,6 +145,7 @@
 %TMPL:P{"solr::templates::hits::topic"}%<!-- -->
 %TMPL:P{"solr::templates::hits::image"}%<!-- -->
 %TMPL:P{"solr::templates::hits::comment"}%<!-- -->
+%TMPL:P{"solr::templates::hits::listy"}%<!-- -->
 %TMPL:P{"solr::templates::hits::misc"}%<!-- -->
 %TMPL:P{"solr::templates::hits::ClassifiedTopic"}%<!-- -->
 <script id="solrHitTemplate" type="text/x-jsrender"> 
@@ -174,7 +176,7 @@
       </span>
     </h3>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
     %TMPL:P{"solr::thumbnail"}%
     <div class='solrHilite'>
@@ -200,7 +202,7 @@
       </span>
     </h3>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
     %TMPL:P{"solr::thumbnail"}%
     <div class='solrHilite'>
@@ -226,7 +228,7 @@
       </span>
     </h3>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
   </div>
 </script>%TMPL:END%
@@ -234,7 +236,7 @@
 
 %{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::hits::comment"}%<script id="solrHitTemplate_comment" type="text/x-jsrender">
-  <div class='solrSearchHit solrCommentHit'>
+  <div class='solrSearchHit solrCommentHit clearfix'>
     <h3>
       <i class='solrHitIcon foswikiIcon jqIcon fa {{if icon}}{{:icon}}{{else}}fa-file-o{{/if}}'></i>
       <a href='{{:url}}'>{{:title}}</a>
@@ -243,7 +245,7 @@
       </span>
     </h3>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
     <div class='solrHilite'>
       {{:~getHilite(id)}}
@@ -253,17 +255,38 @@
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
-%TMPL:DEF{"solr::templates::hits::misc"}%<script id="solrHitTemplate_misc" type="text/x-jsrender">
-  <div class='solrSearchHit solrAttachmentHit'>
+%TMPL:DEF{"solr::templates::hits::listy"}%<script id="solrHitTemplate_listy" type="text/x-jsrender">
+  <div class='solrSearchHit solrListyHit clearfix'>
     <h3>
       <i class='solrHitIcon foswikiIcon jqIcon fa {{if icon}}{{:icon}}{{else}}fa-file-o{{/if}}'></i>
-      <a href='{{:url}}'>{{:name}}</a>
+      <a href='{{:url}}'>{{:title}}</a>
+      <span class='foswikiGrayText foswikiNormal solrContainerLink'>
+        %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
+      </span>
+    </h3>
+    <div class='solrRevision'> 
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
+    </div>
+    <div class='solrHilite'>
+      {{:~getHilite(id)}}
+    </div>
+  </div>
+</script>%TMPL:END%
+%{</verbatim>}%
+
+
+%{<verbatim class="tml">}%
+%TMPL:DEF{"solr::templates::hits::misc"}%<script id="solrHitTemplate_misc" type="text/x-jsrender">
+  <div class='solrSearchHit solrMiscHit clearfix'>
+    <h3>
+      <i class='solrHitIcon foswikiIcon jqIcon fa {{if icon}}{{:icon}}{{else}}fa-file-o{{/if}}'></i>
+      <a href='{{:url}}'>{{:title}}</a>
       <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
     </h3>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
     <div class='solrHilite'>
       {{:~getHilite(id)}}
@@ -314,6 +337,13 @@
 
 %{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::togglefacet"}%<script id="solrToggleFacetTemplate" type="text/x-jsrender"> 
+  <input type='checkbox' class='foswikiCheckbox' id='{{:id}}' />
+  <label class='foswikiLabel' for='{{:id}}'>{{:title}}</label>
+</script>%TMPL:END%
+%{</verbatim>}%
+
+%{<verbatim class="tml">}%
+%TMPL:DEF{"solr::templates::toggle"}%<script id="solrToggleTemplate" type="text/x-jsrender"> 
   <input type='checkbox' class='foswikiCheckbox' id='{{:id}}' />
   <label class='foswikiLabel' for='{{:id}}'>{{:title}}</label>
 </script>%TMPL:END%
@@ -516,12 +546,6 @@
 %TMPL:P{"solr::facet"
   id="language"
   title="%MAKETEXT{"Language"}%"
-  hidefilter="true"
-}%
-%TMPL:P{"solr::facet"
-  id="author"
-  exclude="UnknownUser|AdminUser|RegistrationAgent|AdminGroup|WikiGuest|FoswikiContributor|ProjectContributor|TestUser"
-  title="%MAKETEXT{"Author"}%"
   hidefilter="true"
 }%
 <!-- -->%TMPL:END%
@@ -754,7 +778,7 @@
   else="$percntTMPL:P{\"solr::input::checkboxes::inallwebs\"}$percnt"
 }%<!-- -->
 %TMPL:P{"solr::input::checkboxes::inweb"}%<!-- -->
-%TMPL:P{"solr::input::checkboxes::inmycontribs"}%<!-- -->
+%TMPL:P{"solr::input::checkboxes::exactsearch"}%<!-- -->
 </div>%TMPL:END%
 %{</verbatim>}%
 
@@ -782,6 +806,15 @@
 }%
 %TMPL:DEF{"solr::input::checkboxes::inmycontribs"}%<!-- -->
 <span class='solrToggleFacet' data-field='contributor' data-value='%USERINFO{format="$wikiname"}%' data-title='%MAKETEXT{"In my contributions"}%'></span>
+<!-- -->%TMPL:END%
+%{</verbatim>}%
+
+%{<verbatim class="tml">}%
+%{ ###########################################################################
+   solr::input::checkboxes::exactsearch - display a "Exact Search" checkbox
+}%
+%TMPL:DEF{"solr::input::checkboxes::exactsearch"}%<!-- -->
+<span class='solrToggle' data-field='qf' data-value='title_std^7 catchall' data-title='%MAKETEXT{"Exact search"}%'></span>
 <!-- -->%TMPL:END%
 %{</verbatim>}%
 

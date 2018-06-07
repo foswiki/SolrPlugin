@@ -8,7 +8,7 @@ odp, ppt, pptx => presentation
 
 rtf, odt, doc, docx => document
 
-ods, xls, xlsx => spreadsheet
+csv, gnumeric, ksp, ods, xls, xlsx => spreadsheet
 
 pl, pm => perl
 

@@ -3,6 +3,7 @@ jQuery(function($) {
   $(".solrSearchBox:not(.solrSearchBoxInited)").livequery(function() {
     var $this = $(this),
         extraFilter = $this.data("solrExtraFilter"),
+        itemData = $this.data("solrItemData"),
 	$form = $this.find("form:first"),
         action = $form.attr("action"),
         $input = $form.find("input[type=text]"),
@@ -30,6 +31,7 @@ jQuery(function($) {
         extraParams: {
           filter: extraFilter
         },
+        itemData: itemData,
         position: position,
         menuClass: 'natSearchBoxMenu',
         search: function() {

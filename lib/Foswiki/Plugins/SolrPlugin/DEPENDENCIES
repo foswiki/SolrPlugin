@@ -18,3 +18,5 @@ LWP::UserAgent,>=5.820,cpan,Required
 Moo,>=2.00,cpan,Required
 Types::Standard,>=1.00,cpan,Required
 XML::Easy,>0,cpan,Required
+ONLYIF ( $Foswiki::Plugins::VERSION < 2.6)
+Foswiki::Plugins::TopicTitlePlugin,>1.00,perl,Required for Foswiki < 2.2

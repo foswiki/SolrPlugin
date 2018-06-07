@@ -227,7 +227,7 @@
           preserveOriginal="1" 
         />
         <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="15" />
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="4" maxGramSize="15" />
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
     </fieldType>
@@ -246,7 +246,7 @@
         />
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.ReverseStringFilterFactory" />
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="15" />
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="4" maxGramSize="15" />
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
     </fieldType>
@@ -431,6 +431,17 @@
       <analyzer type="query">
         <tokenizer class="solr.KeywordTokenizerFactory" />
       </analyzer>
+    </fieldType>
+
+    <!-- for alphabetic range bucketing -->
+    <fieldType name="first_letter" class="solr.TextField">
+      <analyzer type="index">
+        <tokenizer class="solr.PatternTokenizerFactory" pattern="^(\s*[^\s]).*" group="1" />
+        <filter class="solr.UpperCaseFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+     </analyzer>
     </fieldType>
 
     <!-- since fields of this type are by default not stored or indexed,
@@ -1059,12 +1070,13 @@
    <field name="title" type="string" />
    <field name="summary" type="text_generic" />
    <field name="author" type="string" />
-   <field name="author_url" type="string" /> <!-- url -->
+   <field name="author_title" type="string" /> <!-- display title -->
    <field name="contributor" type="string" multiValued="true" />
    <field name="version" type="tint" />
    <field name="text" type="text_generic" stored="true" termVectors="true" termPositions="true" termOffsets="true" />
    <field name="date" type="tdate" />
    <field name="createauthor" type="string" />
+   <field name="createauthor_title" type="string" /> <!-- display title -->
    <field name="createdate" type="tdate" />
    <field name="catchall" type="text_generic" multiValued="true" stored="false" />
    <field name="phonetic" type="phonetic" multiValued="true" />
@@ -1133,6 +1145,7 @@
    -->
    <dynamicField name="*_i"  type="tint"/>
    <dynamicField name="*_s"  type="string"/>
+   <dynamicField name="*_first_letter"  type="first_letter" stored="false" />
    <dynamicField name="*_std"  type="text_std"/>
    <dynamicField name="*_l"  type="tlong"/>
    <dynamicField name="*_t"  type="text_generic"/>
@@ -1217,6 +1230,8 @@
    <copyField source="topic" dest="topic_sort" omitNorms="true" />
    <copyField source="title" dest="title_sort" omitNorms="true" />
    <copyField source="title" dest="title_prefix" omitNorms="true" />
+   <copyField source="title" dest="title_suffix" omitNorms="true" />
+   <copyField source="title" dest="title_first_letter" omitNorms="true" />
 
    <copyField source="category" dest="category_search"/>
    <copyField source="tag" dest="tag_search"/>
@@ -1232,6 +1247,10 @@
    <copyField source="web" dest="web_std" omitNorms="true" />
    <copyField source="title" dest="title_std" omitNorms="true" />
    <copyField source="topic" dest="topic_std" omitNorms="true" />
+
+   <copyField source="text" dest="text_std"/>
+   <copyField source="text" dest="text_suffix"/>
+   <copyField source="text" dest="text_prefix"/>
 
    <copyField source="attachment" dest="catchall"/>
    <copyField source="category" dest="catchall"/>
@@ -1261,34 +1280,6 @@
    <copyField source="concept" dest="charnorm"/>
    <copyField source="sentence" dest="charnorm"/>
 
-   <copyField source="attachment" dest="text_prefix"/>
-   <copyField source="category" dest="text_prefix"/>
-   <copyField source="comment" dest="text_prefix"/>
-   <copyField source="field_*" dest="text_prefix"/>
-   <copyField source="form" dest="text_prefix"/>
-   <copyField source="name" dest="text_prefix"/>
-   <copyField source="tag" dest="text_prefix"/>
-   <copyField source="text" dest="text_prefix"/>
-   <copyField source="title" dest="text_prefix"/>
-   <copyField source="topic" dest="text_prefix"/>
-   <copyField source="type" dest="text_prefix"/>
-   <copyField source="concept" dest="text_prefix"/>
-   <copyField source="sentence" dest="text_prefix"/>
-
-   <copyField source="attachment" dest="text_suffix"/>
-   <copyField source="category" dest="text_suffix"/>
-   <copyField source="comment" dest="text_suffix"/>
-   <copyField source="field_*" dest="text_suffix"/>
-   <copyField source="form" dest="text_suffix"/>
-   <copyField source="name" dest="text_suffix"/>
-   <copyField source="tag" dest="text_suffix"/>
-   <copyField source="text" dest="text_suffix"/>
-   <copyField source="title" dest="text_suffix"/>
-   <copyField source="topic" dest="text_suffix"/>
-   <copyField source="type" dest="text_suffix"/>
-   <copyField source="concept" dest="text_suffix"/>
-   <copyField source="sentence" dest="text_suffix"/>
-
    <copyField source="attachment" dest="phonetic"/>
    <copyField source="category" dest="phonetic"/>
    <copyField source="comment" dest="phonetic"/>
@@ -1312,7 +1303,7 @@
    <copyField source="title" dest="spell"/>
    <copyField source="topic" dest="spell"/>
    <copyField source="web" dest="spell"/>
-   <copyField source="type" dest="phonetic"/>
+   <copyField source="type" dest="spell"/>
    <copyField source="concept" dest="spell"/>
    <copyField source="sentence" dest="spell"/>
 
