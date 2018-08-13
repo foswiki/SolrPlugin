@@ -1,5 +1,5 @@
 /*
- * jQuery autosuggest plugin 2.11
+ * jQuery autosuggest plugin 2.20
  *
  * Copyright (c) 2013-2018 Michael Daum http://michaeldaumconsulting.com
  *
@@ -17,8 +17,13 @@
       delay: 500,
       minLength: 3,
       extraParams: {
-        limit: 3,
         fields: "name,web,topic,container_title,title,type,thumbnail,icon,url,field_Telephone_s,field_Phone_s,field_Mobile_s"
+      },
+      limits: {
+        "global": 3,
+        "persons": 3,
+        "topics": 3,
+        "attachments": 3
       },
       position: {
         my: "right top",
@@ -79,6 +84,8 @@
       if (self.options.menuClass) {
         elem.addClass(self.options.menuClass);
       }
+
+      self.options.extraParams.limit = self.options.limits.global;
 
       // compiled templates
       self.templates = {};
@@ -176,31 +183,31 @@
           });
 
           $.each(section.docs, function(index, item) {
+            var limit = self.options.limits[section.group];
 
-            if (section.group === 'topics') {
-              item.url = foswiki.getScriptUrl("view", item.web, item.topic);
-            } 
+            if (index < limit) {
+              if (section.group === 'topics') {
+                item.url = foswiki.getScriptUrl("view", item.web, item.topic);
+              } 
 
-            item.phoneNumber = item.field_Telephone_s || item.field_Phone_s || item.field_Mobile_s;
-            item.group = section.group;
+              item.phoneNumber = item.field_Telephone_s || item.field_Phone_s || item.field_Mobile_s;
+              item.group = section.group;
 
-            if (index === 0) {
-              item.isFirst = 'ui-autosuggest-first-in-group';
-              item.header = header;
-            } else {
-              item.isFirst = '';
-              item.header = '';
-            }
-
-            if (index === self.options.extraParams.limit - 1 || index === numDocs - 1) {
-              item.isLast = 'ui-autosuggest-last-in-group';
-              if (numDocs < self.options.extraParams.limit) {
+              if (index === 0) {
+                item.isFirst = 'ui-autosuggest-first-in-group';
+                item.header = header;
+              } else {
+                item.isFirst = '';
+                item.header = '';
               }
-            } else {
-              item.isLast = '';
-            }
 
-            self._renderItemData(ul, item);
+              if (index === self.options.limits.global - 1 || index === numDocs - 1) {
+                item.isLast = 'ui-autosuggest-last-in-group';
+              } else {
+                item.isLast = '';
+              }
+              self._renderItemData(ul, item);
+            }
           });
 
           // render footer

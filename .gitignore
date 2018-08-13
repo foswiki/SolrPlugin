@@ -25,6 +25,6 @@ pub/System/SolrPlugin/ajax-solr-helpers.js
 pub/System/SolrPlugin/ajax-solr/README.md
 pub/System/SolrPlugin/ajax-solr/Rakefile
 genpdf_*
-/webservice-solr
+lib/webservice-solr
 pub/System/SolrPlugin/ajax-solr.evolvingweb
 locale/**/*.mo

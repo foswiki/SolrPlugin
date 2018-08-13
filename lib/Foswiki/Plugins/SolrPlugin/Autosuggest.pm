@@ -24,7 +24,7 @@ sub new {
   my $this = bless(
     $class->SUPER::new(
       name => 'Autosuggest',
-      version => '2.10',
+      version => '2.20',
       author => 'Michael Daum',
       homepage => 'http://foswiki.org/Extensions/SolrPlugin',
       css => ['jquery.autosuggest.css'],

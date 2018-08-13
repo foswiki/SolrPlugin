@@ -823,6 +823,7 @@
         title_std^7.0 
         topic_std^7.0 
         title_search^5.0 
+        summary^3.0
         topic_search^2.0 
         title_prefix
         web_search 
@@ -844,6 +845,7 @@
         title_std^7.0 
         topic_std^7.0 
         title_search^5.0 
+        summary^3.0
         topic_search^2.0 
         title_prefix
         web_search 
@@ -883,6 +885,7 @@
         title_std^7.0 
         topic_std^7.0 
         title_search^5.0 
+        summary^3.0
         topic_search^2.0 
         title_prefix
         web_search 
@@ -904,6 +907,7 @@
         title_std^7.0 
         topic_std^7.0 
         title_search^5.0 
+        summary^3.0
         topic_search^2.0 
         title_prefix
         web_search

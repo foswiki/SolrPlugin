@@ -73,7 +73,7 @@ done
 export TIME
 
 (
-  /usr/bin/flock -x -n 200 && (
+  flock -x -n 200 && (
     cd $FOSWIKI_ROOT/tools 
     SOLRINDEX=./solrindex
     SOLRINDEX_ARGS=

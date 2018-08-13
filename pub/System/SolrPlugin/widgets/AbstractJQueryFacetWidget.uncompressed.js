@@ -25,7 +25,7 @@
         value = query.value;
       }
 
-      value = value.replace(/^(.*?):/, '');
+      value = value.toString().replace(/^(.*?):/, '');
 
       return self.inQuery(value) >= 0;
     },

@@ -2,17 +2,16 @@
 jQuery(function($) {
   $(".solrSearchBox:not(.solrSearchBoxInited)").livequery(function() {
     var $this = $(this),
-        extraFilter = $this.data("solrExtraFilter"),
-        itemData = $this.data("solrItemData"),
-	$form = $this.find("form:first"),
+        opts = $this.data(),
+        $form = $this.find("form:first"),
         action = $form.attr("action"),
         $input = $form.find("input[type=text]"),
         position = $.extend({
           my: "right top",
           at: "right bottom+11",
         }, {
-          my: $form.data("position-my"),
-          at: $form.data("position-at"),
+          my: opts.positionMy,
+          at: opts.positionAt
         });
 
     $this.addClass("solrSearchBoxInited");
@@ -29,9 +28,16 @@ jQuery(function($) {
     if (typeof($.fn.autosuggest) === 'function') { // make sure autosuggest realy is present
       $input.autosuggest({
         extraParams: {
-          filter: extraFilter
+          filter: opts.solrExtraFilter,
+          groups: opts.groups
         },
-        itemData: itemData,
+        limits: {
+          "global": opts.limit,
+          "persons": opts.limitPersons,
+          "topics": opts.limitTopics,
+          "attachments": opts.limitAttachments,
+        },
+        itemData: opts.solrItemData,
         position: position,
         menuClass: 'natSearchBoxMenu',
         search: function() {

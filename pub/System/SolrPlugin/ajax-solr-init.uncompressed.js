@@ -62,6 +62,7 @@
     $(".solrResultsPerPage").solrResultsPerPageWidget(manager);
     $(".solrSearchHits").solrResultWidget(manager);
     $(".solrPager").solrPagerWidget(manager);
+    $(".solrAlphaPager").solrAlphaPagerWidget(manager);
     $("#solrSorting").solrSortWidget(manager);
     $(".solrTagCloud").solrTagCloudWidget(manager);
     $(".solrHierarchy").solrHierarchyWidget(manager);

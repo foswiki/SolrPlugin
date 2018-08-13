@@ -873,6 +873,10 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  13 Aug 2018: | new alphabetical navigation for wiki users; \
+                  fixed searching for summary; \
+                  replaced jquery.scrollto with native scroll api; \
+                  make number of items suggested configurable in jquery.autosuggest drop-down box |
 |  07 Jun 2018: | new index fields =author_title=, =createauthor_title=, =title_first_letter=; \
                   added support indexing arbitrary [[Foswiki:Extensions/MetaDataPlugin][meta data]]; \
                   added support for [[Foswiki:Extensions/ListyPlugin][ListyPlugin]]; \

@@ -14,28 +14,46 @@
 
     getCurrentVal: function() {
       var self = this, 
-          val,
+          value, match, field,
           fq = self.manager.store.values('fq');
 
-console.log("fq=",fq);
-      return val;
+      for (var i = 0, l = fq.length; i < l; i++) {
+        match = fq[i].match(/^(?:{!.*?})?(.*?):(.*)$/);
+        field = match[1];
+        value = match[2]; 
+        
+        if (field === self.field) {
+          return value;
+        }
+      }
+
+      return;
     },
 
     afterRequest: function () {
       var self = this,
-          response = self.manager.response,
-          responseHeader = response.responseHeader,
-          currentVal = self.getCurrentVal(),
-          lastVal = "Z";
+          currentVal = self.getCurrentVal() || '',
+          marker;
+
       self.$target.empty();
       self.facetCounts = self.getFacetCounts();
 
-      console.log("facetCounts=",self.facetCounts,"currentVal=",currentVal);
+      marker = currentVal?'':'current';
+      $("<a href='#' class='"+marker+"'>"+self.options.allText+"</a>").click(self.unclickHandler(currentVal)).appendTo(self.$target);
 
-      $("<a href='#'>"+self.options.allText+"</a>").click(self.clickHandler()).appendTo(self.$target);
-
-      $.each(self.facetCounts, function(i, item) {
-        $("<a href='#' class=''>"+item.facet+"</a>").on("click", self.clickHandler(item.facet)).appendTo(self.$target);
+      $.each(self.facetCounts.sort(function(a, b) {
+          var facA = a.facet.toUpperCase(),
+              facB = b.facet.toUpperCase();
+          if (facA < facB) {
+            return -1;
+          }
+          if (facA > facB) {
+            return 1;
+          }
+          return 0;
+      }), function(i, item) {
+        marker = currentVal == item.facet ? 'current':'';
+        $("<a href='#' class='"+marker+"'>"+item.facet+"</a>").on("click", self.clickHandler(item.facet)).appendTo(self.$target);
       });
     },
 

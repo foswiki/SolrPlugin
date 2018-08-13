@@ -9,7 +9,27 @@
       displayAs: '.solrDisplay',
       defaultDisplay: 'list',
       dateFormat: 'dddd, Do MMMM YYYY, HH:mm',
-      dictionary: 'default'
+      dictionary: 'default',
+      enableScroll: true,
+      scrollTarget: '.solrSearchHits'
+    },
+
+    scrollIntoView: function() {
+      var self = this, 
+          rect, elem;
+
+      if (self.options.enableScroll) {
+        elem = $(self.options.scrollTarget)[0];
+        rect = elem.getBoundingClientRect();
+
+        if (rect.top < 0) {
+          elem.scrollIntoView({
+            block: "start",
+            inline: "nearest",
+            behavior: "smooth"
+          });
+        } 
+      }
     },
 
     beforeRequest: function () {
@@ -193,6 +213,7 @@
       ));
 
       self.$target.trigger("update");
+      self.scrollIntoView();
     },
 
     update: function() {

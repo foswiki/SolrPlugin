@@ -50,6 +50,7 @@
 .solrSearchHits:after {
   visibility:hidden;
   content:"";
+  min-height:1px;
   -webkit-flex-grow:9999999; 
           flex-grow:9999999;
 }

@@ -22,6 +22,7 @@ lib/Foswiki/Plugins/SolrPlugin/Index.pm 0644
 lib/Foswiki/Plugins/SolrPlugin.pm 0644
 lib/Foswiki/Plugins/SolrPlugin/Search.pm 0644
 lib/Foswiki/Plugins/SolrPlugin/WebHierarchy.pm 0644
+lib/Makefile 0644
 lib/WebService/Solr/Document.pm 0644
 lib/WebService/Solr/Field.pm 0644
 lib/WebService/Solr.pm 0644
@@ -91,6 +92,7 @@ pub/System/SolrPlugin/toggle-small-collapse.png 0644
 pub/System/SolrPlugin/toggle-small.png 0644
 pub/System/SolrPlugin/widgets/AbstractJQueryFacetWidget.uncompressed.js 0644
 pub/System/SolrPlugin/widgets/AbstractJQueryWidget.uncompressed.js 0644
+pub/System/SolrPlugin/widgets/AlphaPagerWidget.uncompressed.js 0644
 pub/System/SolrPlugin/widgets/CurrentSelectionWidget.uncompressed.js 0644
 pub/System/SolrPlugin/widgets/FacetFieldWidget.uncompressed.js 0644
 pub/System/SolrPlugin/widgets/HierarchyWidget.uncompressed.js 0644
@@ -176,3 +178,5 @@ tools/solrindex 0755
 tools/solrjob 0755
 tools/virtualhosts-solrdelete 0755
 tools/virtualhosts-solrindex 0755
+WebService-Solr-Moo.patch 0644
+WebService-Solr.patch 0644

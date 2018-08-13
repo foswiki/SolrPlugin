@@ -18,10 +18,10 @@
         $.ajax({
           url: foswiki.getPreference('SCRIPTURL')+'/rest/SolrPlugin/webHierarchy',
           async: false,
-	  data: {
-	    //root:self.options.root, SMELL
-	    web:self.options.web
-	  },
+          data: {
+            //root:self.options.root, SMELL
+            web:self.options.web
+          },
           success: function(data) {
             self.hierarchy = data;
           }
@@ -107,7 +107,7 @@
       breadcrumbs.push("<a href='#' class='solrFacetValue root' data-value='"+current+"'>"+_("Root")+"</a>");
       if (typeof(current) !== 'undefined') {
         $.each(current.split(/\s*\.\s*/), function(i, val) {
-	  prefix.push(val);
+          prefix.push(val);
           breadcrumbs.push("<a href='#' class='solrFacetValue' data-value='"+prefix.join(".")+"'>"+_(val)+"</a>");
         });
       }

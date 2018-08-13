@@ -30,8 +30,8 @@ BEGIN {
   }
 }
   
-our $VERSION = '7.00';
-our $RELEASE = '07 Jun 2018';
+our $VERSION = '7.10';
+our $RELEASE = '13 Aug 2018';
 our $SHORTDESCRIPTION = 'Enterprise Search Engine for Foswiki based on Solr';
 our $NO_PREFS_IN_TOPIC = 1;
 our %searcher;

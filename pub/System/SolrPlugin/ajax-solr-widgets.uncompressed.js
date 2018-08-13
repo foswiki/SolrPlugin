@@ -40,7 +40,7 @@
         value = query.value;
       }
 
-      value = value.replace(/^(.*?):/, '');
+      value = value.toString().replace(/^(.*?):/, '');
 
       return self.inQuery(value) >= 0;
     },
@@ -625,10 +625,7 @@
   AjaxSolr.PagerWidget = AjaxSolr.AbstractJQueryWidget.extend({
     defaults:  {
       prevText: 'Previous',
-      nextText: 'Next',
-      enableScroll: false,
-      scrollTarget: '.solrPager:first',
-      scrollSpeed: 250
+      nextText: 'Next'
     },
 
     perPage: function () {
@@ -642,9 +639,6 @@
         //console.log("page=",page,"start=",start);
         //self.manager.store.get('start').val(start);
         self.manager.doRequest(start);
-        if (self.options.enableScroll) {
-          $.scrollTo(self.options.scrollTarget, self.options.scrollSpeed);
-        }
         return false;
       }
     },
@@ -737,6 +731,77 @@
 })(jQuery);
 (function ($) {
 "use strict";
+
+  AjaxSolr.AlphaPagerWidget = AjaxSolr.AbstractJQueryFacetWidget.extend({
+    defaults:  {
+      allText: 'All',
+      union: true,
+      title: "alpha",
+      exclusion: true,
+      enableScroll: false,
+      scrollTarget: '.solrPager:first',
+      scrollSpeed: 250
+    },
+
+    getCurrentVal: function() {
+      var self = this, 
+          value, match, field,
+          fq = self.manager.store.values('fq');
+
+      for (var i = 0, l = fq.length; i < l; i++) {
+        match = fq[i].match(/^(?:{!.*?})?(.*?):(.*)$/);
+        field = match[1];
+        value = match[2]; 
+        
+        if (field === self.field) {
+          return value;
+        }
+      }
+
+      return;
+    },
+
+    afterRequest: function () {
+      var self = this,
+          currentVal = self.getCurrentVal() || '',
+          marker;
+
+      self.$target.empty();
+      self.facetCounts = self.getFacetCounts();
+
+      marker = currentVal?'':'current';
+      $("<a href='#' class='"+marker+"'>"+self.options.allText+"</a>").click(self.unclickHandler(currentVal)).appendTo(self.$target);
+
+      $.each(self.facetCounts.sort(function(a, b) {
+          var facA = a.facet.toUpperCase(),
+              facB = b.facet.toUpperCase();
+          if (facA < facB) {
+            return -1;
+          }
+          if (facA > facB) {
+            return 1;
+          }
+          return 0;
+      }), function(i, item) {
+        marker = currentVal == item.facet ? 'current':'';
+        $("<a href='#' class='"+marker+"'>"+item.facet+"</a>").on("click", self.clickHandler(item.facet)).appendTo(self.$target);
+      });
+    },
+
+    init: function() {
+      var self = this;
+
+      self._super();
+      AjaxSolr.Dicts["default"].set(self.field, self.options.title);
+    }
+  });
+
+  // integrate into jQuery 
+  AjaxSolr.Helpers.build("AlphaPagerWidget");
+
+})(jQuery);
+(function ($) {
+"use strict";
   
   AjaxSolr.ResultsPerPageWidget = AjaxSolr.AbstractJQueryWidget.extend({
     defaults: {
@@ -808,7 +873,27 @@
       displayAs: '.solrDisplay',
       defaultDisplay: 'list',
       dateFormat: 'dddd, Do MMMM YYYY, HH:mm',
-      dictionary: 'default'
+      dictionary: 'default',
+      enableScroll: true,
+      scrollTarget: '.solrSearchHits'
+    },
+
+    scrollIntoView: function() {
+      var self = this, 
+          rect, elem;
+
+      if (self.options.enableScroll) {
+        elem = $(self.options.scrollTarget)[0];
+        rect = elem.getBoundingClientRect();
+
+        if (rect.top < 0) {
+          elem.scrollIntoView({
+            block: "start",
+            inline: "nearest",
+            behavior: "smooth"
+          });
+        } 
+      }
     },
 
     beforeRequest: function () {
@@ -992,6 +1077,7 @@
       ));
 
       self.$target.trigger("update");
+      self.scrollIntoView();
     },
 
     update: function() {
@@ -1427,10 +1513,10 @@
         $.ajax({
           url: foswiki.getPreference('SCRIPTURL')+'/rest/SolrPlugin/webHierarchy',
           async: false,
-	  data: {
-	    //root:self.options.root, SMELL
-	    web:self.options.web
-	  },
+          data: {
+            //root:self.options.root, SMELL
+            web:self.options.web
+          },
           success: function(data) {
             self.hierarchy = data;
           }
@@ -1516,7 +1602,7 @@
       breadcrumbs.push("<a href='#' class='solrFacetValue root' data-value='"+current+"'>"+_("Root")+"</a>");
       if (typeof(current) !== 'undefined') {
         $.each(current.split(/\s*\.\s*/), function(i, val) {
-	  prefix.push(val);
+          prefix.push(val);
           breadcrumbs.push("<a href='#' class='solrFacetValue' data-value='"+prefix.join(".")+"'>"+_(val)+"</a>");
         });
       }

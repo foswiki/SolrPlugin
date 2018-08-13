@@ -1265,6 +1265,7 @@
    <copyField source="type" dest="catchall"/>
    <copyField source="concept" dest="catchall"/>
    <copyField source="sentence" dest="catchall"/>
+   <copyField source="summary" dest="catchall"/>
 
    <copyField source="attachment" dest="charnorm"/>
    <copyField source="category" dest="charnorm"/>

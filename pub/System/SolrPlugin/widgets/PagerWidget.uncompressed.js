@@ -4,10 +4,7 @@
   AjaxSolr.PagerWidget = AjaxSolr.AbstractJQueryWidget.extend({
     defaults:  {
       prevText: 'Previous',
-      nextText: 'Next',
-      enableScroll: false,
-      scrollTarget: '.solrPager:first',
-      scrollSpeed: 250
+      nextText: 'Next'
     },
 
     perPage: function () {
@@ -21,9 +18,6 @@
         //console.log("page=",page,"start=",start);
         //self.manager.store.get('start').val(start);
         self.manager.doRequest(start);
-        if (self.options.enableScroll) {
-          $.scrollTo(self.options.scrollTarget, self.options.scrollSpeed);
-        }
         return false;
       }
     },

@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1528368504" format="1.1"  version="1"}%
+%META:TOPICINFO{author="micha" comment="" date="1532014702" format="1.1" version="2"}%
 %META:TOPICPARENT{name="SolrPlugin"}%
 %{<verbatim class="tml">}%
 %{ ###########################################################################
@@ -30,14 +30,14 @@
 }%
 %TMPL:DEF{"content"}%<noautolink>
 <div id='solrSearch' style='display:none' data-more-fields='%TMPL:P{"solr::fields"}%' %FORMATLIST{"%TMPL:P{"solr::queryfields"}%" header="data-query-fields='" footer="'" separator=" " split=" "}% data-solr-url='%SCRIPTURL{"rest"}%/SolrPlugin/proxy' data-solr-params='{"topic": "%WEB%.%TOPIC%", "qt":"%TMPL:P{"solr::defaultquerytype"}%", "rows": %TMPL:P{"solr::defaultrows"}%}' data-extra-filter='%TMPL:P{"solr::extrafilter"}%'>
-%TMPL:P{"solr::title"}%<!-- -->
-%TMPL:P{"solr::header"}%<!-- -->
-%TMPL:P{"solr::hits"}%<!-- -->
-%TMPL:P{"solr::footer"}%<!-- -->
-%TMPL:P{"solr::assets"}%<!-- -->
+%TMPL:P{"solr::title"}%%{}%
+%TMPL:P{"solr::header"}%%{}%
+%TMPL:P{"solr::hits"}%%{}%
+%TMPL:P{"solr::footer"}%%{}%
+%TMPL:P{"solr::assets"}%%{}%
 </div>
-%TMPL:P{"solr::templates"}%<!-- -->
-%TMPL:P{"solr::dictionary"}%<!-- -->
+%TMPL:P{"solr::templates"}%%{}%
+%TMPL:P{"solr::dictionary"}%%{}%
 </noautolink>%TMPL:END%
 %{</verbatim>}%
 
@@ -45,19 +45,17 @@
 %{ ###########################################################################
    solr::assets - css and js to be added to the html head
 }%
-%TMPL:DEF{"solr::assets"}%<!-- -->
-%JQREQUIRE{"livequery,focus, serialpager, scrollto, photoswipe, render, jqtwisty, moment, blockui, imagetooltip" warn="off"}%<!-- -->
+%TMPL:DEF{"solr::assets"}%%JQREQUIRE{"livequery,focus, serialpager, photoswipe, render, jqtwisty, moment, blockui, imagetooltip" warn="off"}%%{}%
 %ADDTOZONE{"script"
   id="SOLRPLUGIN::AJAX"
   requires="JQUERYPLUGIN::LIVEQUERY, JQUERYPLUGIN::BLOCKUI, JQUERYPLUGIN::MOMENT"
   text="<script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/ajax-solr.js'></script>
 <script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/ajax-solr-widgets.js'></script>
 <script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/ajax-solr-init.js'></script>"
-}%<!-- -->
-%ADDTOZONE{"head"
+}%%ADDTOZONE{"head"
   id="SOLRPLUGIN"
   text="<link rel='stylesheet' href='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/solrplugin.css' type='text/css' media='all' />"
-}%<!-- -->%TMPL:END%
+}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
@@ -122,7 +120,7 @@
 %{ ###########################################################################
    solr::templates - defines all jquery.tmpl templates required
 }%
-%TMPL:DEF{"solr::templates"}%<!-- -->
+%TMPL:DEF{"solr::templates"}%%{}%
 %TMPL:P{"solr::templates::hits"}%
 %TMPL:P{"solr::templates::facetfield"}%
 %TMPL:P{"solr::templates::currentselection"}%
@@ -132,7 +130,7 @@
 %TMPL:P{"solr::templates::hierarchy"}%
 %TMPL:P{"solr::templates::resultsperpage"}%
 %TMPL:P{"solr::templates::spellcorrection"}%
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
@@ -141,13 +139,13 @@
    of different types. each type has got a ...::<name-of-type> sup-template that
    is customized to that type.
 }%
-%TMPL:DEF{"solr::templates::hits"}%<!-- -->
-%TMPL:P{"solr::templates::hits::topic"}%<!-- -->
-%TMPL:P{"solr::templates::hits::image"}%<!-- -->
-%TMPL:P{"solr::templates::hits::comment"}%<!-- -->
-%TMPL:P{"solr::templates::hits::listy"}%<!-- -->
-%TMPL:P{"solr::templates::hits::misc"}%<!-- -->
-%TMPL:P{"solr::templates::hits::ClassifiedTopic"}%<!-- -->
+%TMPL:DEF{"solr::templates::hits"}%%{}%
+%TMPL:P{"solr::templates::hits::topic"}%%{}%
+%TMPL:P{"solr::templates::hits::image"}%%{}%
+%TMPL:P{"solr::templates::hits::comment"}%%{}%
+%TMPL:P{"solr::templates::hits::listy"}%%{}%
+%TMPL:P{"solr::templates::hits::misc"}%%{}%
+%TMPL:P{"solr::templates::hits::ClassifiedTopic"}%%{}%
 <script id="solrHitTemplate" type="text/x-jsrender"> 
 {{include tmpl=~getTemplateName() /}}
 </script>%TMPL:END%
@@ -175,6 +173,7 @@
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
     </h3>
+    <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
@@ -201,6 +200,7 @@
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
     </h3>
+    <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
@@ -227,6 +227,7 @@
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
     </h3>
+    <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
@@ -244,6 +245,7 @@
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
     </h3>
+    <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
@@ -264,6 +266,7 @@
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
     </h3>
+    <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
@@ -273,7 +276,6 @@
   </div>
 </script>%TMPL:END%
 %{</verbatim>}%
-
 
 %{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::hits::misc"}%<script id="solrHitTemplate_misc" type="text/x-jsrender">
@@ -285,6 +287,7 @@
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
     </h3>
+    <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
@@ -420,7 +423,7 @@
 }%
 %TMPL:DEF{"solr::header"}%<div class='solrHeader'>
 %TMPL:P{"solr::searchform"}%
-%TMPL:P{"DISsolr::hierarchystep"}%<!-- -->
+%TMPL:P{"DISsolr::hierarchystep"}%%{}%
 %TMPL:P{"solr::spellchecker"}%
 %TMPL:P{"solr::resultsperpage"}%
 %TMPL:P{"solr::pager"}%
@@ -430,8 +433,8 @@
 %{<verbatim class="tml">}%
 %TMPL:DEF{"solr::spellchecker"}%<div class='solrSpellchecking'></div>%TMPL:END%
 %TMPL:DEF{"solr::resultsperpage"}%<div class='solrResultsPerPage'></div>%TMPL:END%
-%TMPL:DEF{"solr::pager"}%<div class='solrPager' data-next-text="%MAKETEXT{"Next"}%" data-prev-text="%MAKETEXT{"Previous"}%" data-enable-scroll="%IF{"'%scroll%'=~'^(true|false)$'" then="%scroll%" else="false"}%" ></div>%TMPL:END%
-%TMPL:DEF{"solr::footer"}%<div class='solrFooter'>%TMPL:P{"solr::pager" scroll="true"}%</div>%TMPL:END%
+%TMPL:DEF{"solr::pager"}%<div class='solrPager clearfix' data-next-text="%MAKETEXT{"Next"}%" data-prev-text="%MAKETEXT{"Previous"}%"></div>%TMPL:END%
+%TMPL:DEF{"solr::footer"}%<div class='solrFooter'>%TMPL:P{"solr::pager"}%</div>%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
@@ -439,22 +442,22 @@
    solr::searchform - this calls the separate steps comprising the form steps.
    this macro can be redefined to include more steps as needed.
 }%
-%TMPL:DEF{"solr::searchform"}%<!-- -->
+%TMPL:DEF{"solr::searchform"}%%{}%
 %TMPL:P{"solr::formstart"}%
 %TMPL:P{"solr::inputstep"}%
-%TMPL:P{"solr::tagcloudstep"}%<!-- -->
+%TMPL:P{"solr::tagcloudstep"}%%{}%
 %TMPL:P{"solr::formend"}%
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
 %{ ###########################################################################
    solr::formstart - beginning of the solr::searchform. contains the starting form 
 }%
-%TMPL:DEF{"solr::formstart"}%<!-- -->
+%TMPL:DEF{"solr::formstart"}%%{}%
 <form name="searchform" class='solrSearchForm' id='solrSearchBox' data-instant-search='%TMPL:P{"solr::instantsearch"}%'>
 <div class='foswikiFormSteps'>
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
@@ -462,7 +465,7 @@
    solr::inputstep - this is a part of the solr::searchform defining the 
    actual input field, as well as some basic select and checkboxes
 }%
-%TMPL:DEF{"solr::inputstep"}%<!-- -->
+%TMPL:DEF{"solr::inputstep"}%%{}%
 <div class='foswikiFormStep clearfix'>
   <div class='foswikiLeft'>
     <table class='foswikiNullTable'>
@@ -475,24 +478,24 @@
         </td>
       </tr>
     </table>
-    %TMPL:P{"solr::input::checkboxes"}%<!-- -->
+    %TMPL:P{"solr::input::checkboxes"}%%{}%
   </div>
   <div class='foswikiRight'>
-    %TMPL:P{"solr::sortby"}%<!-- -->
-    %TMPL:P{"DISsolr::displayas"}%<!-- -->
+    %TMPL:P{"solr::sortby"}%%{}%
+    %TMPL:P{"DISsolr::displayas"}%%{}%
   </div>
 </div>
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
 %{ ###########################################################################
    solr::formend - closing markup of the solr::searchform
 }%
-%TMPL:DEF{"solr::formend"}%<!-- -->
+%TMPL:DEF{"solr::formend"}%%{}%
 </div>
 </form>
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
@@ -501,7 +504,7 @@
    widget is the "your selection" area displaying a summary of the current filters
    followed by the list of facets. Each facet is displayed calling the "facet" macro
 }%
-%TMPL:DEF{"solr::sidebar"}%<!-- -->
+%TMPL:DEF{"solr::sidebar"}%%{}%
 <noautolink>
 %TMPL:P{"solr::selection"}%
 </noautolink>
@@ -516,7 +519,7 @@
   exclusion="true" 
   sort="title" 
   limit="-1"
-}%<!-- -->
+}%%{}%
 %TMPL:P{"solr::facet"
   id="type"
   title="%MAKETEXT{"Media"}%"
@@ -548,7 +551,7 @@
   title="%MAKETEXT{"Language"}%"
   hidefilter="true"
 }%
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
@@ -706,7 +709,7 @@
 %{ ###########################################################################
    solr::selection - renders the "your selection" part in the solr::sidebar
 }%
-%TMPL:DEF{"solr::selection"}%<!-- -->
+%TMPL:DEF{"solr::selection"}%%{}%
 <h2 class='solrFilterResultsHeading' >%MAKETEXT{"Filter results"}%</h2>
 <div id='solrCurrentSelection'>
   <h3>%MAKETEXT{"Your selection"}%:</h3>
@@ -716,21 +719,21 @@
   <a href='#' class="solrClear">%MAKETEXT{"Clear"}%</a>
   <span class='foswikiClear'></span>
 </div>
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
 %{ ###########################################################################
    solr::hits - display all search hits
 }%
-%TMPL:DEF{"solr::hits"}%<div class="solrSearchHits jqPhotoSwipe" data-history="false" data-item-selector=".solrImageFrame a" data-block-ui="window"></div>%TMPL:END%
+%TMPL:DEF{"solr::hits"}%<div class="solrSearchHits jqPhotoSwipe" data-history="false" data-enable-scroll="true" data-item-selector=".solrImageFrame a" data-block-ui="window"></div>%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
 %{ ###########################################################################
    solr::sortby - renders the sort interface
 }%
-%TMPL:DEF{"solr::sortby"}%<!-- -->
+%TMPL:DEF{"solr::sortby"}%%{}%
 <table class='foswikiNullTable'>
   <tr>
     <th>%MAKETEXT{"Sort by"}%:&nbsp;</th>
@@ -744,14 +747,14 @@
     </td>
   </tr>
 </table>
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
 %{ ###########################################################################
    solr::displayas - render the display switcher
 }%
-%TMPL:DEF{"solr::displayas"}%<!-- -->
+%TMPL:DEF{"solr::displayas"}%%{}%
 <table class='foswikiLayoutTable'>
   <tr>
     <th>%MAKETEXT{"Display as"}%:</th>
@@ -765,7 +768,7 @@
     </td>
   </tr>
 </table>
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
@@ -776,9 +779,9 @@
 %IF{"'%TMPL:P{"solr::defaultweb"}%'='all'" 
   then="$percntTMPL:P{\"solr::input::checkboxes::incurrentweb\"}$percnt"
   else="$percntTMPL:P{\"solr::input::checkboxes::inallwebs\"}$percnt"
-}%<!-- -->
-%TMPL:P{"solr::input::checkboxes::inweb"}%<!-- -->
-%TMPL:P{"solr::input::checkboxes::exactsearch"}%<!-- -->
+}%%{}%
+%TMPL:P{"solr::input::checkboxes::inweb"}%%{}%
+%TMPL:P{"solr::input::checkboxes::exactsearch"}%%{}%
 </div>%TMPL:END%
 %{</verbatim>}%
 
@@ -786,43 +789,43 @@
 %{ ###########################################################################
    solr::input::checkboxes::inweb - display a "Search in current web only" checkbox
 }%
-%TMPL:DEF{"solr::input::checkboxes::incurrentweb"}%<!-- -->
+%TMPL:DEF{"solr::input::checkboxes::incurrentweb"}%%{}%
 <span class='solrToggleFacet' data-field='web' data-value='%FORMATLIST{"%BASEWEB%" split="/" separator="."}%' data-title='%MAKETEXT{"In current web"}%'></span>
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
 %{ ###########################################################################
    solr::input::checkboxes::inallwebs - display a "Search in all webs" checkbox
 }%
-%TMPL:DEF{"solr::input::checkboxes::inallwebs"}%<!-- -->
+%TMPL:DEF{"solr::input::checkboxes::inallwebs"}%%{}%
 <span class='solrToggleFacet' data-field='web' data-value='%TMPL:P{"solr::defaultweb"}%' data-inverse='true' data-title='%MAKETEXT{"In all webs"}%'></span>
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
 %{ ###########################################################################
    solr::input::checkboxes::inmycontribs - display a "Search in my contribs" checkbox
 }%
-%TMPL:DEF{"solr::input::checkboxes::inmycontribs"}%<!-- -->
+%TMPL:DEF{"solr::input::checkboxes::inmycontribs"}%%{}%
 <span class='solrToggleFacet' data-field='contributor' data-value='%USERINFO{format="$wikiname"}%' data-title='%MAKETEXT{"In my contributions"}%'></span>
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
 %{ ###########################################################################
    solr::input::checkboxes::exactsearch - display a "Exact Search" checkbox
 }%
-%TMPL:DEF{"solr::input::checkboxes::exactsearch"}%<!-- -->
+%TMPL:DEF{"solr::input::checkboxes::exactsearch"}%%{}%
 <span class='solrToggle' data-field='qf' data-value='title_std^7 catchall' data-title='%MAKETEXT{"Exact search"}%'></span>
-<!-- -->%TMPL:END%
+%{}%%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
 %{ ###########################################################################
    solr::tagcloudstep - part of the solr::searchform. this contains the tagcloud facet
 }%
-%TMPL:DEF{"solr::tagcloudstep"}%<!-- -->
+%TMPL:DEF{"solr::tagcloudstep"}%%{}%
 <div class='foswikiFormStep solrTagCloud' data-field='tag' data-start-color="[%TAGCLOUD_START{default="111, 169, 255"}%]" data-end-color='[%TAGCLOUD_END{default="0, 89, 224"}%]'>
   <div class='foswikiFormStep'>
     <hr />
@@ -836,7 +839,7 @@
 %{ ###########################################################################
    solr::hierarchystep - part of the solr::searchform. this contains the category list
 }%
-%TMPL:DEF{"solr::hierarchystep"}%<!-- -->
+%TMPL:DEF{"solr::hierarchystep"}%%{}%
 <div class='solrHierarchy' data-field='webcat' data-facet-sort='title'>
   <div class='solrHierarchyBreadcrumbs'>
     <span class='solrHierarchyBreadcrumbsTitle'>%MAKETEXT{"You are here:"}%</span>
@@ -846,5 +849,4 @@
 </div>
 %{</verbatim>}%
 
-%META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
 %META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%

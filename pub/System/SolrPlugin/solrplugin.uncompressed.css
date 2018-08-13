@@ -173,7 +173,8 @@
 .solrHeader .foswikiFormSteps {
   margin-top:0px;
 }
-.solrFooter .solrPager {
+.solrFooter .solrPager,
+.solrFooter .solrAlphaPager {
   margin:2em 0em 0em;
   border-top:1px solid #ddd;
 }
@@ -181,9 +182,10 @@
 .solrPagerNext,
 .solrAlphaPager a,
 .solrPager a {
-  margin:0px 1px;
-  padding:2px 5px;
+  margin:0 1px;
+  padding:0 5px;
   text-decoration:none;
+  float:left;
 }
 .solrHover input,
 .solrHover label {
