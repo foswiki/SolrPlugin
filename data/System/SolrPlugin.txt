@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1539265770" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1539266447" format="1.1"  version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -882,6 +882,13 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  10 Oct 2018: | mime types are now multivalued, e.g. and image is now tagged type: =["gif", "image", "attachment"]=; \
+                  better support for attachments listed in the autosuggest drop down box; \
+                  the rudimentary type mapping is now based on the system mime types table and not using a typemap file in solr's config anymore; \
+                  removed dependency on =Image::Magick=; \
+                  fixed error exceeding the max string length in solr; \
+                  the form name will now be used when no !TopicType field is present to construct the !TopicType facet; \
+                  fixed support for =ALLOWWEBVIEW = *= |
 |  13 Aug 2018: | new alphabetical navigation for wiki users; \
                   fixed searching for summary; \
                   replaced jquery.scrollto with native scroll api; \
@@ -899,7 +906,7 @@ specific search applications. The destination fields are then analysed using the
                   truncate document values larger than 32k to prevent solr from crashing; \
                   use flexbox for people search interface; \
                   fixed creating urls to <nop>ImagePlugin rest interface to generate thumbnail previews |
-|  23 Jan 2017: | converted WebServices::Solr to Moo; \
+|  23 Jan 2017: | converted =WebServices::Solr= to Moo; \
                   fixed documentation for iwatch realtime indexing; \
                   documentation of SOLRSCRIPTURL macro; \
                   using jquery.i18n for javascript translations now; \
@@ -1021,5 +1028,5 @@ specific search applications. The destination fields are then analysed using the
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1539265770" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1539265770" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1539266447" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1539266447" size="158013" user="ProjectContributor" version="1"}%
