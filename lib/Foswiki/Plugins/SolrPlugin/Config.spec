@@ -107,6 +107,12 @@ $Foswiki::cfg{SolrPlugin}{SupportedLanguages} = {
   'tr' => 'tr', 'turkish' => 'tr',
 };
 
+# **PATH LABEL="Mime-Types Filename" CHECK='undefok perms:Fr' EXPERT**
+# Pathname to file that maps file suffixes to MIME types :
+# This may be a different file than the one defined in {MimeTypesFileName}.
+# It defaults to <code>/etc/mime.types</code> which is more detailed in general.
+$Foswiki::cfg{SolrPlugin}{MimeTypesFileName} = '/etc/mime.types';
+
 # **PERL H EXPERT**
 # This setting is required to enable executing the solrsearch script from the bin directory
 $Foswiki::cfg{SwitchBoard}{solrsearch} = {

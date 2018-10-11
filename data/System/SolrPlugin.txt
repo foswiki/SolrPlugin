@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1528368504" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1539265770" format="1.1"  version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -65,10 +65,19 @@ mv /var/solr/logs /var/log/solr
 
 <verbatim class="bash">
 cd /var/solr/data
-cp -r <foswiki-dir>/solr/configsets .
 cp -r <foswiki-dir>/solr/cores .
-chown -R solr.solr .
+mkdir configsets
+cd configsets
+ln -s <foswiki-dir>/solr/configsets/foswiki_configs 
+chown -R solr.solr /var/solr
 </verbatim>
+
+---+++ Updating from a previous configuration set
+
+An updated !SolrPlugin might come with a newer configuration set, i.e. a newer =schema.xml= pr =solrconfig.xml= files. Make sure that these files coming with an update are installed to
+the solr server as well. This will be taken care of when the =foswiki_configs= directory is linked into the solr server's configsets directory. Note however that any local changes
+you made to these files will be overwritten by the update. You might eigher create a config set of your own and adjust the core definition accordingly to make use of the newly
+created config set, or you need to merge changes into the standard =foswiki_configs= set of files.
 
 ---+++ Start solr service again
 
@@ -685,7 +694,7 @@ useful for spatial search.
 | text_sort | this is a text field suitable for sorting alphabetically |
 | text_rev | a general unstemmed text field that indexes tokens normally and also \
          reversed, to enable more efficient leading wildcard queries. |
-| type | a text field used to analyse different content type; Type mappings are defined in =typemaping.txt=; for example, that's where all image file extension are mapped to "image", same for "video" |
+| type | a list of strings used to analyse different media types. these are analysed using the system's mime types table and generating meaningfull values; for example a gif image would be of type "gif", "image" and "attachment" |
 
 ---+++ Fields
 
@@ -1012,5 +1021,5 @@ specific search applications. The destination fields are then analysed using the
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1528368504" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1528368504" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1539265770" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1539265770" size="158013" user="ProjectContributor" version="1"}%

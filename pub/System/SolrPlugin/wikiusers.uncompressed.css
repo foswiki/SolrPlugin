@@ -26,6 +26,7 @@
 .solrSearchHits .foswikiProfileInfo:first-child {
   border:1px solid #d1d1d1;
   padding:0.5em 0.5em 0.5em 90px;
+  margin-top:15px;
 }
 .solrSearchHits:after,
 .solrSearchHits .foswikiProfileInfo {

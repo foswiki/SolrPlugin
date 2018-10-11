@@ -46,6 +46,7 @@
 .solrSearchHitsList .solrSearchHit:first-child {
   border-top:0;
   padding-top:0;
+  margin-top:0;
 }
 .solrSearchHitsGrid .solrSearchHit {
   width:17%;
@@ -203,6 +204,7 @@
 }
 .solrPagerEllipsis {
   margin:0px 5px;
+  float:left;
 }
 .solrPager .solrPagerPrev {
   margin-right:0.5em;
@@ -226,6 +228,9 @@
   text-decoration:none;
 }
 
+.solrTagCloud {
+  line-height:1.4;
+}
 .tagCloud {
   text-align:center;
 }

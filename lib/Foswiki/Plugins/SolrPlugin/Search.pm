@@ -440,10 +440,10 @@ sub formatResponse {
   }
 
   # standard escapes
-  $result =~ s/\$perce?nt/\%/go;
-  $result =~ s/\$nop\b//go;
-  $result =~ s/\$n/\n/go;
-  $result =~ s/\$dollar/\$/go;
+  $result =~ s/\$perce?nt/\%/g;
+  $result =~ s/\$nop\b//g;
+  $result =~ s/\$n/\n/g;
+  $result =~ s/\$dollar/\$/g;
 
   #$this->log("result=$result");
 
@@ -690,8 +690,8 @@ sub restSOLRAUTOSUGGEST {
   my $userForm = $Foswiki::cfg{SolrPlugin}{PersonDataForm} || $Foswiki::cfg{PersonDataForm} || $Foswiki::cfg{Ldap}{PersonDataForm} || '*UserForm';
   my %filter = (
     persons => "form:$userForm",
-    topics => "-form:$userForm type:topic",
-    attachments => "-type:topic -type:comment",
+    topics => "type:topic",
+    attachments => "type:attachment",
   );
 
   my @groupQuery = ();
@@ -790,8 +790,6 @@ sub restSOLRAUTOSUGGEST {
         $doc->{thumbnail} = $Foswiki::cfg{PubUrlPath}."/".$Foswiki::cfg{SystemWebName}."/JQueryPlugin/images/nobody.gif"
           unless defined $doc->{thumbnail};
 
-        $doc->{value} = $doc->{title}; 
-
         push @docs, $doc;
       }
       push @autoSuggestions, {
@@ -814,7 +812,6 @@ sub restSOLRAUTOSUGGEST {
       foreach my $doc (@{$group->{doclist}{docs}}) {
         $doc->{thumbnail} = $this->mapToIconFileName("unknown")
           unless defined $doc->{thumbnail};
-        $doc->{value} = $doc->{title};
         push @docs, $doc;
       }
       push @autoSuggestions, {
@@ -824,7 +821,7 @@ sub restSOLRAUTOSUGGEST {
         "docs" => \@docs,
         "moreUrl" => $this->getAjaxScriptUrl($this->{session}{webName}, 'WebSearch', {
           topic => 'WebSearch',
-          fq => $filter{topics}, # SMELL: what about the other filters
+          fq => [$filter{topics}], # SMELL: what about the other filters
           search => $theQuery 
         })
       } if @docs;
@@ -844,7 +841,6 @@ sub restSOLRAUTOSUGGEST {
             $doc->{thumbnail} = $this->mapToIconFileName($ext);
           }
         }
-        $doc->{value} = $doc->{title}; 
         push @docs, $doc;
       }
       push @autoSuggestions, {
@@ -890,8 +886,8 @@ sub restSOLRAUTOCOMPLETE {
 
   # tokenize here as well to separate query and prefix
   $theQuery =~ s/[\!"§\$%&\/\(\)=\?{}\[\]\*\+~#',\.;:\-_]/ /g;
-  $theQuery =~ s/([$Foswiki::regex{lowerAlpha}])([$Foswiki::regex{upperAlpha}$Foswiki::regex{numeric}]+)/$1 $2/go;
-  $theQuery =~ s/([$Foswiki::regex{numeric}])([$Foswiki::regex{upperAlpha}])/$1 $2/go;
+  $theQuery =~ s/([$Foswiki::regex{lowerAlpha}])([$Foswiki::regex{upperAlpha}$Foswiki::regex{numeric}]+)/$1 $2/g;
+  $theQuery =~ s/([$Foswiki::regex{numeric}])([$Foswiki::regex{upperAlpha}])/$1 $2/g;
 
   # work around solr not doing case-insensitive facet queries
   $theQuery = lc($theQuery);
@@ -1636,7 +1632,11 @@ sub getAjaxScriptUrl {
     next if !defined($val) || $val eq '';
 
     if ($key eq 'fq') {
-      push @anchors, 'fq='.$val;
+      if (ref($val)) {
+        push @anchors, 'fq='.$_ foreach @$val;
+      } else {
+        push @anchors, 'fq='.$val;
+      }
       next;
     }
 

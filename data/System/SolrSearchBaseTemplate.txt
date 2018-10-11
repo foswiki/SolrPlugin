@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="micha" comment="" date="1532014702" format="1.1" version="2"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1539265770" format="1.1"  version="1"}%
 %META:TOPICPARENT{name="SolrPlugin"}%
 %{<verbatim class="tml">}%
 %{ ###########################################################################
@@ -75,6 +75,7 @@
   "keyword": "%MAKETEXT{"keyword"}%",
   "tag": "%MAKETEXT{"tag"}%",
   "webcat": "%MAKETEXT{"Category"}%",
+  "field_TopicType_lst": "%MAKETEXT{"Type"}%",
   "ar":"Arabic",
   "bg":"Bulgarian",
   "ca":"Catalan",
@@ -282,7 +283,7 @@
   <div class='solrSearchHit solrMiscHit clearfix'>
     <h3>
       <i class='solrHitIcon foswikiIcon jqIcon fa {{if icon}}{{:icon}}{{else}}fa-file-o{{/if}}'></i>
-      <a href='{{:url}}'>{{:title}}</a>
+      <a href='{{:url}}'>{{:name}}</a>
       <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %MAKETEXT{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
@@ -521,8 +522,15 @@
   limit="-1"
 }%%{}%
 %TMPL:P{"solr::facet"
+  id="field_TopicType_lst"
+  exclude="ApplicationLicense|ApplicationTopic|DataForm|DocuTopic|TopicStub|WebTool|WikiApplication|WikiTopic|TaggedTopic|CategorizedTopic"
+  title="%MAKETEXT{"Type"}%"
+}%
+%TMPL:P{"solr::facet"
   id="type"
   title="%MAKETEXT{"Media"}%"
+  multivalue="true" 
+  exclude="attachment"
 }%
 %TMPL:P{"solr::facetquery"
   id="date"
@@ -539,12 +547,6 @@
       { \"key\": \"%MAKETEXT{"1 year"}%\", \"value\": \"date:[NOW-1YEAR TO NOW]\" },
       { \"key\": \"%MAKETEXT{"older"}%\", \"value\": \"date:[* TO NOW/YEAR]\" }
     ]"
-}%
-%TMPL:P{"solr::facet"
-  id="field_TopicType_lst"
-  exclude="ApplicationLicense|ApplicationTopic|DataForm|DocuTopic|TopicStub|TopicTemplate|WebTool|WikiApplication|WikiTopic|TaggedTopic|CategorizedTopic"
-  sort="title" 
-  title="%MAKETEXT{"Topic type"}%"
 }%
 %TMPL:P{"solr::facet"
   id="language"

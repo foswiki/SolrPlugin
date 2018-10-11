@@ -85,13 +85,13 @@ sub connect {
 
   for ($tries = 1; $tries <= $maxConnectRetries; $tries++) {
     eval {
-      $this->{solr} = WebService::Solr->new($this->{url}, { 
-        agent => LWP::UserAgent->new( 
+      $this->{solr} = WebService::Solr->new($this->{url}, {
+        agent => LWP::UserAgent->new(
           agent => "Foswiki-SolrPlugin/$Foswiki::Plugins::SolrPlugin::VERSION",
-          timeout => $this->{timeout}, 
-          keep_alive => 1 
-        ), 
-        autocommit => 0, 
+          timeout => $this->{timeout},
+          keep_alive => 1
+        ),
+        autocommit => 0,
       });
     };
 
@@ -318,7 +318,7 @@ sub getTopicSummary {
   unless ($meta) {
     ($meta, $text) = Foswiki::Func::readTopic($web, $topic);
   }
-  
+
   my $field = $meta->get('FIELD', 'Summary');
   $summary = $field->{value} if $field && $field->{value};
 
@@ -341,7 +341,7 @@ sub getTopicSummary {
 }
 
 ################################################################################
-# wrapper around Foswiki::Func::getScriptUrlPath 
+# wrapper around Foswiki::Func::getScriptUrlPath
 # that really, _really_, __really__ returns a relative path even when
 # called from the command line
 sub getScriptUrlPath {
@@ -363,10 +363,10 @@ sub plainify {
   my $wtn = Foswiki::Func::getPreferencesValue('WIKITOOLNAME') || '';
 
   # from Foswiki:Extensions/GluePlugin
-  $text =~ s/^#~~(.*?)$//gom;    # #~~
-  $text =~ s/%~~\s+([A-Z]+[{%])/%$1/gos;    # %~~
-  $text =~ s/\s*[\n\r]+~~~\s+/ /gos;        # ~~~
-  $text =~ s/\s*[\n\r]+\*~~\s+//gos;        # *~~
+  $text =~ s/^#~~(.*?)$//gm;    # #~~
+  $text =~ s/%~~\s+([A-Z]+[{%])/%$1/gs;    # %~~
+  $text =~ s/\s*[\n\r]+~~~\s+/ /gs;        # ~~~
+  $text =~ s/\s*[\n\r]+\*~~\s+//gs;        # *~~
 
   # from Fosiki::Render
   $text =~ s/\r//g;                         # SMELL, what about OS10?
@@ -459,6 +459,123 @@ sub toUtf8 {
   my $this = shift;
 
   return Encode::encode('utf-8', $_[0]);
+}
+
+##############################################################################
+sub getMimeType {
+  my ($this, $fileName) = @_;
+
+  my $mimeType;
+  my $suffix = $fileName;
+
+  if ($fileName =~ /\.([^.]+)$/) {
+    $suffix = $1;
+  }
+
+  unless (defined $this->{_types}) {
+    my $mimeTypesFile = $Foswiki::cfg{SolrPlugin}{MimeTypesFileName} || $Foswiki::cfg{MimeTypesFileName};
+    $this->{_types} = Foswiki::Func::readFile($mimeTypesFile);
+    $this->{_types} //= "";
+  }
+
+  if ($this->{_types} =~ /^([^#]\S*).*?\s$suffix(?:\s|$)/im) {
+    $mimeType = $1;
+  }
+
+  return unless defined $mimeType;
+
+  my ($type, $subType) = $mimeType =~ /^(.*)\/(.*)$/;
+
+  return wantarray ? ($type, $subType) : $mimeType;
+}
+
+##############################################################################
+sub getMappedMimeType {
+  my ($this, $fileName) = @_;
+
+  $fileName =~ s/\.tar\.gz$/.tgz/; # SMELL: sometimes not part of mime.types file
+
+  my ($type, $subType) = $this->getMimeType($fileName);
+  return unless defined $type;
+
+  # decompose 'application' group in a more meaningful way
+  if ($type eq 'application') {
+
+    # chart
+    if ($subType =~ /chart|visio/) {
+      $type = 'chart';
+    }
+
+    # documents
+    elsif ($subType =~ /document|ms\-?word|rtf/) {
+      $type = 'document';
+    }
+
+    # presentation
+    elsif ($subType  =~ /powerpoint|presentation|slide/) {
+      $type = 'presentation';
+    }
+
+    # spreadsheet
+    elsif ($subType =~ /numeric|spreadsheet|ms\-?excel/) {
+      $type = 'spreadsheet';
+    }
+
+    # pdf
+    elsif ($subType =~ /pdf|postscript/) {
+      $type = 'pdf';
+    }
+
+    # add to image
+    elsif ($subType =~ /xcf/) {
+      $type = 'image';
+    }
+
+    # add to video
+    elsif ($subType =~ /swf|flash/) {
+      $type = 'video';
+    }
+
+    # script
+    elsif ($subType =~ /\b(js|json|sh|javascript)\b/) {
+      $type = 'script';
+    }
+
+    # archive
+    elsif ($subType =~ /\b(zip|tar|rar|compressed)\b/) {
+      $type = 'archive';
+    }
+
+    # xml
+    elsif ($subType =~ /xml\b/) {
+      $type = 'xml';
+    }
+
+    # trash
+    elsif ($subType =~ /x\-trash/) {
+      $type = 'trash';
+    }
+
+    # binary
+    elsif ($subType =~ /octet\-stream|x\-executable|x\-msdos\-program|x\-xpinstall/) {
+      $type = 'binary';
+    }
+
+    # certificates
+    elsif ($subType =~ /x\-x509|ca\-cert/) {
+      $type = 'certificate';
+    }
+
+    # suppress any other application type
+    else {
+      return;
+    }
+  }
+
+  # text based spreadsheets
+  $type = 'spreadsheet' if $type eq 'text' && $subType eq 'csv';
+
+  return wantarray ? ($type, $subType) : "$type/$subType";
 }
 
 1;

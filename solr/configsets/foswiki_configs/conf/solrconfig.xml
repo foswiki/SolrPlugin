@@ -833,6 +833,8 @@
         tag_search^0.5
         catchall
         charnorm
+        text_prefix^0.5
+        text_suffix^0.5
         <!-- phonetic -->
       </str>
       <!-- boost more recent documents -->
@@ -855,6 +857,8 @@
         tag_search^0.5
         catchall
         charnorm
+        text_prefix^0.5
+        text_suffix^0.5
         <!-- phonetic -->
       </str>
       <int name="ps">1</int>
@@ -895,6 +899,8 @@
         tag_search^0.5
         catchall
         charnorm
+        text_prefix^0.5
+        text_suffix^0.5
         <!-- phonetic -->
       </str>
       <!-- boost more recent documents -->
@@ -917,6 +923,8 @@
         tag_search^0.5
         catchall
         charnorm
+        text_prefix^0.5
+        text_suffix^0.5
         <!-- phonetic -->
       </str>
       <int name="ps">1</int>

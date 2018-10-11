@@ -15,7 +15,7 @@
     },
 
     scrollIntoView: function() {
-      var self = this, 
+      var self = this,
           rect, elem;
 
       if (self.options.enableScroll) {
@@ -28,7 +28,7 @@
             inline: "nearest",
             behavior: "smooth"
           });
-        } 
+        }
       }
     },
 
@@ -66,7 +66,7 @@
 
       // rewrite view urls
       $.each(response.response.docs, function(index,doc) {
-        var containerWeb = doc.container_web, 
+        var containerWeb = doc.container_web,
             containerTopic = doc.container_topic;
 
         if (doc.type === "topic") {
@@ -95,35 +95,40 @@
             return encodeURIComponent(text);
           },
           getTemplateName: function() {
-            var type = this.data.type.replace(/%\d+/g, ""),  // clean up errors in data
+            var type,
                 topicType = this.data.field_TopicType_lst || [],
+                i, j, l, m,
                 templateName;
 
-            if (type == 'topic') {
-              for (var i = 0, l = topicType.length; i < l; i++) {
-                templateName = "#solrHitTemplate_"+topicType[i];
-                if ($(templateName).length) {
-                  return templateName;
+            for (j = 0, m = this.data.type.length; j < m; j++) {
+              type = this.data.type[j].replace(/%\d+/g, "");  // clean up errors in data
+
+              if (type == 'topic') {
+                for (i = 0, l = topicType.length; i < l; i++) {
+                  templateName = "#solrHitTemplate_"+topicType[i];
+                  if ($(templateName).length) {
+                    return templateName;
+                  }
                 }
+                return "#solrHitTemplate_topic";
               }
-              return "#solrHitTemplate_topic";
-            } 
 
-            if (type.match(/png|gif|jpe?g|tiff|bmp/)) {
-              return "#solrHitTemplate_image";
-            } 
+              if (type.match(/png|gif|jpe?g|tiff|bmp/)) {
+                return "#solrHitTemplate_image";
+              }
 
-            if (type.match(/comment/)) {
-              return "#solrHitTemplate_comment";
-            } 
+              if (type.match(/comment/)) {
+                return "#solrHitTemplate_comment";
+              }
 
-            if (type.match(/listy/)) {
-              return "#solrHitTemplate_listy";
-            } 
+              if (type.match(/listy/)) {
+                return "#solrHitTemplate_listy";
+              }
 
-            templateName = "#solrHitTemplate_"+type;
-            if ($(templateName).length) {
-               return templateName;
+              templateName = "#solrHitTemplate_"+type;
+              if ($(templateName).length) {
+                 return templateName;
+              }
             }
 
             return "#solrHitTemplate_misc";
@@ -143,12 +148,12 @@
               if (list.length > limit) {
                 result += " ...";
               }
-            } 
+            }
 
             return result;
           },
           renderTopicInfo: function() {
-            var cats = this.data.field_Category_title_lst, 
+            var cats = this.data.field_Category_title_lst,
                 tags = this.data.tag,
                 lines, result = '';
 
@@ -162,11 +167,11 @@
               if (cats.length > 10) {
                 result += " ...";
               }
-            } 
+            }
             if (tags && tags.length) {
               if (cats && cats.length) {
                 result += " &#124; ";
-              } 
+              }
               result += '<i class="fa fa-tag" /> ';
               result += tags.sort().slice(0, 10).join(", ");
               if (tags.length > 10) {

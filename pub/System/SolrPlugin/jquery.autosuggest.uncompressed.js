@@ -43,6 +43,13 @@
                 "<td>{{:title}}<div class='foswikiGrayText'>{{:phoneNumber}}</div></td>"+
               "</tr></table></a>"+
             "</li>",
+        "attachments": "<li class='ui-autosuggest-item {{:group}} {{:isFirst}} {{:isLast}}'>{{:header}}"+
+            "<a href='{{:url}}' class='ui-autosuggest-link'>"+
+              "<table class='foswikiNullTable'><tr>"+
+                "<th><div>{{:thumbnail}}</div></th>"+
+                "<td>{{:name}}<div class='foswikiGrayText'>{{:container_title}}</div></td>"+
+              "</tr></table>"+
+            "</a></li>",
         "default": "<li class='ui-autosuggest-item {{:group}} {{:isFirst}} {{:isLast}}'>{{:header}}"+
             "<a href='{{:url}}' class='ui-autosuggest-link'>"+
               "<table class='foswikiNullTable'><tr>"+

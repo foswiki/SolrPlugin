@@ -34,6 +34,7 @@ use Encode ();
 use constant TRACE => 0;    # toggle me
 use constant VERBOSE => 1;  # toggle me
 use constant PROFILE => 0;  # toggle me
+use constant MAX_STRING_LENGTH => 30000; 
 
 #use Time::HiRes (); # enable this too when profiling
 
@@ -564,11 +565,14 @@ sub indexFormFields {
   my %seenFields = ();
   my $formFields = $formDef->getFields();
   if ($formFields) {
+    my $foundTopicType = 0;
     foreach my $fieldDef (@{$formFields}) {
       my $name = $fieldDef->{name};
       my $field = $meta->get('FIELD', $name);
 
       next if !defined($field) || ($isUserProfile && $name eq 'Email');
+
+      $foundTopicType = 1 if $name eq 'TopicType';
 
       # prevent from mall-formed formDefinitions
       if ($seenFields{$name}) {
@@ -584,6 +588,13 @@ sub indexFormFields {
       }
 
       $this->indexFormField($web, $topic, $fieldDef, $field->{value}, $doc, $outgoingLinks);
+    }
+
+    # map form name to TopicType if not found otherwise
+    unless ($foundTopicType) {
+      my $topicType = $formName;
+      $topicType =~ s/^.*\.(.*?)$/$1/;
+      $doc->add_fields('field_TopicType_lst' => $topicType,);
     }
   }
 }
@@ -634,9 +645,6 @@ sub indexFormField {
   # bit of cleanup
   $value =~ s/<!--.*?-->//gs;
 
-  # truncate field value to 32760
-  $value = substr($value, 0, 32760);
-
   # create a dynamic field indicating the field type to solr
 
   # date
@@ -675,16 +683,16 @@ sub indexFormField {
     # add an extra check for floats
     if ($fieldType eq '_f') {
       if ($value =~ /^\s*([\-\+]?\d+(\.\d+)?)\s*$/) {
-        $doc->add_fields($fieldName . '_f' => $1,);
+        $value = $1;
       } else {
-        $this->log("WARNING: malformed float value '$value'");
+        $this->log("WARNING: malformed float value '$value' in field $fieldName");
+        return;
       }
     }
 
     # add an extra treatment for booleans
-    if ($fieldType eq '_b') {
+    elsif ($fieldType eq '_b') {
       $value = Foswiki::Func::isTrue($value, 0);
-      $doc->add_fields($fieldName . '_b' => $value);
     }
 
     # for explicit _s fields apply a full plainify
@@ -696,11 +704,15 @@ sub indexFormField {
       $value =~ s/<!--.*?-->//gs;    # remove all HTML comments
       $value =~ s/<[^>]*>/ /g;       # remove all HTML tags
       $value = $this->discardIllegalChars($value);    # remove illegal characters
-
-      $doc->add_fields($fieldName . '_s' => $value) if defined $value && $value ne '';
-    } else {
-      $doc->add_fields($fieldName . $fieldType => $value) if defined $value && $value ne '';
     }
+
+    # truncate field value to MAX_STRING_LENGTH
+    if (length($value) > MAX_STRING_LENGTH) {
+      $this->log("WARNING: value of field '$name' exceeds maximum string length ... shortening");
+      $value = substr($value, 0, MAX_STRING_LENGTH);
+    }
+
+    $doc->add_fields($fieldName . $fieldType => $value) if defined $value && $value ne '';
   }
 }
 
@@ -791,6 +803,14 @@ sub indexAttachment {
   # fix some extension naming
   $extension = 'jpeg' if $extension =~ /jpe?g/i;
   $extension = 'html' if $extension =~ /html?/i;
+  $extension = 'tgz' if $name =~ /\.tar\.gz$/i;
+
+  # get file types
+  my @types = ();
+  my ($mappedType) = $this->getMappedMimeType($name);
+  push @types, 'attachment';
+  push @types, $extension if $extension;
+  push @types, $mappedType if $mappedType && $mappedType ne $extension;
 
   my $attText = '';
   $attText = $this->getStringifiedVersion($web, $topic, $name);
@@ -861,7 +881,7 @@ sub indexAttachment {
     topic => $topic,
     webtopic => "$web.$topic",
     title => $title,
-    type => $extension,
+    type => \@types,
     text => $attText,
     summary => $summary,
     author => $author,
@@ -1181,7 +1201,7 @@ sub getContributors {
   };
   return () unless defined $maxRev;
 
-  $maxRev =~ s/r?1\.//go;    # cut 'r' and major
+  $maxRev =~ s/r?1\.//g;    # cut 'r' and major
 
   my %contributors = ();
 
@@ -1269,7 +1289,11 @@ sub getGrantedUsers {
   # Check DENYTOPIC
   if (defined $deny) {
     if (scalar(@$deny)) {
-      $forbiddenUsers = $this->expandUserList(@$deny);
+      if (grep {/^\*$/} @$deny) {
+        $forbiddenUsers = [keys %{$this->getListOfUsers()}];
+      } else {
+        $forbiddenUsers = $this->expandUserList(@$deny);
+      }
     } else {
 
       if ($isDeprecatedEmptyDeny) {
@@ -1287,7 +1311,6 @@ sub getGrantedUsers {
   # Check ALLOWTOPIC
   if (defined($allow)) {
     if (scalar(@$allow)) {
-
       if (!$isDeprecatedEmptyDeny && grep {/^\*$/} @$allow) {
         $this->log("access * -> grant all access") if TRACE;
 
@@ -1332,10 +1355,14 @@ sub getGrantedUsers {
   $this->log("(2) forbiddenUsers=@$forbiddenUsers") if TRACE && defined $forbiddenUsers;
 
   if (defined($webAllow) && scalar(@$webAllow)) {
-    $grantedUsers{$_} = 1 foreach grep {!/^UnknownUser/} @{$this->expandUserList(@$webAllow)};
+    if (grep {/^\*$/} @$webAllow) {
+      %grantedUsers = %{$this->getListOfUsers()};
+    } else {
+      $grantedUsers{$_} = 1 foreach grep {!/^UnknownUser/} @{$this->expandUserList(@$webAllow)};
+    }
   } elsif (!defined($deny) && !defined($webDeny)) {
 
-    #$this->log("no denies, no allows -> grant all access") if TRACE;
+    $this->log("no denies, no allows -> grant all access") if TRACE;
 
     # No denies, no allows -> open door policy
     $this->{_webACLCache}{$web} = ['all'];
@@ -1359,10 +1386,10 @@ sub getGrantedUsers {
     push @grantedUsers, $user if $grantedUsers{$user} > 1;
   }
 
-  #$this->log("grantedUsers=@grantedUsers");
-
   $this->log("nr granted users=".scalar(@grantedUsers).", nr known users=".$this->nrKnownUsers) if TRACE;
   @grantedUsers = ('all') if scalar(@grantedUsers) == $this->nrKnownUsers;
+
+  #$this->log("grantedUsers=@grantedUsers") if TRACE;
 
   # can't cache when there are topic-level perms 
   $this->{_webACLCache}{$web} = \@grantedUsers unless defined($deny);
@@ -1406,7 +1433,7 @@ sub expandUserList {
   my %result = ();
 
   foreach my $id (@users) {
-    $id =~ s/(<[^>]*>)//go;
+    $id =~ s/(<[^>]*>)//g;
     $id =~ s/^($Foswiki::cfg{UsersWebName}|%USERSWEB%|%MAINWEB%)\.//;
     next unless $id;
 

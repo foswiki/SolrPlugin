@@ -20,38 +20,38 @@ msgstr ""
 "X-Poedit-Country: UKRAINE\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: data/System/SolrSearchBaseTemplate.txt:725
+#: data/System/SolrSearchBaseTemplate.txt:719
 msgid "(none)"
 msgstr "(жоден)"
 
-#: data/System/SolrSearchBaseTemplate.txt:534
+#: data/System/SolrSearchBaseTemplate.txt:540
 #, fuzzy
 msgid "1 hour"
 msgstr "годину тому"
 
-#: data/System/SolrSearchBaseTemplate.txt:539
+#: data/System/SolrSearchBaseTemplate.txt:545
 msgid "1 month"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:541
+#: data/System/SolrSearchBaseTemplate.txt:547
 msgid "1 year"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:537
+#: data/System/SolrSearchBaseTemplate.txt:543
 #, fuzzy
 msgid "2 days"
 msgstr "3 дні тому"
 
-#: data/System/SolrSearchBaseTemplate.txt:540
+#: data/System/SolrSearchBaseTemplate.txt:546
 msgid "2 months"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:535
+#: data/System/SolrSearchBaseTemplate.txt:541
 #, fuzzy
 msgid "4 hours"
 msgstr "24 години тому"
 
-#: data/System/SolrSearchBaseTemplate.txt:538
+#: data/System/SolrSearchBaseTemplate.txt:544
 #, fuzzy
 msgid "7 days"
 msgstr "3 дні тому"
@@ -60,35 +60,26 @@ msgstr "3 дні тому"
 msgid "All"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:559
-msgid "Author"
-msgstr ""
-
-#: data/System/SolrSearchBaseTemplate.txt:79
+#: data/System/SolrSearchBaseTemplate.txt:77
 #, fuzzy
 msgid "Category"
 msgstr "Категорії"
 
-#: data/System/SolrSearchBaseTemplate.txt:727
+#: data/System/SolrSearchBaseTemplate.txt:721
 #, fuzzy
 msgid "Clear"
 msgstr "Очистити усе"
 
-#: data/System/SolrSearchBaseTemplate.txt:526
-#, fuzzy
-msgid "Container"
-msgstr "Контекст"
-
-#: data/System/SolrSearchBaseTemplate.txt:752
+#: data/System/SolrSearchBaseTemplate.txt:746
 #, fuzzy
 msgid "Create date"
 msgstr "Створити користувача"
 
-#: data/System/SolrSearchBaseTemplate.txt:411
+#: data/System/SolrSearchBaseTemplate.txt:415
 msgid "Did you mean %1?"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:768
+#: data/System/SolrSearchBaseTemplate.txt:762
 msgid "Display as"
 msgstr ""
 
@@ -96,31 +87,31 @@ msgstr ""
 msgid "Enter topic name or a search string"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:828
+#: data/System/SolrSearchBaseTemplate.txt:822
 #, fuzzy
 msgid "Exact search"
 msgstr "Розширений пошук"
 
-#: data/System/SolrSearchBaseTemplate.txt:629
+#: data/System/SolrSearchBaseTemplate.txt:623
 msgid "Filter"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:721
+#: data/System/SolrSearchBaseTemplate.txt:715
 #, fuzzy
 msgid "Filter results"
 msgstr "Результати пошуку"
 
-#: data/System/SolrSearchBaseTemplate.txt:810
+#: data/System/SolrSearchBaseTemplate.txt:804
 #, fuzzy
 msgid "In all webs"
 msgstr "Шукати у всіх розділах"
 
-#: data/System/SolrSearchBaseTemplate.txt:801
+#: data/System/SolrSearchBaseTemplate.txt:795
 #, fuzzy
 msgid "In current web"
 msgstr "Новий батьківський розділ:"
 
-#: data/System/SolrSearchBaseTemplate.txt:819
+#: data/System/SolrSearchBaseTemplate.txt:813
 msgid "In my contributions"
 msgstr ""
 
@@ -129,7 +120,7 @@ msgstr ""
 msgid "Language"
 msgstr "Язык изменен"
 
-#: data/System/SolrSearchBaseTemplate.txt:751
+#: data/System/SolrSearchBaseTemplate.txt:745
 #, fuzzy
 msgid "Last changed"
 msgstr "остання зміна"
@@ -139,16 +130,17 @@ msgstr "остання зміна"
 msgid "Location"
 msgstr "Позначення"
 
-#: data/System/SolrSearchBaseTemplate.txt:522
+#: data/System/SolrSearchBaseTemplate.txt:531
 msgid "Media"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:753
+#: data/System/SolrSearchBaseTemplate.txt:747
 #, fuzzy
 msgid "Name"
 msgstr "Ім'я:"
 
-#: data/System/SolrSearchBaseTemplate.txt:433
+#: data/System/SolrSearchBaseTemplate.txt:437
+#: data/System/SolrWikiUsersViewTemplate.txt:18
 msgid "Next"
 msgstr "Далі"
 
@@ -157,11 +149,12 @@ msgstr "Далі"
 msgid "Organisation"
 msgstr "URL організації:"
 
-#: data/System/SolrSearchBaseTemplate.txt:840
+#: data/System/SolrSearchBaseTemplate.txt:834
 msgid "Popular tags"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:433
+#: data/System/SolrSearchBaseTemplate.txt:437
+#: data/System/SolrWikiUsersViewTemplate.txt:18
 msgid "Previous"
 msgstr "Назад"
 
@@ -175,7 +168,7 @@ msgstr "Дозволи"
 msgid "Recent Changes"
 msgstr "Недавно змінені теми"
 
-#: data/System/SolrSearchBaseTemplate.txt:532
+#: data/System/SolrSearchBaseTemplate.txt:538
 #: data/System/WebChangesViewTemplate.txt:19
 #, fuzzy
 msgid "Recent changes"
@@ -186,23 +179,23 @@ msgstr "Недавно змінені теми"
 msgid "Recent changes in %1"
 msgstr "%1 нещодавніх змін у розділі %2"
 
-#: data/System/SolrSearchBaseTemplate.txt:750
+#: data/System/SolrSearchBaseTemplate.txt:744
 msgid "Relevance"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:381
+#: data/System/SolrSearchBaseTemplate.txt:385
 #: data/System/SolrWikiUsersViewTemplate.txt:101
 msgid "Results %1 - %2 of <b>%3</b>"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:389
+#: data/System/SolrSearchBaseTemplate.txt:393
 #: data/System/SolrWikiUsersViewTemplate.txt:109
 #, fuzzy
 msgid "Results per page"
 msgstr "Результати з розділу %1"
 
 #: data/System/NatSkinSolrSearchViewTemplate.txt:26
-#: data/System/SolrSearchBaseTemplate.txt:474
+#: data/System/SolrSearchBaseTemplate.txt:478
 #: templates/viewtopbar.solr.tmpl:21
 msgid "Search"
 msgstr "Пошук"
@@ -212,25 +205,25 @@ msgstr "Пошук"
 msgid "Similar topics"
 msgstr "Знайти тотожні теми"
 
-#: data/System/SolrSearchBaseTemplate.txt:747
+#: data/System/SolrSearchBaseTemplate.txt:741
 #, fuzzy
 msgid "Sort by"
 msgstr "Сортувати результати за:"
 
-#: data/System/SolrSearchBaseTemplate.txt:549
-#, fuzzy
-msgid "Topic type"
-msgstr "Заголовок теми"
+#: data/System/SolrSearchBaseTemplate.txt:527
+#: data/System/SolrSearchBaseTemplate.txt:78
+msgid "Type"
+msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:511
+#: data/System/SolrSearchBaseTemplate.txt:515
 msgid "Web"
 msgstr "Розділ"
 
-#: data/System/SolrSearchBaseTemplate.txt:853
+#: data/System/SolrSearchBaseTemplate.txt:847
 msgid "You are here:"
 msgstr "Ви зараз тут:"
 
-#: data/System/SolrSearchBaseTemplate.txt:723
+#: data/System/SolrSearchBaseTemplate.txt:717
 #, fuzzy
 msgid "Your selection"
 msgstr "Дія"
@@ -239,34 +232,34 @@ msgstr "Дія"
 msgid "alphabetical"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:775
+#: data/System/SolrSearchBaseTemplate.txt:769
 msgid "grid"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:175
+#: data/System/SolrSearchBaseTemplate.txt:174
 #: data/System/SolrSearchBaseTemplate.txt:201
-#: data/System/SolrSearchBaseTemplate.txt:227
-#: data/System/SolrSearchBaseTemplate.txt:244
-#: data/System/SolrSearchBaseTemplate.txt:264
-#: data/System/SolrSearchBaseTemplate.txt:285
+#: data/System/SolrSearchBaseTemplate.txt:228
+#: data/System/SolrSearchBaseTemplate.txt:246
+#: data/System/SolrSearchBaseTemplate.txt:267
+#: data/System/SolrSearchBaseTemplate.txt:288
 #, fuzzy
 msgid "in %1"
 msgstr "Увійти до %1"
 
-#: data/System/SolrSearchBaseTemplate.txt:77
+#: data/System/SolrSearchBaseTemplate.txt:75
 msgid "keyword"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:771
+#: data/System/SolrSearchBaseTemplate.txt:765
 msgid "list"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:383
+#: data/System/SolrSearchBaseTemplate.txt:387
 #: data/System/SolrWikiUsersViewTemplate.txt:103
 msgid "nothing found"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:542
+#: data/System/SolrSearchBaseTemplate.txt:548
 msgid "older"
 msgstr ""
 
@@ -275,13 +268,21 @@ msgstr ""
 msgid "score: %1"
 msgstr "Помилка: %1"
 
-#: data/System/SolrSearchBaseTemplate.txt:78
+#: data/System/SolrSearchBaseTemplate.txt:76
 msgid "tag"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:536
+#: data/System/SolrSearchBaseTemplate.txt:542
 msgid "today"
 msgstr ""
+
+#, fuzzy
+#~ msgid "Topic Type"
+#~ msgstr "Заголовок теми"
+
+#, fuzzy
+#~ msgid "Container"
+#~ msgstr "Контекст"
 
 #~ msgid "!WikiName"
 #~ msgstr "!ВікіІм'я"

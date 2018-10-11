@@ -23,6 +23,7 @@
       "width",
       "height",
       "field_TopicType_lst",
+      "field_Category_lst",
       "field_Category_title_lst",
       "author_title"
     ],

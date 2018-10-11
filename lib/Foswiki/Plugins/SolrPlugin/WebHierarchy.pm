@@ -68,17 +68,20 @@ sub restWebHierarchy {
   @webs = grep {/$theInclude/} @webs if $theInclude;
 
   if (!$theType || $theType =~ /\bwebs\b/) {
-    my $defaultWebIcon = Foswiki::Plugins::JQueryPlugin::Plugins::getIconUrlPath('database');
+    my $defaultWebIcon = Foswiki::Plugins::JQueryPlugin::Plugins::getIconService->findIcon('database');
     # collect all webs
     foreach my $web (@webs) {
-      my $webIcon = Foswiki::Func::getPreferencesValue('WEBICON', $web) || $defaultWebIcon;
+      my $webIcon = Foswiki::Func::getPreferencesValue('WEBICON', $web);
+      $webIcon = Foswiki::Plugins::JQueryPlugin::Plugins::getIconService->findIcon($webIcon) if defined $webIcon;
+      $webIcon ||= $defaultWebIcon;
+
       $web =~ s/\//./g;
       $hash->{$web} = {
         id => $web,
         title => getWebTitle($web),
         name => $web,
         type => 'web',
-        icon => $webIcon,
+        icon => $webIcon->{id},
       };
       
       if ($web =~ /^(.*)\.(.*?)$/) {
