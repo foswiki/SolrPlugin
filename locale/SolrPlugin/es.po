@@ -19,36 +19,36 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 2.4\n"
 
-#: data/System/SolrSearchBaseTemplate.txt:719
+#: data/System/SolrSearchBaseTemplate.txt:721
 msgid "(none)"
 msgstr "(ninguno)"
 
-#: data/System/SolrSearchBaseTemplate.txt:540
+#: data/System/SolrSearchBaseTemplate.txt:542
 #, fuzzy
 msgid "1 hour"
 msgstr "Inicio de %1"
 
-#: data/System/SolrSearchBaseTemplate.txt:545
+#: data/System/SolrSearchBaseTemplate.txt:547
 msgid "1 month"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:547
+#: data/System/SolrSearchBaseTemplate.txt:549
 msgid "1 year"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:543
+#: data/System/SolrSearchBaseTemplate.txt:545
 msgid "2 days"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:546
+#: data/System/SolrSearchBaseTemplate.txt:548
 msgid "2 months"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:541
+#: data/System/SolrSearchBaseTemplate.txt:543
 msgid "4 hours"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:544
+#: data/System/SolrSearchBaseTemplate.txt:546
 msgid "7 days"
 msgstr ""
 
@@ -56,26 +56,26 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:77
+#: data/System/SolrSearchBaseTemplate.txt:79
 #, fuzzy
 msgid "Category"
 msgstr "Categorías"
 
-#: data/System/SolrSearchBaseTemplate.txt:721
+#: data/System/SolrSearchBaseTemplate.txt:723
 #, fuzzy
 msgid "Clear"
 msgstr "Borrar todo"
 
-#: data/System/SolrSearchBaseTemplate.txt:746
+#: data/System/SolrSearchBaseTemplate.txt:748
 #, fuzzy
 msgid "Create date"
 msgstr "Crear grupo"
 
-#: data/System/SolrSearchBaseTemplate.txt:415
+#: data/System/SolrSearchBaseTemplate.txt:417
 msgid "Did you mean %1?"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:762
+#: data/System/SolrSearchBaseTemplate.txt:764
 msgid "Display as"
 msgstr ""
 
@@ -83,40 +83,40 @@ msgstr ""
 msgid "Enter topic name or a search string"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:822
+#: data/System/SolrSearchBaseTemplate.txt:824
 #, fuzzy
 msgid "Exact search"
 msgstr "Búsqueda avanzada"
 
-#: data/System/SolrSearchBaseTemplate.txt:623
+#: data/System/SolrSearchBaseTemplate.txt:625
 msgid "Filter"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:715
+#: data/System/SolrSearchBaseTemplate.txt:717
 #, fuzzy
 msgid "Filter results"
 msgstr "Resultado de búsqueda"
 
-#: data/System/SolrSearchBaseTemplate.txt:804
+#: data/System/SolrSearchBaseTemplate.txt:806
 #, fuzzy
 msgid "In all webs"
 msgstr "Buscar en todas las webs"
 
-#: data/System/SolrSearchBaseTemplate.txt:795
+#: data/System/SolrSearchBaseTemplate.txt:797
 #, fuzzy
 msgid "In current web"
 msgstr "Nueva web pariente:"
 
-#: data/System/SolrSearchBaseTemplate.txt:813
+#: data/System/SolrSearchBaseTemplate.txt:815
 msgid "In my contributions"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:553
+#: data/System/SolrSearchBaseTemplate.txt:555
 #, fuzzy
 msgid "Language"
 msgstr "Lenguaje Cambiado"
 
-#: data/System/SolrSearchBaseTemplate.txt:745
+#: data/System/SolrSearchBaseTemplate.txt:747
 #, fuzzy
 msgid "Last changed"
 msgstr "(cambios)"
@@ -126,16 +126,16 @@ msgstr "(cambios)"
 msgid "Location"
 msgstr "Notificaciones"
 
-#: data/System/SolrSearchBaseTemplate.txt:531
+#: data/System/SolrSearchBaseTemplate.txt:533
 msgid "Media"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:747
+#: data/System/SolrSearchBaseTemplate.txt:749
 #, fuzzy
 msgid "Name"
 msgstr "Nombre del wiki"
 
-#: data/System/SolrSearchBaseTemplate.txt:437
+#: data/System/SolrSearchBaseTemplate.txt:439
 #: data/System/SolrWikiUsersViewTemplate.txt:18
 msgid "Next"
 msgstr ""
@@ -145,11 +145,11 @@ msgstr ""
 msgid "Organisation"
 msgstr "URL de la organización:"
 
-#: data/System/SolrSearchBaseTemplate.txt:834
+#: data/System/SolrSearchBaseTemplate.txt:836
 msgid "Popular tags"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:437
+#: data/System/SolrSearchBaseTemplate.txt:439
 #: data/System/SolrWikiUsersViewTemplate.txt:18
 #, fuzzy
 msgid "Previous"
@@ -165,7 +165,7 @@ msgstr "No hay acceso para ver %1"
 msgid "Recent Changes"
 msgstr "Temas recién cambiados"
 
-#: data/System/SolrSearchBaseTemplate.txt:538
+#: data/System/SolrSearchBaseTemplate.txt:540
 #: data/System/WebChangesViewTemplate.txt:19
 #, fuzzy
 msgid "Recent changes"
@@ -176,23 +176,23 @@ msgstr "Temas recién cambiados"
 msgid "Recent changes in %1"
 msgstr "Temas recién cambiados"
 
-#: data/System/SolrSearchBaseTemplate.txt:744
+#: data/System/SolrSearchBaseTemplate.txt:746
 msgid "Relevance"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:385
+#: data/System/SolrSearchBaseTemplate.txt:387
 #: data/System/SolrWikiUsersViewTemplate.txt:101
 msgid "Results %1 - %2 of <b>%3</b>"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:393
+#: data/System/SolrSearchBaseTemplate.txt:395
 #: data/System/SolrWikiUsersViewTemplate.txt:109
 #, fuzzy
 msgid "Results per page"
 msgstr "Resultados de la web %1"
 
 #: data/System/NatSkinSolrSearchViewTemplate.txt:26
-#: data/System/SolrSearchBaseTemplate.txt:478
+#: data/System/SolrSearchBaseTemplate.txt:480
 #: templates/viewtopbar.solr.tmpl:21
 msgid "Search"
 msgstr "Buscar"
@@ -202,25 +202,25 @@ msgstr "Buscar"
 msgid "Similar topics"
 msgstr "Encontrar temas similares"
 
-#: data/System/SolrSearchBaseTemplate.txt:741
+#: data/System/SolrSearchBaseTemplate.txt:743
 #, fuzzy
 msgid "Sort by"
 msgstr "Ordene resultados por:"
 
-#: data/System/SolrSearchBaseTemplate.txt:527
-#: data/System/SolrSearchBaseTemplate.txt:78
+#: data/System/SolrSearchBaseTemplate.txt:529
+#: data/System/SolrSearchBaseTemplate.txt:80
 msgid "Type"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:515
+#: data/System/SolrSearchBaseTemplate.txt:517
 msgid "Web"
 msgstr "Web"
 
-#: data/System/SolrSearchBaseTemplate.txt:847
+#: data/System/SolrSearchBaseTemplate.txt:849
 msgid "You are here:"
 msgstr "Usted está aquí:"
 
-#: data/System/SolrSearchBaseTemplate.txt:717
+#: data/System/SolrSearchBaseTemplate.txt:719
 #, fuzzy
 msgid "Your selection"
 msgstr "Acción"
@@ -229,34 +229,34 @@ msgstr "Acción"
 msgid "alphabetical"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:769
+#: data/System/SolrSearchBaseTemplate.txt:771
 msgid "grid"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:174
-#: data/System/SolrSearchBaseTemplate.txt:201
-#: data/System/SolrSearchBaseTemplate.txt:228
-#: data/System/SolrSearchBaseTemplate.txt:246
-#: data/System/SolrSearchBaseTemplate.txt:267
-#: data/System/SolrSearchBaseTemplate.txt:288
+#: data/System/SolrSearchBaseTemplate.txt:176
+#: data/System/SolrSearchBaseTemplate.txt:203
+#: data/System/SolrSearchBaseTemplate.txt:230
+#: data/System/SolrSearchBaseTemplate.txt:248
+#: data/System/SolrSearchBaseTemplate.txt:269
+#: data/System/SolrSearchBaseTemplate.txt:290
 #, fuzzy
 msgid "in %1"
 msgstr "(revisión %1)"
 
-#: data/System/SolrSearchBaseTemplate.txt:75
+#: data/System/SolrSearchBaseTemplate.txt:77
 msgid "keyword"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:765
+#: data/System/SolrSearchBaseTemplate.txt:767
 msgid "list"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:387
+#: data/System/SolrSearchBaseTemplate.txt:389
 #: data/System/SolrWikiUsersViewTemplate.txt:103
 msgid "nothing found"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:548
+#: data/System/SolrSearchBaseTemplate.txt:550
 msgid "older"
 msgstr ""
 
@@ -265,11 +265,11 @@ msgstr ""
 msgid "score: %1"
 msgstr "Error: %1"
 
-#: data/System/SolrSearchBaseTemplate.txt:76
+#: data/System/SolrSearchBaseTemplate.txt:78
 msgid "tag"
 msgstr ""
 
-#: data/System/SolrSearchBaseTemplate.txt:542
+#: data/System/SolrSearchBaseTemplate.txt:544
 msgid "today"
 msgstr ""
 

@@ -215,7 +215,7 @@
     </fieldType>
 
     <fieldType name="text_prefix" class="solr.TextField" indexed="true" positionIncrementGap="100">
-      <analyzer>
+      <analyzer type="index">
         <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.WordDelimiterFilterFactory" 
           splitOnCaseChange="1" 
@@ -230,10 +230,24 @@
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="4" maxGramSize="15" />
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.WordDelimiterFilterFactory" 
+          splitOnCaseChange="1" 
+          generateWordParts="1" 
+          generateNumberParts="1" 
+          catenateWords="0" 
+          catenateNumbers="0" 
+          catenateAll="0" 
+          preserveOriginal="1" 
+        />
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
+      </analyzer>
     </fieldType>
 
     <fieldType name="text_suffix" class="solr.TextField" indexed="true" positionIncrementGap="100">
-      <analyzer>
+      <analyzer type="index">
         <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.WordDelimiterFilterFactory" 
           splitOnCaseChange="1" 
@@ -247,6 +261,20 @@
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.ReverseStringFilterFactory" />
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="4" maxGramSize="15" />
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.WordDelimiterFilterFactory" 
+          splitOnCaseChange="1" 
+          generateWordParts="1" 
+          generateNumberParts="1" 
+          catenateWords="0" 
+          catenateNumbers="0" 
+          catenateAll="0" 
+          preserveOriginal="1" 
+        />
+        <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
     </fieldType>
@@ -1110,6 +1138,9 @@
    <!-- outgoing: list of outgoing links -->
    <field name="outgoing" type="string" multiValued="true" />
 
+   <!-- macros: list of macros used in this document directly -->
+   <field name="macro" type="string" multiValued="true" stored="false" />
+
    <!-- ClassificationPlugin -->
    
    <!-- category: this field catches all formfield values of type cat; will be propagated from topics to attachments -->
@@ -1239,6 +1270,7 @@
    <copyField source="topic" dest="topic_search" />
    <copyField source="web" dest="web_search" />
    <copyField source="webtopic" dest="webtopic_search"/>
+   <copyField source="name" dest="name_search" />
 
    <copyField source="*_s" dest="*_search"/>
    <copyField source="*_s" dest="*_sort"/>
@@ -1247,6 +1279,7 @@
    <copyField source="web" dest="web_std" omitNorms="true" />
    <copyField source="title" dest="title_std" omitNorms="true" />
    <copyField source="topic" dest="topic_std" omitNorms="true" />
+   <copyField source="name" dest="name_std" omitNorms="true" />
 
    <copyField source="text" dest="text_std"/>
    <copyField source="text" dest="text_suffix"/>

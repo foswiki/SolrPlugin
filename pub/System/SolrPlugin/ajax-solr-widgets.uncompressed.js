@@ -1,5 +1,13 @@
-(function($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function($) {
 
   AjaxSolr.AbstractJQueryWidget = AjaxSolr.AbstractWidget.extend({
     defaults: {},
@@ -13,8 +21,16 @@
   });
 })(jQuery);
 
-(function($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function($) {
 
   AjaxSolr.AbstractJQueryFacetWidget = AjaxSolr.AbstractFacetWidget.extend({
     defaults: {
@@ -172,8 +188,16 @@
 
   });
 })(jQuery);
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.FacetFieldWidget = AjaxSolr.AbstractJQueryFacetWidget.extend({
     defaults: {
@@ -347,8 +371,16 @@
 
 
 })(jQuery);
-(function($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function($) {
 
   AjaxSolr.WebFacetWidget = AjaxSolr.FacetFieldWidget.extend({
     facetType: 'facet_fields',
@@ -387,8 +419,16 @@
   AjaxSolr.Helpers.build("WebFacetWidget");
 
 })(jQuery);
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.ToggleWidget = AjaxSolr.AbstractJQueryWidget.extend({
     options: {
@@ -530,8 +570,16 @@
 })(jQuery);
 
 
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.ToggleFacetWidget = AjaxSolr.AbstractJQueryFacetWidget.extend({
     options: {
@@ -619,8 +667,16 @@
 })(jQuery);
 
 
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.PagerWidget = AjaxSolr.AbstractJQueryWidget.extend({
     defaults:  {
@@ -729,8 +785,16 @@
   AjaxSolr.Helpers.build("PagerWidget");
 
 })(jQuery);
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.AlphaPagerWidget = AjaxSolr.AbstractJQueryFacetWidget.extend({
     defaults:  {
@@ -800,8 +864,16 @@
   AjaxSolr.Helpers.build("AlphaPagerWidget");
 
 })(jQuery);
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
   
   AjaxSolr.ResultsPerPageWidget = AjaxSolr.AbstractJQueryWidget.extend({
     defaults: {
@@ -862,8 +934,16 @@
 
 })(jQuery);
 
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.ResultWidget = AjaxSolr.AbstractJQueryWidget.extend({
     defaults: {
@@ -1115,8 +1195,16 @@
   AjaxSolr.Helpers.build("ResultWidget");
 
 })(jQuery);
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.SearchBoxWidget = AjaxSolr.AbstractTextWidget.extend({
     defaults: {
@@ -1190,8 +1278,16 @@
 
 
 
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.CurrentSelectionWidget = AjaxSolr.AbstractJQueryWidget.extend({
     options: {
@@ -1323,8 +1419,16 @@
 
 })(jQuery);
 
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.SortWidget = AjaxSolr.AbstractJQueryWidget.extend({
     defaults: {
@@ -1374,8 +1478,16 @@
   AjaxSolr.Helpers.build("SortWidget");
 
 })(jQuery);
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.TagCloudWidget = AjaxSolr.AbstractJQueryFacetWidget.extend({
     defaults: {
@@ -1498,8 +1610,16 @@
 
 })(jQuery);
 
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.HierarchyWidget = AjaxSolr.AbstractJQueryFacetWidget.extend({
     defaults: {
@@ -1669,8 +1789,16 @@
 
 
 })(jQuery);
-(function ($) {
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
+(function ($) {
 
   AjaxSolr.SpellcheckWidget = AjaxSolr.AbstractSpellcheckWidget.extend({
     defaults: {

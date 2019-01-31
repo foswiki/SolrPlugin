@@ -1,7 +1,8 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1505725909" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1548932840" format="1.1"  version="1"}%
 %META:TOPICPARENT{name="SolrSearchBase"}%
 %{<verbatim class="tml">}%
 %TMPL:INCLUDE{"SolrSearchBase"}%
+%TMPL:DEF{"bodyclassname"}%patternSolrPage%TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%

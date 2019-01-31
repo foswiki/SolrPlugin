@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1539266447" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1548932840" format="1.1" version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -238,7 +238,7 @@ The service is configured by placing below configuration script at =/etc/iwatch/
   <watchlist>
     <title>Foswiki</title>
     <contactpoint email="root@localhost" name="Administrator"/>
-    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su -l <httpd-user> -c '<foswiki-dir>/tools/solrjob'"><foswiki-dir>/data</path>
+    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> '<foswiki-dir>/tools/solrjob'"><foswiki-dir>/data</path>
     <path type="regexception">\.tmp|\.sw\w|\.svn|\.lease|\.lock|,$|\.changes|,v|^_[0-9]|^log|^Temporary|^UnitTestCheck</path>
   </watchlist>
 </config>
@@ -257,12 +257,12 @@ For !VirtualHostingContrib use:
     <contactpoint email="root@localhost" name="Administrator"/>
 
     <!-- watch directories shared among all virtual domains -->
-    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="sudo -u <httpd-user> <foswiki-dir>/tools/solrjob --host all"><foswiki-dir>/data/System</path>
-    <!-- <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="sudo -u <httpd-user> <foswiki-dir>/tools/solrjob --host all"><foswiki-dir>/data/Applications</path> -->
+    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host all'"><foswiki-dir>/data/System</path>
+    <!-- <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host all'"><foswiki-dir>/data/Applications</path> -->
 
     <!-- watch each virtual domain for changes -->
-    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su -l <httpd-user> -c '<foswiki-dir>/tools/solrjob --host <domain1>'"><vhosts-dir>/<domain1>/data</path>
-    <!-- <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su -l <httpd-user> -c '<foswiki-dir>/tools/solrjob --host <domain2>'"><vhosts-dir>/<domain2>/data</path> -->
+    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host <domain1'>"><vhosts-dir>/<domain1>/data</path>
+    <!-- <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host <domain2'>"><vhosts-dir>/<domain2>/data</path> -->
 
     <path type="regexception">\.tmp|\.sw\w|\.svn|\.lease|\.lock|,$|\.changes|,v|^_[0-9]|^log|^Temporary|^UnitTestCheck</path>
   </watchlist>
@@ -721,6 +721,7 @@ useful for spatial search.
 | icon | string | | stored | icon to indetify the rendition for this document |
 | id | string | | stored | unique identifier for each document; this is the _external_ id usable in applications; there's an internal solr document id not related to this field |
 | language | string | | stored | language of the current document; this may be specified explicitly using the =CONTENT_LANGUAGE= preference, or set to "detect" to let the solr update chain detect the language automatically |
+| macro | string | multivalued | | list of wiki macros being used in this topic |
 | name | string | | stored | filename of an attachment |
 | outgoing | string | multivalued | stored | list of all outgoing links; this information is used to detect backlinks |
 | parent | string | | stored | parent topic of the current topic |
@@ -830,6 +831,8 @@ specific search applications. The destination fields are then analysed using the
 | name | charnorm |
 | name | phonetic |
 | name | spell |
+| name | name_std |
+| name | name_search |
 | tag | catchall |
 | tag | charnorm |
 | tag | phonetic |
@@ -882,6 +885,11 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  31 Jan 2019: | reduce amount of presumably unrelated search results; \
+                  improved language detection in solr; \
+                  added fields =name_std= and =name_search= for better searchability of attachments; \
+                  don't display wiki markup in search result summaries; \
+                  added field =macro= to capture use of wiki macros |
 |  10 Oct 2018: | mime types are now multivalued, e.g. and image is now tagged type: =["gif", "image", "attachment"]=; \
                   better support for attachments listed in the autosuggest drop down box; \
                   the rudimentary type mapping is now based on the system mime types table and not using a typemap file in solr's config anymore; \
@@ -1024,9 +1032,9 @@ specific search applications. The destination fields are then analysed using the
 %META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/SolrPlugin"}%
-%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2009-2018, Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2009-2019, Michael Daum http://michaeldaumconsulting.com"}%
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1539266447" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1539266447" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1548932840" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1548932840" size="158013" user="ProjectContributor" version="1"}%

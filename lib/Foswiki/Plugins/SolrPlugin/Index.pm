@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2018 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2019 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -287,6 +287,7 @@ sub indexTopic {
   my ($this, $web, $topic, $meta, $text) = @_;
 
   my %outgoingLinks = ();
+  my %macros = ();
 
   my $t0 = [Time::HiRes::gettimeofday] if PROFILE;
 
@@ -311,6 +312,12 @@ sub indexTopic {
 
   # Eliminate Topic Makup Language elements and newlines.
   my $origText = $text;
+
+  # get all outgoing links from topic text
+  $this->extractOutgoingLinks($web, $topic, $origText, \%outgoingLinks);
+
+  # get macro occurence
+  $this->extractMacros($text, \%macros);
   $text = $this->plainify($text, $web, $topic);
 
   # parent data
@@ -322,8 +329,6 @@ sub indexTopic {
     $this->_addLink(\%outgoingLinks, $web, $topic, $parentWeb, $parentTopic);
   }
 
-  # get all outgoing links from topic text
-  $this->extractOutgoingLinks($web, $topic, $origText, \%outgoingLinks);
 
   # all webs
 
@@ -372,7 +377,7 @@ sub indexTopic {
     webtopic => "$web.$topic",
     title => Foswiki::Func::getTopicTitle($web, $topic, $meta),
     text => $text,
-    summary => $this->getTopicSummary($web, $topic, $meta, $text),
+    summary => $this->getTopicSummary($web, $topic, $meta, $origText),
     author => $author,
     author_title => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $author),
     date => $date,
@@ -423,7 +428,7 @@ sub indexTopic {
       $formName =~ s/\//\./g;
       $doc->add_fields(form => $formName);
 
-      $this->indexFormFields($web, $topic, $meta, $formDef, $doc, \%outgoingLinks);
+      $this->indexFormFields($web, $topic, $meta, $formDef, $doc, \%outgoingLinks, \%macros);
     }
   }
 
@@ -432,6 +437,10 @@ sub indexTopic {
     next if $link eq "$web.$topic";    # self link is not an outgoing link
     $doc->add_fields(outgoing => $link);
   }
+
+  # store all macros
+  $doc->add_fields(macro => [keys %macros]);
+  $this->log("... found macros ".join(", ", sort keys %macros)) if TRACE;
 
   # all prefs are of type _t
   # TODO it may pay off to detect floats and ints
@@ -553,7 +562,7 @@ sub indexTopic {
 ################################################################################
 # index all formfields of a topic
 sub indexFormFields {
-  my ($this, $web, $topic, $meta, $formDef, $doc, $outgoingLinks) = @_;
+  my ($this, $web, $topic, $meta, $formDef, $doc, $outgoingLinks, $macros) = @_;
 
   # check whether we are indexing a user profile
   my $personDataFormPattern = $Foswiki::cfg{SolrPlugin}{PersonDataForm} || '*UserForm';
@@ -587,7 +596,7 @@ sub indexFormFields {
         $field->{value} = $emails[0] if @emails;
       }
 
-      $this->indexFormField($web, $topic, $fieldDef, $field->{value}, $doc, $outgoingLinks);
+      $this->indexFormField($web, $topic, $fieldDef, $field->{value}, $doc, $outgoingLinks, $macros);
     }
 
     # map form name to TopicType if not found otherwise
@@ -602,7 +611,7 @@ sub indexFormFields {
 ################################################################################
 # index a single formfield of a topic
 sub indexFormField {
-  my ($this, $web, $topic, $fieldDef, $value, $doc, $outgoingLinks) = @_;
+  my ($this, $web, $topic, $fieldDef, $value, $doc, $outgoingLinks, $macros) = @_;
 
   my $name = $fieldDef->{name};
   my $type = $fieldDef->{type};
@@ -642,6 +651,9 @@ sub indexFormField {
   $this->extractOutgoingLinks($web, $topic, $value, $outgoingLinks)
     if defined $outgoingLinks;
 
+  # get macro occurence
+  $this->extractMacros($value, $macros);
+
   # bit of cleanup
   $value =~ s/<!--.*?-->//gs;
 
@@ -652,10 +664,12 @@ sub indexFormField {
     try {
       my $epoch = $value;
       $epoch = Foswiki::Time::parseTime($value) unless $epoch =~ /^\-?\d+$/;
-      $epoch ||= 0;    # prevent formatTime to crap out
 
-      $value = Foswiki::Time::formatTime($epoch, 'iso', 'gmtime');
-      $doc->add_fields('field_' . $name . '_dt' => $value,);
+      # only index dates that properly parse into epoch
+      if ($epoch) { 
+        $value = Foswiki::Time::formatTime($epoch, 'iso', 'gmtime');
+        $doc->add_fields('field_' . $name . '_dt' => $value,);
+      }
     }
     catch Error::Simple with {
       $this->log("WARNING: malformed date value '$value'");
@@ -740,6 +754,36 @@ sub getContentLanguage {
   Foswiki::Func::popTopicContext() if $donePush;
 
   return $contentLanguage;
+}
+
+################################################################################
+# rough macro extraction; it does not find every macro as the foswiki parser does
+sub extractMacros {
+  our ($this, $text, $macros) = @_;
+
+  return unless $text;
+
+  sub _process {
+    my ($macro, $params) = @_;
+
+    my $remain = "";
+
+    $macros->{$macro} = 1 if defined $macro;
+
+    my %attrs = Foswiki::Func::extractParameters($params);
+    foreach my $val (values %attrs) {
+      $val = Foswiki::Func::decodeFormatTokens($val);
+      $this->extractMacros($val, $macros);
+    }
+
+    $remain = $attrs{_DEFAULT} if $macro =~ /TRANSLATE|MAKETEXT/;
+
+    return $remain;
+  }
+
+  while ($text =~ s/(?:%|\$perce?nt)($Foswiki::regex{tagNameRegex})(?:\{(.*?)\})?(?:%|\$perce?nt)/_process($1, $2)/ges) {
+    # nop
+  };
 }
 
 ################################################################################

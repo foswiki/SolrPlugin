@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2018 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2019 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -332,12 +332,52 @@ sub getTopicSummary {
     $summary = $field->{value} if $field && $field->{value};
   }
 
+# unless ($summary) {
+#   $summary = $this->getSection($web, $topic, $text, "teaser");
+# }
+#
+# unless ($summary) {
+#   $summary = $this->getSection($web, $topic, $text, "summary");
+# }
+
   return '' unless defined $summary;
 
   $summary = $this->plainify($summary, $web, $topic);
   $summary =~ s/\n/ /g;
 
   return $summary;
+}
+
+################################################################################
+sub getSection {
+  my ($this, $web, $topic, $text, $name, $type) = @_;
+
+  return unless $name;
+
+  my $key = $web.'::'.$topic;
+  my $sections = $this->{_sections}{$key};
+  unless (defined $sections) {
+    $text = Foswiki::Func::readTopic($web, $topic) unless defined $text;
+
+    my $ntext;
+    ($ntext, $sections) = Foswiki::parseSections($text); # SMELL: parseSection should be part of Foswiki::Func
+
+    foreach my $s (@$sections) {
+      $s->{text} = substr($ntext, $s->{start}, $s->{end} - $s->{start});
+    }
+
+
+    $this->{_sections}{$key} = $sections;
+  }
+  return unless defined $sections;
+
+  foreach my $s (@$sections) {
+    next if $s->{name} ne $name;
+    next if $type && $s->{type} ne $type;
+    return $s->{text}
+  }
+
+  return;
 }
 
 ################################################################################
@@ -376,9 +416,10 @@ sub plainify {
   $text =~ s/%TOPIC%/$topic/g;
   $text =~ s/%WIKITOOLNAME%/$wtn/g;
 
-  # don't remove ALL macros, only some, todo: add some more
-  #  $text =~ s/%$Foswiki::regex{tagNameRegex}({.*?})?%//g;
-  $text =~ s/%(?:STARTSECTION|BEGINSECTION|ENDSECTION|STOPSECTION|STARTINCLUDE|STOPINCLUDE|TOC|JQICON|FORMFIELD|CLEAR|SCRIPTURLPATH|SCRIPTURL|TWISTY|BUTTON)(?:\{.*?\})?%//g;
+  while ($text =~ s/((?:%|\$perce?nt)$Foswiki::regex{tagNameRegex}(?:\{.*?\})?(?:%|\$perce?nt))//gs) {
+    # nop
+  }
+  $text =~ s/["']?\}%["']?|["']?%\{["']?//g; # some leftsobers
 
   # Format e-mail to add spam padding (HTML tags removed later)
   $text =~ s/$STARTWW((mailto\:)?[a-zA-Z0-9-_.+]+@[a-zA-Z0-9-_.]+\.[a-zA-Z0-9-_]+)$ENDWW//gm;
@@ -506,11 +547,6 @@ sub getMappedMimeType {
       $type = 'chart';
     }
 
-    # documents
-    elsif ($subType =~ /document|ms\-?word|rtf/) {
-      $type = 'document';
-    }
-
     # presentation
     elsif ($subType  =~ /powerpoint|presentation|slide/) {
       $type = 'presentation';
@@ -519,6 +555,11 @@ sub getMappedMimeType {
     # spreadsheet
     elsif ($subType =~ /numeric|spreadsheet|ms\-?excel/) {
       $type = 'spreadsheet';
+    }
+
+    # documents
+    elsif ($subType =~ /document|ms\-?word|rtf/) {
+      $type = 'document';
     }
 
     # pdf

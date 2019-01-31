@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2018 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2019 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -1073,6 +1073,7 @@ sub doSearch {
   my $theBoostQuery = $params->{boostquery};
   my $theQueryFields = $params->{queryfields};
   my $thePhraseFields = $params->{phrasefields};
+  my $theDebugQuery = Foswiki::Func::isTrue($params->{debugquery}, 0);
 
   my %disjunctiveFacets = map {$_ => 1} split(/\s*,\s*/, $theDisjunktiveFacets);
   my %combinedFacets = map {$_ => 1} split(/\s*,\s*/, $theCombinedFacets);
@@ -1112,6 +1113,7 @@ sub doSearch {
   $solrParams->{bq} = $theBoostQuery if $theBoostQuery;
   $solrParams->{qf} = $theQueryFields if $theQueryFields;
   $solrParams->{pf} = $thePhraseFields if $thePhraseFields;
+  $solrParams->{debugQuery} = "true" if $theDebugQuery;
 
   my $theGroup = $params->{'group'};
   my $theGroupLimit = $params->{'grouplimit'} || 1;

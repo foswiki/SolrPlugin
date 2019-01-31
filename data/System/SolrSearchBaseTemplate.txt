@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1539265770" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1548932840" format="1.1"  version="1"}%
 %META:TOPICPARENT{name="SolrPlugin"}%
 %{<verbatim class="tml">}%
 %{ ###########################################################################
@@ -13,6 +13,7 @@
 }%
 %TMPL:DEF{"solr::defaultweb"}%all%TMPL:END%
 %TMPL:DEF{"solr::instantsearch"}%false%TMPL:END%
+%TMPL:DEF{"solr::defaultexactsearch"}%false%TMPL:END%
 %TMPL:DEF{"solr::defaultrows"}%10%TMPL:END%
 %TMPL:DEF{"solr::defaultquerytype"}%edismax%TMPL:END%
 %TMPL:DEF{"solr::defaultsort"}%score desc%TMPL:END%
@@ -20,6 +21,7 @@
 %TMPL:DEF{"solr::fields"}%%TMPL:END%
 %TMPL:DEF{"solr::queryfields"}%%TMPL:END%
 %TMPL:DEF{"solr::extrafilter"}%<literal>%SOLR_EXTRAFILTER{default=""}%</literal> %IF{ "not $USERNAME ingroup 'AdminGroup'" then="-web_search:Applications" }%%TMPL:END%
+%TMPL:DEF{"solr::exactsearch"}%title_std^7 catchall%TMPL:END%
 %TMPL:DEF{"solr::facet::include::web"}%%TMPL:END%
 %TMPL:DEF{"solr::facet::exclude::web"}%^(_.*%IF{ "not $USERNAME ingroup 'AdminGroup'" then="|Application.*" }%)$%TMPL:END%
 %{</verbatim>}%
@@ -29,7 +31,7 @@
    content: main definition that puts together all pieces
 }%
 %TMPL:DEF{"content"}%<noautolink>
-<div id='solrSearch' style='display:none' data-more-fields='%TMPL:P{"solr::fields"}%' %FORMATLIST{"%TMPL:P{"solr::queryfields"}%" header="data-query-fields='" footer="'" separator=" " split=" "}% data-solr-url='%SCRIPTURL{"rest"}%/SolrPlugin/proxy' data-solr-params='{"topic": "%WEB%.%TOPIC%", "qt":"%TMPL:P{"solr::defaultquerytype"}%", "rows": %TMPL:P{"solr::defaultrows"}%}' data-extra-filter='%TMPL:P{"solr::extrafilter"}%'>
+<div id='solrSearch' style='display:none' data-more-fields='%TMPL:P{"solr::fields"}%' %FORMATLIST{"%TMPL:P{"solr::queryfields"}%" header="data-query-fields='" footer="'" separator=" " split=" "}% data-solr-url='%SCRIPTURL{"rest"}%/SolrPlugin/proxy' data-solr-params='{"topic": "%WEB%.%TOPIC%", "qt":"%TMPL:P{"solr::defaultquerytype"}%", "rows": %TMPL:P{"solr::defaultrows"}% %IF{"'%TMPL:P{"solr::defaultexactsearch"}%'='true'" then=", \"qf\": \"$percntTMPL:P{\"solr::exactsearch\"}$percnt\""}%}' data-extra-filter='%TMPL:P{"solr::extrafilter"}%' >
 %TMPL:P{"solr::title"}%%{}%
 %TMPL:P{"solr::header"}%%{}%
 %TMPL:P{"solr::hits"}%%{}%
@@ -68,7 +70,7 @@
   %FLEXWEBLIST{
     webs="public"
     exclude="Trash.*"
-    format="\"$web\": \"$title\""
+    format="\"$web\": \"$percntENCODE{\"$title\" type=\"quote\"}$percnt\""
     subheader=",$n"
     separator=",$n"
   }%,
@@ -819,7 +821,7 @@
    solr::input::checkboxes::exactsearch - display a "Exact Search" checkbox
 }%
 %TMPL:DEF{"solr::input::checkboxes::exactsearch"}%%{}%
-<span class='solrToggle' data-field='qf' data-value='title_std^7 catchall' data-title='%MAKETEXT{"Exact search"}%'></span>
+<span class='solrToggle' data-field='qf' data-value='%TMPL:P{"solr::exactsearch"}%' data-title='%MAKETEXT{"Exact search"}%'></span>
 %{}%%TMPL:END%
 %{</verbatim>}%
 
@@ -851,4 +853,5 @@
 </div>
 %{</verbatim>}%
 
+%META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
 %META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%

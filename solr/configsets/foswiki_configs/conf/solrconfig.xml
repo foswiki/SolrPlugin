@@ -838,9 +838,7 @@
         <!-- phonetic -->
       </str>
       <!-- boost more recent documents -->
-      <str name="bf">
-        sum(recip(ms(NOW/HOUR,date),3.16e-11,1,1),product(0.1,total_likes))
-      </str>
+      <str name="bf">sum(recip(ms(NOW/HOUR,date),3.16e-11,1,1),product(0.1,total_likes))</str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic^10</str>
       <str name="pf">
@@ -900,13 +898,9 @@
         catchall
         charnorm
         text_prefix^0.5
-        text_suffix^0.5
-        <!-- phonetic -->
       </str>
       <!-- boost more recent documents -->
-      <str name="bf">
-        sum(recip(ms(NOW/HOUR,date),3.16e-11,1,1),product(0.1,total_likes))
-      </str>
+      <str name="bf">sum(recip(ms(NOW/HOUR,date),3.16e-11,1,1),product(0.1,total_likes))</str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic^10</str>
       <str name="pf">
@@ -924,7 +918,6 @@
         catchall
         charnorm
         text_prefix^0.5
-        text_suffix^0.5
         <!-- phonetic -->
       </str>
       <int name="ps">1</int>
@@ -1741,20 +1734,21 @@
 
   <updateRequestProcessorChain name="foswiki_chain">
     <processor class="solr.TruncateFieldUpdateProcessorFactory">
-      <str name="typeClass">solr.StrField</str>
+      <str name="typeClass">solr.TextField</str>
       <int name="maxLength">32764</int>
     </processor>
     <processor class="org.apache.solr.update.processor.LangDetectLanguageIdentifierUpdateProcessorFactory">
     <!-- processor class="org.apache.solr.update.processor.TikaLanguageIdentifierUpdateProcessorFactory"-->
       <lst name="defaults">
-        <str name="langid.fl">title,summary,text</str>
+        <str name="langid.fl">catchall</str>
         <str name="langid.langField">language</str>
         <!-- languages we've got a tokenizer for - minus da as it brings down accuracies for the other languages (wtf) -->
-        <str name="langid.whitelist">ar, bg, ca, cjk, ckb, cz, de, el, en, es, eu, fa, fi, fr, ga, gl, hi, hu, hy, id, it, ja, lv, nl, no, pt, ro, ru, sv, th, tr</str>
+        <str name="langid.whitelist">ar,bg,ca,cjk,ckb,cz,de,el,en,es,eu,fa,fi,fr,ga,gl,hi,hu,hy,id,it,ja,lv,nl,no,pt,ro,ru,sv,th,tr</str>
         <str name="langid.overwrite">false</str>
-        <str name="langid.threshold">0.7</str>
+        <str name="langid.threshold">0.8</str>
         <str name="langid.fallback">en</str>
         <bool name="langid.map">true</bool>
+        <str name="langid.map.fl">text</str>
         <bool name="langid.map.keepOrig">true</bool>
       </lst>
     </processor>

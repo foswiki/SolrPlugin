@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
+"use strict";
+
 var _ = function(key, id) {
   id = id || 'default'
   var dict = AjaxSolr.Dicts[id];
@@ -9,7 +19,6 @@ var _ = function(key, id) {
 };
 
 (function($) {
-"use strict";
 
   AjaxSolr.Dictionary = function(elem, opts) {
     var self = this, 

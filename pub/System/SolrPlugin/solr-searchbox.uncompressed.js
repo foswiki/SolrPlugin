@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
 "use strict";
 jQuery(function($) {
   $(".solrSearchBox:not(.solrSearchBoxInited)").livequery(function() {
@@ -20,7 +28,12 @@ jQuery(function($) {
       var search = $form.find("input[name='search']"),
           href = action + ((search && search.val())?'#q='+search.val():'');
 
-      // TODO: add extraFilter to url
+      // add extraFilter to url
+      $.each(opts.solrExtraFilter, function(key, val) {
+        href += '&'+encodeURIComponent(key+':'+val);
+      });
+      
+
       window.location.href = href;
       return false;
     });
