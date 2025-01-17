@@ -18,9 +18,9 @@ lib/Foswiki/Plugins/SolrPlugin/Config.spec 0644
 lib/Foswiki/Plugins/SolrPlugin/Crawler/FileSystemCrawler.pm 0644
 lib/Foswiki/Plugins/SolrPlugin/Crawler.pm 0644
 lib/Foswiki/Plugins/SolrPlugin/DEPENDENCIES 0644
-lib/Foswiki/Plugins/SolrPlugin/MANIFEST 0644
 lib/Foswiki/Plugins/SolrPlugin/EventWatcher.pm 0644
 lib/Foswiki/Plugins/SolrPlugin/Index.pm 0644
+lib/Foswiki/Plugins/SolrPlugin/MANIFEST 0644
 lib/Foswiki/Plugins/SolrPlugin.pm 0644
 lib/Foswiki/Plugins/SolrPlugin/SearchBox.pm 0644
 lib/Foswiki/Plugins/SolrPlugin/Search.pm 0644
