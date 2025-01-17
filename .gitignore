@@ -24,7 +24,9 @@ pub/System/SolrPlugin/ajax-solr-helpers.js
 /SolrPlugin_installer.pl
 pub/System/SolrPlugin/ajax-solr/README.md
 pub/System/SolrPlugin/ajax-solr/Rakefile
+pub/**/attic
 genpdf_*
 lib/webservice-solr
+lib/Makefile
 pub/System/SolrPlugin/ajax-solr.evolvingweb
 locale/**/*.mo

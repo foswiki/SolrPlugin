@@ -8034,14 +8034,14 @@ sub get_det2 {
 	if ( ${ $_[0] } =~ /charset\s*=\s*([A-Za-z0-9\-\_]+)/i ) {
 		my $charset = resolve_alias($1);
 		if ( ( $charset eq '' ) || ( $charset eq 'iso-8859-1' ) ) {
-			return undef;
+			return;
 		}
 		else {
 			return filter_charset($charset);
 		}
 	}
 	else {
-		return undef;
+		return;
 	}
 }
 
@@ -8168,8 +8168,8 @@ sub get_det2_debug {
 		my $charset = resolve_alias($1);
 		if ( ( $charset eq '' ) || ( $charset eq 'iso-8859-1' ) ) {
 			$log_txt .=
-"DET2: cannot resove encode name or encode name is iso-8859-1, so return undef\n";
-			return undef;
+"DET2: cannot resove encode name or encode name is iso-8859-1, so return\n";
+			return;
 		}
 		else {
 			$log_txt .= "DET2: use alias $charset\n";
@@ -8178,8 +8178,8 @@ sub get_det2_debug {
 		}
 	}
 	else {
-		$log_txt .= "DET2: html encode not found so return undef \n";
-		return undef;
+		$log_txt .= "DET2: html encode not found so return \n";
+		return;
 	}
 }
 

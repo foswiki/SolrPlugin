@@ -1,5 +1,8 @@
 package WebService::Solr::Document;
 
+use strict;
+use warnings;
+
 use WebService::Solr::Field;
 use XML::Easy::Element;
 use XML::Easy::Content;
@@ -49,9 +52,10 @@ sub _parse_fields {
         }
 
         my $v = shift @fields;
-        my @values = ( ref $v and !blessed $v ) ? @$v : $v;
+        my @values = ( ref $v && !blessed $v ) ? @$v : $v;
         push @new_fields,
-            map { WebService::Solr::Field->new( $f => "$_" ) } @values;
+            map { WebService::Solr::Field->new( $f => "$_" ) } 
+            grep { defined $_ } @values;
     }
 
     return @new_fields;
@@ -166,13 +170,16 @@ Serializes the object to xml.
 
 =head1 AUTHORS
 
+Andy Lester C<andy@petdance.com>
+
 Brian Cassidy E<lt>bricas@cpan.orgE<gt>
 
 Kirk Beers
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2013 National Adult Literacy Database
+Copyright 2008-2014 National Adult Literacy Database
+Copyright 2015-2020 Andy Lester
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

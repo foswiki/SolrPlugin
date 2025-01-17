@@ -1,21 +1,20 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1505725909" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1737108138" format="1.1"  version="1"}%
 %META:TOPICPARENT{name="SolrSearchViewTemplate"}%
-%{<verbatim class="tml">}%
 %TMPL:INCLUDE{"SolrSearchView"}%
-%{</verbatim>}%
 
-%{<verbatim class="tml">}%
 %TMPL:DEF{"sidebar"}%%TMPL:P{"solr::sidebar"}%%TMPL:END%
-%TMPL:DEF{"searchbox"}%%TMPL:END%
+%TMPL:DEF{"searchbox"}%<div class='foswikiFlexGrow'></div>%TMPL:END%
 %TMPL:DEF{"paneltoggle"}%%TMPL:END%
-%TMPL:DEF{"topicactions"}%%TMPL:END%
+%TMPL:DEF{"topicactions::contents"}%%TMPL:P{"backaction"}%%TMPL:END%
 %TMPL:DEF{"revinfo"}%%TMPL:END%
 %TMPL:DEF{"form"}%%TMPL:END%
+%TMPL:DEF{"javascript::require::uploader"}%%TMPL:END%
 %TMPL:DEF{"metadata"}%%TMPL:END%
 %TMPL:DEF{"bodyclass"}%natViewBody natSolrBody%TMPL:END%
-%{</verbatim>}%
+%TMPL:DEF{"body::class::toggle"}%%TMPL:END%
 
-%{<verbatim class="tml">}%
+%TMPL:DEF{"backaction"}%<a href="%SCRIPTURLPATH{"view" topic="%URLPARAM{"origin" default="%WEB%.%HOMETOPIC%"}%"}%" class='natTopicAction'>%TMPL:P{"icon::close"}% %MAKETEXT{"Close"}%</a>%TMPL:END%
+
 %TMPL:DEF{"breadcrumbs::contents"}%%BREADCRUMBS{
   "%URLPARAM{"origtopic" default="%BASEWEB%.%BASETOPIC%"}%" 
   separator="%TMPL:P{"sep"}%"
@@ -25,7 +24,6 @@
   "'%URLPARAM{origtopic}%'!='%BASEWEB%.%BASETOPIC%' and '%URLPARAM{origtopic}%'!=''" 
    then="%TMPL:P{"sep"}%[[%BASEWEB%.%BASETOPIC%][%MAKETEXT{"Search"}%]]"
  }%%TMPL:END%
-%{</verbatim>}%
 
 %META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
 %META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%

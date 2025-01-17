@@ -8,12 +8,12 @@ WEBSERVICE_SOURCES= \
 all: $(WEBSERVICE_SOURCES)
 
 git:
-	git clone https://github.com/ilmari/webservice-solr.git
+	git clone https://github.com/petdance/webservice-solr.git
 
-ifneq (,$(wildcard webservice-solr))
-WebService/%: webservice-solr/lib/WebService/%
-	cp $^ $@
-WebService/Solr/%: webservice-solr/lib/WebService/Solr/%
-	cp $^ $@
-endif
+# ifneq (,$(wildcard webservice-solr))
+# WebService/%: webservice-solr/lib/WebService/%
+#         cp $^ $@
+# WebService/Solr/%: webservice-solr/lib/WebService/Solr/%
+#         cp $^ $@
+# endif
 

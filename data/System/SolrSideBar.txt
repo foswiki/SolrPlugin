@@ -1,5 +1,7 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1515499594" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1737108138" format="1.1" version="1"}%
 ---+!! %TOPIC%
+
+%TOC%
 
 This is a set of widgets to be used in a sidebar navigation. This is used like this:
 
@@ -20,10 +22,8 @@ Default sidebar implementation that includes all of the components listed below.
 
 <verbatim class="tml">
 %STARTINCLUDE%<noautolink>
-<div class="solrSideBar">
 %INCLUDE{"%WEB%.%TOPIC%" section="solrsimilar"}%<!-- -->
 %INCLUDE{"%WEB%.%TOPIC%" section="recentchanges"}%<!-- -->
-</div>
 </noautolink>%STOPINCLUDE%
 </verbatim>
 
@@ -84,5 +84,4 @@ Renders a list of the five most recent changes in the current web.
 }%%ENDSECTION{"recentchanges"}%
 </verbatim>
 
-%META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
 %META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%

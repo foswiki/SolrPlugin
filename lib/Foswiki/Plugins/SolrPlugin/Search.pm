@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2019 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2025 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -10,7 +10,19 @@
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 package Foswiki::Plugins::SolrPlugin::Search;
+
+=begin TML
+
+---+ package Foswiki::Plugins::SolrPlugin::Search
+
+This is the central service for all solr searches. Any search that you 
+want to perform must go through this service. Most importantly this
+service makes sure that Foswiki's access control lists are being evaluated
+as part of every query. 
+
+=cut
 
 use strict;
 use warnings;
@@ -28,8 +40,16 @@ use JSON ();
 use constant TRACE => 0; # toggle me
 
 #use Data::Dump qw(dump);
+#use Carp;
 
-##############################################################################
+=begin TML
+
+---++ ClassMethod new($session) -> $core
+
+constructor for a Core object
+
+=cut
+
 sub new {
   my ($class, $session) = @_;
 
@@ -40,13 +60,19 @@ sub new {
 
   throw Error::Simple("no solr url defined") unless defined $this->{url};
 
-  $this->log("ERROR: can't conect solr daemon") unless $this->connect;
+  $this->log("ERROR: cannot connect solr daemon") unless $this->connect;
 
   return $this;
 }
 
+=begin TML
 
-##############################################################################
+---++ handleSOLRSEARCH($params, $web, $topic) -> $result
+
+handles the =%SOLRSEARCH= macro
+
+=cut
+
 sub handleSOLRSEARCH {
   my ($this, $params, $theWeb, $theTopic) = @_;
 
@@ -56,7 +82,7 @@ sub handleSOLRSEARCH {
   my $theId = $params->{id};
   return '' if defined $theId && defined $this->{cache}{$theId};
 
-  my $theQuery = $params->{_DEFAULT} || $params->{search} || '';;
+  my $theQuery = $params->{_DEFAULT} // $params->{search} // '';;
   $theQuery = $this->entityDecode($theQuery);
   $params->{search} = $theQuery;
 
@@ -97,7 +123,14 @@ sub handleSOLRSEARCH {
   return $this->formatResponse($params, $theWeb, $theTopic, $response);
 }
 
-##############################################################################
+=begin TML
+
+---++ handleSOLRFORMAT($params, $web, $topic) -> $result
+
+handles the =%SOLRFORMAT= macro
+
+=cut
+
 sub handleSOLRFORMAT {
   my ($this, $params, $theWeb, $theTopic) = @_;
 
@@ -115,8 +148,14 @@ sub handleSOLRFORMAT {
   return $this->formatResponse($params, $theWeb, $theTopic, $cacheEntry->{response});
 }
 
+=begin TML
 
-##############################################################################
+---++ formatResponse($params, $web, $topic, $response) -> $string
+
+formats the search results fetched from the solr backend
+
+=cut
+
 sub formatResponse {
   my ($this, $params, $theWeb, $theTopic, $response) = @_;
 
@@ -125,7 +164,7 @@ sub formatResponse {
   my $error;
   my $gotResponse = 0;
   try {
-    $gotResponse = 1 if $response->content->{response};
+    $gotResponse = 1 if $response->content->{response} || $response->content->{grouped};
   } catch Error::Simple with {
     $this->log("Error parsing solr response") if TRACE;
     $error = $this->inlineError("Error parsing solr response");
@@ -135,20 +174,14 @@ sub formatResponse {
 
   #$this->log("called formatResponse()") if TRACE;
 
-  my $theFormat = $params->{format} || '';
-  my $theSeparator = $params->{separator} || '';
-  my $theHeader = $params->{header} || '';
-  my $theFooter = $params->{footer} || '';
+  my $theFormat = $params->{format} // '';
+  my $theHeader = $params->{header} // '';
+  my $theFooter = $params->{footer} // '';
   my $theCorrection = $params->{correction} || 
     'Did you mean <a href=\'$url\' class=\'solrCorrection\'>%ENCODE{"$correction" type="quote"}%</a>';
-  my $theInterestingHeader = $params->{header_interesting} || '';
-  my $theInterestingFormat = $params->{format_interesting} || '';
-  my $theInterestingSeparator = $params->{separator_interesting} || '';
-  my $theInterestingFooter = $params->{footer_interesting} || '';
-  my $theInterestingExclude = $params->{exclude_interesting} || '';
-  my $theInterestingInclude = $params->{include_interesting} || '';
   my $theFacets = $params->{facets};
-  my $theHideSingle = $params->{hidesingle} || '';
+  my $theHideSingle = $params->{hidesingle} // '';
+  my $theCheckTopics = Foswiki::Func::isTrue($params->{checktopics}, 0);
 
   my %hideSingleFacets = map {$_ => 1} split(/\s*,\s*/, $theHideSingle);
 
@@ -181,10 +214,10 @@ sub formatResponse {
   my $index = $page * $limit + 1;
   my $from = $index;
   my $to = $index + $limit - 1;
-  my $count = $this->totalEntries($response);
-  $to = $count if $to > $count;
+  my $totalEntries = $this->totalEntries($response);
+  $to = $totalEntries if $to > $totalEntries;
 
-  #$this->log("page=$page, limit=$limit, index=$index, count=$count") if TRACE;
+  #$this->log("page=$page, limit=$limit, index=$index, count=$totalEntries") if TRACE;
   
   if (defined $theFormat && $theFormat ne '') {
     for my $doc ($response->docs) {
@@ -221,8 +254,7 @@ sub formatResponse {
         }
 
       }
-# DISABLED for performance reasons
-#      next unless Foswiki::Func::topicExists($web, $topic);
+      next if $theCheckTopics && !Foswiki::Func::topicExists($web, $topic);
 
       my $hilite = '';
       $hilite = ($hilites->{$id} || $summary) if $id && $hilites;
@@ -250,21 +282,17 @@ sub formatResponse {
     }
   }
 
-  return '' if !@rows && !$theFacets && !$theInterestingFormat;
-
-  my $facets = $this->getFacets($response);
-  my $interestingTerms = $this->getInterestingTerms($response);
-
   # format facets
   my $facetResult = '';
+  my $facets = $this->getFacets($response);
   if ($facets) {
 
     foreach my $facetSpec (split(/\s*,\s*/, $theFacets)) {
       my ($facetLabel, $facetID) = parseFacetSpec($facetSpec);
-      my $theFacetHeader = $params->{"header_$facetID"} || '';
-      my $theFacetFormat = $params->{"format_$facetID"} || '';
-      my $theFacetFooter = $params->{"footer_$facetID"} || '';
-      my $theFacetSeparator = $params->{"separator_$facetID"} || '';
+      my $theFacetHeader = $params->{"header_$facetID"} // '';
+      my $theFacetFormat = $params->{"format_$facetID"} // '';
+      my $theFacetFooter = $params->{"footer_$facetID"} // '';
+      my $theFacetSeparator = $params->{"separator_$facetID"} // '';
       my $theFacetExclude = $params->{"exclude_$facetID"};
       my $theFacetInclude = $params->{"include_$facetID"};
 
@@ -278,7 +306,7 @@ sub formatResponse {
 
       # query facets
       if ($facetID eq 'facetquery') {
-        my $theFacetQuery = $params->{facetquery} || '';
+        my $theFacetQuery = $params->{facetquery} // '';
         my @facetQuery = split(/\s*,\s*/, $theFacetQuery);
 
         # count rows
@@ -392,7 +420,15 @@ sub formatResponse {
 
   # format interesting terms
   my $interestingResult = '';
+  my $interestingTerms = $this->getInterestingTerms($response);
   if ($interestingTerms) {
+    my $theInterestingExclude = $params->{exclude_interesting} // '';
+    my $theInterestingInclude = $params->{include_interesting} // '';
+    my $theInterestingHeader = $params->{header_interesting} // '';
+    my $theInterestingFormat = $params->{format_interesting} // '';
+    my $theInterestingSeparator = $params->{separator_interesting} // '';
+    my $theInterestingFooter = $params->{footer_interesting} // '';
+
     my @interestingRows = ();
     while (my $termSpec = shift @$interestingTerms) {
       next unless $termSpec =~ /^(.*):(.*)$/g;
@@ -414,9 +450,77 @@ sub formatResponse {
     }
   }
 
-  my $result = $theHeader.join($theSeparator, @rows).$facetResult.$interestingResult.$theFooter;
+  my $groupResults = "";
+  my $groups = $this->getGroups($response, $params->{group}); # SMELL: does not work with function or query grouping
+  if ($groups) {
+    my $theGroupHeader = $params->{header_group} // '';
+    my $theGroupFooter = $params->{footer_group} // '';
+    my $theGroupSeparator = $params->{separator_group} // '';
+    my $theGroupFormat = $params->{format_group} // '';
+    my $theGroupInclude = $params->{include_group};
+    my $theGroupExclude = $params->{exclude_group};
+    my $theValueSep = $params->{valueseparator} || ', ';
+
+    my @groupRows = ();
+    foreach my $group (@{$groups->{groups}}) {
+      my $groupValue = $group->{groupValue};
+      my $numFound = $group->{doclist}{numFound};
+      next if defined $theGroupInclude && $groupValue !~ /$theGroupInclude/;
+      next if defined $theGroupExclude && $groupValue =~ /$theGroupExclude/;
+
+      my $index = 0;
+      my @docRows = ();
+      foreach my $doc (@{$group->{doclist}{docs}}) {
+        my $line = $theGroupFormat;
+        while (my ($name, $value) = each %$doc) {
+          next if $name =~ /^_/;
+
+          next unless $line =~ /\$$name/g;
+
+          $value = join($theValueSep, @$value) if ref($value);
+          $value = sprintf('%.02f', $value) if $name eq 'score';
+
+          if ($this->isDateField($name)) {
+            $line =~ s/\$$name\((.*?)\)/Foswiki::Time::formatTime(Foswiki::Time::parseTime($value), $1)/ge;
+            $line =~ s/\$$name\b/Foswiki::Time::formatTime(Foswiki::Time::parseTime($value), '$day $mon $year')/ge;
+          } else {
+            $value = sprintf("%.02f kb", ($value / 1024))
+              if $name eq 'size' && $value =~ /^\d+$/;
+            $line =~ s/\$$name\b/$value/g;
+          }
+
+          $line =~ s/\$index/$index/g;
+          $line =~ s/\$groupValue/$groupValue/g;
+
+          $index++;
+        }
+        push @docRows, $line if $line ne "";
+      }
+
+      my $docResult = $theGroupHeader.join($theGroupSeparator, @docRows).$theGroupFooter;
+      $docResult =~ s/\$count/$numFound/g;
+      $docResult =~ s/\$groupValue/$groupValue/g;
+
+      push @groupRows, $docResult if $docResult ne "";
+    }
+    if (@groupRows) {
+      $groupResults = join("", @groupRows);
+    }
+  }
+
+  my $result;
+  if (!@rows && $facetResult eq '' && $interestingResult eq '' && $groupResults eq '') {
+    if (defined $params->{nullformat}) {
+      $result = $params->{nullformat};
+    } else {
+      return "";
+    }
+  } else {
+    $result = $theHeader.join($params->{separator} //'', @rows).$facetResult.$interestingResult.$groupResults.$theFooter;
+  }
+
   $result =~ s/\$spellcheck/$spellcheck/g;
-  $result =~ s/\$count/$count/g;
+  $result =~ s/\$count/$totalEntries/g;
   $result =~ s/\$from/$from/g;
   $result =~ s/\$to/$to/g;
   $result =~ s/\$name//g; # cleanup
@@ -450,7 +554,17 @@ sub formatResponse {
   return $result;
 }
 
-##############################################################################
+=begin TML
+
+---++ renderPager($web, $topic, $params. $response) -> $string
+
+renders a result pager 
+
+*Deprecated*: this function is rarely of use. any search result paging is done
+via the Solr JavaScript interface instead
+
+=cut
+
 sub renderPager {
   my ($this, $web, $topic, $params, $response) = @_;
 
@@ -519,37 +633,59 @@ sub renderPager {
     $result .= "<span class='solrPagerNext foswikiGrayText'>%MAKETEXT{\"Next\"}%</span>";
   }
 
-  if ($result) {
-    $result = "<div class='solrPager'>$result</div>"
-  }
+  $result = "<div class='solrPager'>$result</div>" if $result;
 
   return $result;
 }
 
-##############################################################################
+=begin TML
+
+---++ getACLFilter() -> $acl
+
+returns a solr filter for the current user
+
+=cut
+
+sub getACLFilter {
+  my $this = shift;
+
+  my %users = ();
+
+  $users{Foswiki::Func::getWikiName()} = 1;
+  $users{$Foswiki::cfg{AdminUserWikiName}} = 1 if Foswiki::Func::isAnAdmin();
+  $users{"all"} = 1;
+
+  return "access_granted:(".join(" OR ", sort keys %users).")";
+}
+
+=begin TML
+
+---++ restSOLRPROXY($web, $topic) -> 
+
+implements the =proxy= REST endpoint. This basically is the most
+unfiltered access to the Solr backend, only adding ACLs to any
+query.
+
+=cut
+
 sub restSOLRPROXY {
   my ($this, $theWeb, $theTopic) = @_;
 
   return '' unless defined $this->{solr};
-  my $query = Foswiki::Func::getCgiQuery();
 
   $theWeb ||= $this->{session}->{webName};
   $theTopic ||= $this->{session}->{topicName};
-  my $theQuery = $query->param('q') || "*:*";
-  my %params = map {$_ => [$query->multi_param($_)]} grep {!/^_$/} $query->multi_param();
+  my $params = $this->getRequestParams();
+  my $theQuery = $params->{q} || "*:*";
 
-  my $wikiUser = Foswiki::Func::getWikiName();
+  push @{$params->{fq}}, $this->getACLFilter();
 
-  unless (Foswiki::Func::isAnAdmin($wikiUser)) { # add ACLs
-    push @{$params{fq}}, " (access_granted:$wikiUser OR access_granted:all)";
-  }
+  #$params->{bf} = 'recip(ms(NOW,date),3.16e-11,10,1)';
 
-  #$params{bf} = 'recip(ms(NOW,date),3.16e-11,10,1)';
+  #print STDERR "fq=$params->{fq}\n";
 
-  #print STDERR "fq=$params{fq}\n";
-  #print STDERR "proxy params=".dump(\%params)."\n";
-
-  my $response = $this->solrSearch($theQuery, \%params);
+  my $response = $this->solrSearch($theQuery, $params);
+  $this->writeEvent($theQuery);
 
   my $result = '';
   my $status = 200;
@@ -588,30 +724,32 @@ sub restSOLRPROXY {
   return $this->fromUtf8($result);
 }
 
-##############################################################################
+=begin TML
+
+---++ restSOLRSEARCH($web, $topic)
+
+=cut
+
 sub restSOLRSEARCH {
   my ($this, $theWeb, $theTopic) = @_;
 
   return '' unless defined $this->{solr};
-  my $query = Foswiki::Func::getCgiQuery();
+  my $params = $this->getRequestParams();
 
   $theWeb ||= $this->{session}->{webName};
   $theTopic ||= $this->{session}->{topicName};
 
-  my $theQuery = $query->param('q') || $query->param('search');
-  my %params = map {$_ => join(" " , @{[$query->multi_param($_)]})} $query->multi_param();
+  my $theQuery = $params->{'q'} || $params->{search};
 
   # SMELL: why doesn't this work out directly?
-  my $jsonWrf = $params{"json.wrf"};
-  delete $params{"json.wrf"};
+  my $jsonWrf = delete $params->{"json.wrf"};
 
 #  print STDERR "theQuery=$theQuery\n";
-#  print STDERR "params=".dump(\%params)."\n";
 
-  my $response = $this->doSearch($theQuery, \%params);
+  my $response = $this->doSearch($theQuery, $params);
 
   # I feel lucky: redirect to first result
-  my $theLucky = Foswiki::Func::isTrue($query->param('lucky'));
+  my $theLucky = Foswiki::Func::isTrue($params->{'lucky'});
   if ($theLucky) {
     my $url = $this->getFirstUrl($response);
     if ($url) {
@@ -644,7 +782,12 @@ sub restSOLRSEARCH {
   return $result;
 }
 
-##############################################################################
+=begin TML
+
+---++ getFirstUrl($resonse) -> $url
+
+=cut
+
 sub getFirstUrl {
   my ($this, $response) = @_;
 
@@ -659,49 +802,66 @@ sub getFirstUrl {
 
   return $url;
 }
-##############################################################################
+
+=begin TML
+
+---++ restSOLRAUTOSUGGEST($web, $topic)
+
+implements the =autosuggest= REST handler
+
+=cut
+
 sub restSOLRAUTOSUGGEST {
   my ($this, $theWeb, $theTopic) = @_;
 
   return '' unless defined $this->{solr};
-  my $query = Foswiki::Func::getCgiQuery();
+  my $params = $this->getRequestParams();
 
-  my $theQuery = $query->param('term') || '*';
-  my $theRaw = Foswiki::Func::isTrue(scalar $query->param('raw'));
+  my $theQuery = $params->{'term'} // '';
+  $theQuery =~ s/^\s+|\s+$//g;
 
-  my $theLimit = $query->param('limit');
+  # augment
+# unless ($theQuery eq '' || $theQuery =~ /[\*\-"'\{\}:]/) {
+#   #$theQuery = "$theQuery OR $theQuery* OR \"$theQuery\"";
+#   $theQuery = "$theQuery OR $theQuery*";
+# }
+
+  my $theRaw = Foswiki::Func::isTrue(scalar $params->{raw});
+
+  my $theLimit = $params->{limit};
   $theLimit = 5 unless defined $theLimit;
 
-  my $theOffset = $query->param('offset');
+  my $theOffset = $params->{offset};
   $theOffset = 0 unless defined $theOffset;
 
-  my $theFields = $query->param('fields');
-  $theFields = "name,web,topic,container_title,title,thumbnail,url,score,type,field_Telephone_s,field_Phone_s,field_Mobile_s" unless defined $theFields;
+  my $theFields = $params->{fields};
+  $theFields = "container_title,title,thumbnail,url,score,field_Telephone_s,field_Phone_s,field_Mobile_s" unless defined $theFields;
 
   # make sure required fields are contained
   my %fields = map {$_ => 1} split(/\s*,\s*/, $theFields);
   $fields{type} = 1;
   $fields{name} = 1;
+  $fields{web} = 1;
+  $fields{topic} = 1;
   $theFields = join(",", sort keys %fields);
 
-  my $theGroups = $query->param('groups');
-  $theGroups = 'persons, topics, attachments' unless defined $theGroups;
+  my $theGroups = $params->{groups};
+  $theGroups = 'persons, topics, other' unless defined $theGroups;
 
   my $userForm = $Foswiki::cfg{SolrPlugin}{PersonDataForm} || $Foswiki::cfg{PersonDataForm} || $Foswiki::cfg{Ldap}{PersonDataForm} || '*UserForm';
   my %filter = (
-    persons => "form:$userForm",
-    topics => "type:topic",
-    attachments => "type:attachment",
+    persons => ["form:$userForm", "-state:disabled"],
+    topics => ["type:(topic)", "-form:$userForm"],
+    other => ["-type:(topic)"],
   );
 
   my @groupQuery = ();
   foreach my $group (split(/\s*,\s*/, $theGroups)) {
     my $filter = $filter{$group};
     next unless defined $filter;
+    $filter = join(" ", @$filter) if ref($filter);
     push @groupQuery, $filter;
   }
-
-  my $wikiUser = Foswiki::Func::getWikiName();
 
   my @filter = ();
 
@@ -710,19 +870,23 @@ sub restSOLRAUTOSUGGEST {
 
   my $solrExtraFilter = Foswiki::Func::getPreferencesValue("SOLR_EXTRAFILTER");
   $solrExtraFilter = Foswiki::Func::expandCommonVariables($solrExtraFilter) 
-    if defined $solrExtraFilter && $solrExtraFilter ne '';
+    if defined $solrExtraFilter && $solrExtraFilter =~ /%/;
   push @filter, $solrExtraFilter 
     if defined $solrExtraFilter && $solrExtraFilter ne '';
 
-  my $theFilter = $query->param('filter');
+  my $solrDefaultWeb = Foswiki::Func::getPreferencesValue("SOLR_DEFAULTWEB");
+  $solrDefaultWeb = Foswiki::Func::expandCommonVariables($solrDefaultWeb) 
+    if defined $solrDefaultWeb && $solrDefaultWeb =~ /%/;
+  push @filter, "web:$solrDefaultWeb" 
+    if defined $solrDefaultWeb && $solrDefaultWeb ne '';
+
+  my $theFilter = $params->{filter};
   push @filter, $theFilter if defined $theFilter && $theFilter ne '';
 
-  push(@filter, "(access_granted:$wikiUser OR access_granted:all)") 
-    unless Foswiki::Func::isAnAdmin($wikiUser);
+  push @filter, $this->getACLFilter();
 
   my %params = (
     q => $theQuery,
-    qt => "edismax",
     indent => "true",
     group => "true",
     fl => $theFields,
@@ -733,11 +897,11 @@ sub restSOLRAUTOSUGGEST {
      fq => \@filter,
   );
 
-  my $theQueryFields = $query->param('queryfields');
-  $params{qf} = [split(/\s*,\s*/, $theQueryFields)]
-    if defined $theQueryFields;
+  my $theQueryFields = $params->{queryfields} || "title_search^10, title^10, title_prefix^5, title_substr^2, summary^5, catchall, text_ws";
+  $params{qf} = [split(/\s*,\s*/, $theQueryFields)];
 
   my $response = $this->solrSearch($theQuery, \%params);
+  $this->writeEvent($theQuery);
 
   my $result = '';
   my $status = 200;
@@ -780,7 +944,8 @@ sub restSOLRAUTOSUGGEST {
     }
 
     # person topics
-    $group = $result->{grouped}{$filter{persons}};
+    my $key = join(" ", @{$filter{persons}});
+    $group = $result->{grouped}{$key};
     if (defined $group) {
       my @docs = ();
       foreach my $doc (@{$group->{doclist}{docs}}) {
@@ -789,6 +954,9 @@ sub restSOLRAUTOSUGGEST {
 
         $doc->{thumbnail} = $Foswiki::cfg{PubUrlPath}."/".$Foswiki::cfg{SystemWebName}."/JQueryPlugin/images/nobody.gif"
           unless defined $doc->{thumbnail};
+
+        $doc->{container_title} = $this->translate($doc->{container_title}, $theWeb, $theTopic)
+          if defined $doc->{container_title};
 
         push @docs, $doc;
       }
@@ -800,18 +968,21 @@ sub restSOLRAUTOSUGGEST {
         "moreUrl" => $this->getAjaxScriptUrl($Foswiki::cfg{UsersWebName}, $Foswiki::cfg{UsersTopicName}, {
           topic => $Foswiki::cfg{UsersTopicName},
           #fq => ..., # SMELL: what about the other filters
-          search => $theQuery 
+          search => $theQuery,
+          origin => "$theWeb.$theTopic",
         })
       } if @docs;
     }
 
     # normal topics
-    $group = $result->{grouped}{$filter{topics}};
+    $key = join(" ", @{$filter{topics}});
+    $group = $result->{grouped}{$key};
     if (defined $group) {
       my @docs = ();
       foreach my $doc (@{$group->{doclist}{docs}}) {
-        $doc->{thumbnail} = $this->mapToIconFileName("unknown")
-          unless defined $doc->{thumbnail};
+        $doc->{thumbnail} //= $doc->{icon} // $this->mapToIconFileName("unknown");
+        $doc->{container_title} = $this->translate($doc->{container_title}, $theWeb, $theTopic)
+          if defined $doc->{container_title};
         push @docs, $doc;
       }
       push @autoSuggestions, {
@@ -821,19 +992,21 @@ sub restSOLRAUTOSUGGEST {
         "docs" => \@docs,
         "moreUrl" => $this->getAjaxScriptUrl($this->{session}{webName}, 'WebSearch', {
           topic => 'WebSearch',
-          fq => [$filter{topics}], # SMELL: what about the other filters
-          search => $theQuery 
+          fq => $filter{topics}, # SMELL: what about the other filters
+          search => $theQuery,
+          origin => "$theWeb.$theTopic",
         })
       } if @docs;
     }
 
-    # attachments
-    $group = $result->{grouped}{$filter{attachments}};
+    # other
+    $key = join(" ", @{$filter{other}});
+    $group = $result->{grouped}{$key};
     if (defined $group) {
       my @docs = ();
       foreach my $doc (@{$group->{doclist}{docs}}) {
         unless (defined $doc->{thumbnail}) {
-          if ($doc->{type} =~ /^(gif|jpe?g|png|bmp|svg)$/i) {
+          if ($this->isImage($doc->{name})) {
             $doc->{thumbnail} = $doc->{name};
           } else {
             my $ext = $doc->{name};
@@ -841,17 +1014,20 @@ sub restSOLRAUTOSUGGEST {
             $doc->{thumbnail} = $this->mapToIconFileName($ext);
           }
         }
+        $doc->{container_title} = $this->translate($doc->{container_title}, $theWeb, $theTopic)
+          if defined $doc->{container_title};
         push @docs, $doc;
       }
       push @autoSuggestions, {
-        "group" => "attachments",
+        "group" => "other",
         "start" => $group->{doclist}{start},
         "numFound" => $group->{doclist}{numFound},
         "docs" => \@docs,
         "moreUrl" => $this->getAjaxScriptUrl($this->{session}{webName}, 'WebSearch', {
           topic => 'WebSearch',
-          fq => $filter{attachments}, # SMELL: what about the other filters
-          search => $theQuery 
+          fq => $filter{other}, # SMELL: what about the other filters
+          search => $theQuery,
+          origin => "$theWeb.$theTopic",
         })
       } if @docs;
     }
@@ -865,24 +1041,29 @@ sub restSOLRAUTOSUGGEST {
   return $result;
 }
 
-##############################################################################
+=begin TML
+
+---++ restSOLRAUTOCOMPLETE($web, $topic)
+
+implements the =autocomplete= REST handler
+
+=cut
+
 sub restSOLRAUTOCOMPLETE {
   my ($this, $theWeb, $theTopic) = @_;
 
   return '' unless defined $this->{solr};
-  my $query = Foswiki::Func::getCgiQuery();
+  my $params = $this->getRequestParams();
 
-  my $theRaw = Foswiki::Func::isTrue($query->param('raw'));
-  my $theQuery = $query->param('term') || '';
-  my $theFilter = $query->param('filter');
-  my $theEllipsis = Foswiki::Func::isTrue($query->param('ellipsis'));
+  my $theRaw = Foswiki::Func::isTrue($params->{raw});
+  my $theQuery = $params->{term} // '';
+  my $theFilter = $params->{filter};
+  my $theEllipsis = Foswiki::Func::isTrue($params->{ellipsis});
   my $thePrefix;
   my $foundPrefix = 0;
 
-  my $wikiUser = Foswiki::Func::getWikiName();
   my @filter = $this->parseFilter($theFilter);
-  push(@filter, "(access_granted:$wikiUser OR access_granted:all)") 
-    unless Foswiki::Func::isAnAdmin($wikiUser);
+  push @filter, $this->getACLFilter();
 
   # tokenize here as well to separate query and prefix
   $theQuery =~ s/[\!"§\$%&\/\(\)=\?{}\[\]\*\+~#',\.;:\-_]/ /g;
@@ -901,13 +1082,13 @@ sub restSOLRAUTOCOMPLETE {
     $theQuery = '*:*';
   }
 
-  my $field = $query->param('field') || 'text';
+  my $field = $params->{field} || 'text';
 
   my $solrParams = {
     "facet.prefix" => $thePrefix,
     "facet" => 'true',
     "facet.mincount" => 1,
-    "facet.limit" => ($query->param('limit') || 10),
+    "facet.limit" => ($params->{limit} || 10),
     "facet.field" => $field,
     "indent" => 'true',
     "rows" => 0,
@@ -948,18 +1129,23 @@ sub restSOLRAUTOCOMPLETE {
   return "[\n".join(",\n ", @result)."\n]";
 }
 
-##############################################################################
+=begin TML
+
+---++ restSOLRSIMILAR($web, $topic)
+
+implements the =similar= REST handler
+
+=cut
+
 sub restSOLRSIMILAR {
   my ($this, $theWeb, $theTopic) = @_;
 
   return '' unless defined $this->{solr};
-  my $query = Foswiki::Func::getCgiQuery();
-  my $theQuery = $query->param('q');
+  my $params = $this->getRequestParams();
+  my $theQuery = delete $params->{q};
   $theQuery =  "id:$theWeb.$theTopic" unless defined $theQuery;
-  my %params = map {$_ => $query->multi_param($_)} grep {!/^_$/} $query->multi_param();
-  delete $params{'q'};
 
-  my $response = $this->doSimilar($theQuery, \%params);
+  my $response = $this->doSimilar($theQuery, $params);
 
   my $result = '';
   try {
@@ -971,7 +1157,14 @@ sub restSOLRSIMILAR {
   return $result."\n\n";
 }
 
-##############################################################################
+=begin TML
+
+---++ handleSOLRSIMILAR($params, $web, $topic) -> $result
+
+implements the =%SOLRSIMILAR= macro
+
+=cut
+
 sub handleSOLRSIMILAR {
   my ($this, $params, $theWeb, $theTopic) = @_;
 
@@ -986,36 +1179,33 @@ sub handleSOLRSIMILAR {
 }
 
 
-#############################################################################
+=begin TML
+
+---++ doSimilar($query, $params) -> $response
+
+=cut
+
 sub doSimilar {
   my ($this, $query, $params) = @_;
 
   #$this->log("doSimilar($query)");
 
   my $theQuery = $query || $params->{'q'} || '*:*';
-  my $theLike = $params->{'like'};
-  my $theFields = $params->{'fields'};
-  my $theFilter = $params->{'filter'};
+  my $theLike = $params->{'like'} // 'field_Category_flat_lst^5,tag';
+  my $theFields = $params->{'fields'} // 'web,topic,title,score';
+  my $theFilter = $params->{'filter'} // 'type:topic';
   my $theInclude = Foswiki::Func::isTrue($params->{'include'});
   my $theStart = $params->{'start'} || 0;
-  my $theRows = $params->{'rows'};
+  my $theRows = $params->{'rows'} // 20;
   my $theBoost = Foswiki::Func::isTrue($params->{'boost'}, 1);
   my $theMinTermFreq = $params->{'mintermfrequency'};
   my $theMinDocFreq = $params->{'mindocumentfrequency'};
-  my $theMinWordLength = $params->{'mindwordlength'};
-  my $theMaxWordLength = $params->{'maxdwordlength'};
+  my $theMinWordLength = $params->{'minwordlength'};
+  my $theMaxWordLength = $params->{'maxwordlength'};
   my $theMaxTerms = $params->{'maxterms'} || 25;
 
-  $theLike = 'field_Category_flat_lst^5,tag' unless defined $theLike;
-  $theFilter = 'type:topic' unless defined $theFilter;
-  $theRows = 20 unless defined $theRows;
-
-  $theFields = 'web,topic,title,score' unless defined $theFields;
-
-  my $wikiUser = Foswiki::Func::getWikiName();
   my @filter = $this->parseFilter($theFilter);
-  push(@filter, "(access_granted:$wikiUser OR access_granted:all)") 
-    unless Foswiki::Func::isAnAdmin($wikiUser);
+  push @filter, $this->getACLFilter();
 
   my $solrParams = {
     "q" => $theQuery, 
@@ -1053,23 +1243,23 @@ sub doSimilar {
   return $this->solrRequest('mlt', $solrParams); #SMELL: faceting on mlt is broken. see SOLR-7883
 }
 
-##############################################################################
+=begin TML
+
+---++ doSearch($query, $params) -> $response
+
+=cut
+
 sub doSearch {
   my ($this, $query, $params) = @_;
 
-  my $theXslt = $params->{xslt} || '';
-  my $theOutput = $params->{output} || $theXslt?'xslt':'json';
   my $theRows = $params->{rows};
   my $theFields = $params->{fields} || '*,score';
-  my $theQueryType = $params->{type} || 'standard';
-  my $theHighlight = Foswiki::Func::isTrue($params->{highlight});
-  my $theSpellcheck = Foswiki::Func::isTrue($params->{spellcheck});
-  my $theMoreLikeThis = Foswiki::Func::isTrue($params->{morelikethis});
+  my $theQueryType = $params->{type} || 'edismax';
   my $theWeb = $params->{web};
-  my $theFilter = $params->{filter} || '';
+  my $theFilter = $params->{filter} // '';
   my $theExtraFilter = $params->{extrafilter};
-  my $theDisjunktiveFacets = $params->{disjunctivefacets} || '';
-  my $theCombinedFacets = $params->{combinedfacets} || '';
+  my $theDisjunktiveFacets = $params->{disjunctivefacets} // '';
+  my $theCombinedFacets = $params->{combinedfacets} // '';
   my $theBoostQuery = $params->{boostquery};
   my $theQueryFields = $params->{queryfields};
   my $thePhraseFields = $params->{phrasefields};
@@ -1101,32 +1291,34 @@ sub doSearch {
 
   my $solrParams = {
     "indent" =>'on',
-    "start" => ($theStart*$theRows),
+    "start" => $theStart,
     "rows" => $theRows,
     "fl" => $theFields,
     "sort" => $theSort,
     "qt" => $theQueryType, # one of the requestHandlers defined in solrconfig.xml
-    "wt" => $theOutput,
+    "wt" => 'json',
   };
 
-  $solrParams->{tr} = $theXslt if $theXslt;
   $solrParams->{bq} = $theBoostQuery if $theBoostQuery;
-  $solrParams->{qf} = $theQueryFields if $theQueryFields;
+  $solrParams->{qf} = [split(/\s*,\s*/, $theQueryFields)] if $theQueryFields;
   $solrParams->{pf} = $thePhraseFields if $thePhraseFields;
   $solrParams->{debugQuery} = "true" if $theDebugQuery;
 
-  my $theGroup = $params->{'group'};
-  my $theGroupLimit = $params->{'grouplimit'} || 1;
-  if (defined $theGroup) {
+  if (defined $params->{group} || defined $params->{groupfunction} || defined $params->{groupquery}) {
     $solrParams->{"group"} = "true";
-#    $solrParams->{"group.main"} = "true";
+    $solrParams->{"group.field"} = $params->{group} if defined $params->{group};
+    $solrParams->{"group.func"} = $params->{groupfunc} if defined $params->{groupfunc};
+    $solrParams->{"group.query"} = $params->{groupquery} if defined $params->{groupquery}; # SMELL: need to process groupquery to split it into an array?
+    $solrParams->{"group.sort"} = $params->{groupsort} || 'score desc';
+    $solrParams->{"group.limit"} = $params->{grouplimit} || 1;
+    $solrParams->{"group.offset"} = $params->{groupoffset} if $params->{groupoffset};
     $solrParams->{"group.ngroups"} = "true";
-    $solrParams->{"group.limit"} = $theGroupLimit;
-    $solrParams->{"group.field"} = $theGroup;
   }
 
+  my $theHighlight = Foswiki::Func::isTrue($params->{highlight});
   if ($theHighlight && $theRows > 0) {
     $solrParams->{"hl"} = 'true';
+    $solrParams->{"hl.method"} = 'unified';
     $solrParams->{"hl.fl"} = 'text';
     $solrParams->{"hl.snippets"} = '2';
     $solrParams->{"hl.fragsize"} = '300';
@@ -1135,9 +1327,9 @@ sub doSearch {
     $solrParams->{"hl.highlightMultiTerm"} = 'true';
     $solrParams->{"hl.alternateField"} = 'text';
     $solrParams->{"hl.maxAlternateFieldLength"} = '300';
-    $solrParams->{"hl.useFastVectorHighlighter"} = 'true';
   }
 
+  my $theMoreLikeThis = Foswiki::Func::isTrue($params->{morelikethis});
   if ($theMoreLikeThis) {
     # TODO: add params to configure this 
     $solrParams->{"mlt"} = 'true';
@@ -1148,6 +1340,7 @@ sub doSearch {
     $solrParams->{"mlt.maxqt"} = '100';
   }
 
+  my $theSpellcheck = Foswiki::Func::isTrue($params->{spellcheck});
   if ($theSpellcheck) {
     $solrParams->{"spellcheck"} = 'true';
 #    $solrParams->{"spellcheck.maxCollationTries"} = 1;
@@ -1157,10 +1350,14 @@ sub doSearch {
     $solrParams->{"spellcheck.collate"} = 'true';
   }
 
+  my $theStats = $params->{stats};
+  if (defined $theStats) {
+    $solrParams->{"stats"} = 'true';
+    $solrParams->{"stats.field"} = $theStats;
+  }
+
   # get all facet params
   $this->getFacetParams($params, $solrParams);
-
-  my $wikiUser = Foswiki::Func::getWikiName();
 
   # create filter query
   my @filter;
@@ -1198,7 +1395,7 @@ sub doSearch {
     # disjunctive facets that are also combined with each other, produce one big disjunction
     # gathered in tmpFilter before adding it to the overal @filter array
     if ($combinedFacets{$facetName}) {
-      my $expr = join(" OR ", map("$facetName:$_", @{$seenDisjunctiveFilter{$facetName}}));
+      my $expr = join(" OR ", map { "$facetName:$_" } @{$seenDisjunctiveFilter{$facetName}});
       push(@tmpFilter, $expr); 
     } else {
       my $expr = "{!tag=$facetName}$facetName:(".join(" OR ", @{$seenDisjunctiveFilter{$facetName}}).")";
@@ -1222,9 +1419,8 @@ sub doSearch {
   }
 
   # extra filter 
-  push(@filter, $this->parseFilter($theExtraFilter));
-  push(@filter, "(access_granted:$wikiUser OR access_granted:all)") 
-    unless Foswiki::Func::isAnAdmin($wikiUser); # add ACLs
+  push @filter, $this->parseFilter($theExtraFilter);
+  push @filter, $this->getACLFilter();
 
   $solrParams->{"fq"} = \@filter if @filter;
 
@@ -1259,44 +1455,78 @@ sub doSearch {
   return $response;
 }
 
-##############################################################################
+=begin TML
+
+---++ solrSearch($query, $params) -> $response
+
+low-level solr search request
+
+=cut
+
 sub solrSearch {
   my ($this, $query, $params) = @_;
 
   $params ||= {};
   $params->{'q'} = $query if $query;
+  $params->{qt} ||= "edismax";
 
-  #print STDERR "solrSearch - params=".dump($params)."\n";
+  $query = $params->{q} // '';
+  $query =~ s/[\s\*:]+$//g;
+  $query =~ s/^[\s\*:]+//g;
 
   return $this->solrRequest("select", $params);
 }
 
-##############################################################################
-sub solrRequest {
-  my ($this, $path, $params) = @_;
+=begin TML
 
-  return $this->{solr}->generic_solr_request($path, $params);
+---++ writeEvent($query)
+
+write a log event of the search query
+
+=cut
+
+sub writeEvent {
+  my ($this, $query) = @_;
+
+  my $web = $this->{session}->{webName};
+  my $topic = $this->{session}->{topicName};
+
+  # log term 
+  $this->{session}->logger->log( {
+    level    => 'info',
+    action   => 'search',
+    webTopic => "$web.$topic",
+    extra    => $query
+  });
 }
 
-##############################################################################
+=begin TML
+
+---++ getFacetParams($params, $solrParams) -> \%facets
+
+=cut
+
 sub getFacetParams {
   my ($this, $params, $solrParams) = @_;
 
   $solrParams ||= {};
 
   my $theFacets = $params->{facets};
-  my $theFacetQuery = $params->{facetquery} || '';
+  my $theFacetQuery = $params->{facetquery} // '';
 
   return $solrParams unless $theFacets || $theFacetQuery;
 
-  my $theFacetLimit = $params->{facetlimit};
-  my $theFacetSort = $params->{facetsort} || '';
+  my $theFacetLimit = $params->{facetlimit} // '';
+  my $theFacetSort = $params->{facetsort} // '';
   my $theFacetOffset = $params->{facetoffset};
   my $theFacetMinCount = $params->{facetmincount};
   my $theFacetPrefix = $params->{facetprefix};
+  my $theFacetContains = $params->{facetcontains};
+  my $theFacetIgnoreCase = $params->{facetignorecase};
   my $theFacetMethod = $params->{facetmethod};
+  my $theFacetMatches = $params->{facetmatches};
+  my $theFacetExclude = $params->{facetexclude};
 
-  $theFacetLimit = '' unless defined $theFacetLimit;
 
   # parse facet limit
   my %facetLimit;
@@ -1344,6 +1574,10 @@ sub getFacetParams {
   $solrParams->{"facet.offset"} = $theFacetOffset if defined $theFacetOffset;
   $solrParams->{"facet.prefix"} = $theFacetPrefix if defined $theFacetPrefix;
   $solrParams->{"facet.method"} = $theFacetMethod if defined $theFacetMethod;
+  $solrParams->{"facet.contains"} = $theFacetContains if defined $theFacetContains;
+  $solrParams->{"facet.matches"} = $theFacetMatches if defined $theFacetMatches;
+  $solrParams->{"facet.contains.ignoreCase"} = (Foswiki::Func::isTrue($theFacetContains) ? "true" : "false") if defined $theFacetIgnoreCase;
+  $solrParams->{"facet.excludeTerms"} = $theFacetExclude if defined $theFacetExclude;
   
   # gather all facets
   my $fieldFacets;
@@ -1389,9 +1623,14 @@ sub getFacetParams {
   return $solrParams;
 }
 
+=begin TML
 
-##############################################################################
-# replaces buggy Data::Page interface
+---++ currentPage($response) -> $int
+
+replaces buggy Data::Page interface
+
+=cut
+
 sub currentPage {
   my ($this, $response) = @_;
 
@@ -1400,7 +1639,7 @@ sub currentPage {
   
   try {
     $rows = $this->entriesPerPage($response);
-    $start = $response->content->{response}->{start};
+    $start = $response->content->{response}->{start} || 0;
   } catch Error::Simple with {
     # ignore
   };
@@ -1409,7 +1648,12 @@ sub currentPage {
   return 0;
 }
 
-##############################################################################
+=begin TML
+
+---++ lastPage()
+
+=cut
+
 sub lastPage {
   my ($this, $response) = @_;
   
@@ -1426,7 +1670,12 @@ sub lastPage {
   return 0;
 }
 
-##############################################################################
+=begin TML
+
+---++ entriesPerPage()
+
+=cut
+
 sub entriesPerPage {
   my ($this, $response) = @_;
 
@@ -1440,14 +1689,19 @@ sub entriesPerPage {
   return $result;
 }
 
-##############################################################################
+=begin TML
+
+---++ totalEntries()
+
+=cut
+
 sub totalEntries {
   my ($this, $response) = @_;
 
   my $result = 0;
 
   try {
-   $result = $response->content->{response}->{numFound};
+   $result = $response->content->{response}->{numFound} || 0;
   } catch Error::Simple with {
     # ignore
   };
@@ -1455,7 +1709,12 @@ sub totalEntries {
   return $result;
 }
 
-##############################################################################
+=begin TML
+
+---++ getQueryTime()
+
+=cut
+
 sub getQueryTime {
   my ($this, $response) = @_;
 
@@ -1469,8 +1728,12 @@ sub getQueryTime {
   return $result;
 }
 
+=begin TML
 
-##############################################################################
+---++ getHighlights()
+
+=cut
+
 sub getHighlights {
   my ($this, $response) = @_;
 
@@ -1499,7 +1762,12 @@ sub getHighlights {
   return \%hilites;
 }
 
-##############################################################################
+=begin TML
+
+---++ getMoreLikeThis()
+
+=cut
+
 sub getMoreLikeThis {
   my ($this, $response) = @_;
 
@@ -1514,8 +1782,12 @@ sub getMoreLikeThis {
   return $moreLikeThis;
 }
 
+=begin TML
 
-##############################################################################
+---++ getCorrection()
+
+=cut
+
 sub getCorrection {
   my ($this, $response) = @_;
 
@@ -1540,7 +1812,12 @@ sub getCorrection {
   return $correction;
 }
 
-##############################################################################
+=begin TML
+
+---++ getFacets()
+
+=cut
+
 sub getFacets {
   my ($this, $response) = @_;
 
@@ -1555,7 +1832,12 @@ sub getFacets {
   return $struct;
 }
 
-##############################################################################
+=begin TML
+
+---++ getInterestingTerms()
+
+=cut
+
 sub getInterestingTerms {
   my ($this, $response) = @_;
 
@@ -1570,8 +1852,34 @@ sub getInterestingTerms {
   return $struct;
 }
 
+=begin TML
 
-##############################################################################
+---++ getGroups()
+
+=cut
+
+sub getGroups {
+  my ($this, $response, $group) = @_;
+
+  return unless $group;
+
+  my $struct;
+  
+  try {
+    $struct = $response->content->{grouped}{$group};
+  } catch Error::Simple with {
+    # ignore
+  };
+
+  return $struct;
+}
+
+=begin TML
+
+---++ parseFacetSpec()
+
+=cut
+
 sub parseFacetSpec {
   my ($spec) = @_;
 
@@ -1589,7 +1897,12 @@ sub parseFacetSpec {
   return ($key, $val);
 }
 
-##############################################################################
+=begin TML
+
+---++ handleSOLRSCRIPTURL()
+
+=cut
+
 sub handleSOLRSCRIPTURL {
   my ($this, $params, $web, $topic) = @_;
 
@@ -1599,6 +1912,7 @@ sub handleSOLRSCRIPTURL {
   my $theId = $params->{id};
   my $theWeb = $this->{session}->{webName};
   my $theTopic = $params->{topic} || $this->{session}->{topicName};
+  $params->{origin} //= $theWeb.".".$this->{session}->{topicName};
 
   $cacheEntry = $this->{cache}{$theId} if defined $theId;
   $params = {%{$cacheEntry->{params}}, %$params} if defined $cacheEntry;
@@ -1616,18 +1930,23 @@ sub handleSOLRSCRIPTURL {
   return $result;
 }
 
-##############################################################################
+=begin TML
+
+---++ getAjaxScriptUrl()
+
+=cut
+
 sub getAjaxScriptUrl {
   my ($this, $web, $topic, $params) = @_;
 
   my @anchors = ();
 
   # TODO: add multivalue and union params
-  my %isUnion = map {$_=>1} split(/\s*,\s*/, $params->{union} || '');
-  my %isMultiValue = map {$_=>1} split(/\s*,\s*/, $params->{multivalue} || '');
+  my %isUnion = map {$_=>1} split(/\s*,\s*/, $params->{union} // '');
+  my %isMultiValue = map {$_=>1} split(/\s*,\s*/, $params->{multivalue} // '');
 
   foreach my $key (sort keys %$params) {
-    next if $key =~ /^(date|start|sort|_RAW|union|multivalue|separator|topic|_DEFAULT|search)$/;
+    next if $key =~ /^(date|start|sort|_RAW|union|multivalue|separator|topic|_DEFAULT|search|origin)$/;
 
     my $val  = $params->{$key};
 
@@ -1668,28 +1987,36 @@ sub getAjaxScriptUrl {
 
   my ($webSearchWeb, $webSearchTopic) = Foswiki::Func::normalizeWebTopicName($web, $params->{topic} || 'WebSearch');
 
-  my $url = Foswiki::Func::getScriptUrlPath($webSearchWeb, $webSearchTopic, 'view');
+  my $url = Foswiki::Func::getScriptUrlPath($webSearchWeb, $webSearchTopic, 'view', origin => $params->{origin});
   # not using getScriptUrl() for anchors due to encoding problems
 
-  my $theSep = $params->{separator};
-  $theSep = '&' unless defined $theSep;
-
+  my $theSep = $params->{separator} // '&';
   $url .= '#'.join($theSep, map {urlEncode($_)} @anchors) if @anchors;
 
   return $url;
 }
 
-##############################################################################
+=begin TML
+
+---++ urlEncode()
+
+=cut
+
 sub urlEncode {
   my $text = shift;
 
   $text =~ s/([':&"])/sprintf('%%%02X',ord($1))/ge;
-  $text =~ s/ /%20/g;
+  $text =~ s/\s/%20/g;
 
   return $text;
 }
 
-##############################################################################
+=begin TML
+
+---++ getScriptUrl($web, $topic, $params, $response, $start) -> $url
+
+=cut
+
 sub getScriptUrl {
   my ($this, $web, $topic, $params, $response, $start) = @_;
 
@@ -1703,8 +2030,7 @@ sub getScriptUrl {
   $theSort =~ s/^\s+//;
   $theSort =~ s/\s+$//;
 
-  $start = $this->currentPage($response)
-    unless defined $start;
+  $start = $this->currentPage($response) unless defined $start;
   $start = 0 unless $start;
 
   my @urlParams = (
@@ -1720,7 +2046,7 @@ sub getScriptUrl {
 
 
   # SMELL: duplicates parseFilter 
-  my $theFilter = $params->{filter} || '';
+  my $theFilter = $params->{filter} // '';
   $theFilter = $this->urlDecode($this->entityDecode($theFilter));
   while ($theFilter =~ /([^\s:]+?):((?:\[[^\]]+?\])|[^\s",]+|(?:"[^"]+?")),?/g) {
     my $field = $1;
@@ -1749,7 +2075,12 @@ sub getScriptUrl {
   return Foswiki::Func::getScriptUrlPath($web, $topic, 'view', @urlParams);
 }
 
-##############################################################################
+=begin TML
+
+---++ parseFilter($filter) -> @filter
+
+=cut
+
 sub parseFilter {
   my ($this, $filter) = @_; 
 
@@ -1784,23 +2115,27 @@ sub parseFilter {
   return @filter;
 }
 
-################################################################################
+=begin TML
+
+---++ iterate($params, $callback)
+
+performs a solr search and iterates over it
+
+=cut
+
 sub iterate {
   my ($this, $params, $callback) = @_;
 
+  $this->log("called iterate") if TRACE;
+
   $params->{q} ||= "*";
-  $params->{fl} ||= "topic";
+  $params->{fl} ||= "web, topic";
   $params->{sort} ||= "webtopic_sort asc";
   $params->{limit} ||= 0;
-  $params->{rows} ||= $params->{limit} || 100;
+  $params->{rows} ||= $params->{limit} || 1000;
   $params->{start} ||= 0;
 
-  my @filter = ();
-  my $wikiUser = Foswiki::Func::getWikiName();
-  push @filter, " (access_granted:$wikiUser OR access_granted:all)"
-    unless Foswiki::Func::isAnAdmin($wikiUser);
-  $params->{filter} = \@filter; # SMELL: overrides any previous value
-
+  push @{$params->{fq}}, $this->getACLFilter();
   my $len = 0;
 
   do {
@@ -1812,7 +2147,8 @@ sub iterate {
 
     if ($callback) {
       foreach my $doc (@docs) {
-        &{$callback}($doc, $numFound);
+        my $ret = &{$callback}($doc, $numFound);
+        return if defined($ret) && !$ret;
       }
     }
 
@@ -1821,20 +2157,23 @@ sub iterate {
     $params->{start} += $len;
 
   } while ($len > 0 && ($params->{limit} == 0 || $params->{start} < $params->{limit}));
+
+  return;
 }
 
-################################################################################
-# params
-# - field
-# - process
+=begin TML
+
+---++ iterateFacet($field, $callback, $ignoreAccess)
+
+performs a facet search and iterates over it
+
+=cut
+
 sub iterateFacet {
-  my ($this, $field, $callback) = @_;
+  my ($this, $field, $callback, $ignoreAccess) = @_;
 
   my @filter = ();
-
-  my $wikiUser = Foswiki::Func::getWikiName();
-  push @filter, " (access_granted:$wikiUser OR access_granted:all)"
-    unless Foswiki::Func::isAnAdmin($wikiUser);
+  push @filter, $this->getACLFilter() unless $ignoreAccess;
 
   my $len = 0;
   my $offset = 0;
@@ -1875,7 +2214,14 @@ sub iterateFacet {
   return $offset;
 }
 
-################################################################################
+=begin TML
+
+---++ getListOfTopics($web) -> @topics
+
+returns the list of all topics of a web using a solr iteration
+
+=cut
+
 sub getListOfTopics {
   my ($this, $web) = @_;
 
@@ -1895,7 +2241,14 @@ sub getListOfTopics {
   return @topics;
 }
 
-################################################################################
+=begin TML
+
+---++ getListOfWebs() -> @webs
+
+returns all webs using a solr search 
+
+=cut
+
 sub getListOfWebs {
   my $this = shift;
 
@@ -1905,12 +2258,11 @@ sub getListOfWebs {
     if ($count) {
       push @webs, $val if $count;
     } else {
-      $this->log("WARNING: found web=$val with count=$count ... index needs optimization");
+      #$this->log("WARNING: found web=$val with count=$count ... index needs optimization");
     }
-  });
+  }, 1);
 
   return @webs;
 }
-
 
 1;

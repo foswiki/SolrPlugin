@@ -1,0 +1,26 @@
+[Unit]
+Description=Watch Foswiki Activities
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=www-data
+Group=www-data
+SyslogIdentifier=foswiki-watch
+
+Environment=FOSWIKI_ROOT=/var/www/foswiki
+Environment=FOSWIKI_WATCH=./foswiki-watch
+Environment=FOSWIKI_WATCH_EVENTS_LOG=${FOSWIKI_ROOT}/working/logs/events.log
+Environment=FOSWIKI_WATCH_PARALLEL=1
+Environment=FOSWIKI_WATCH_THROTTLE=1
+Environment=FOSWIKI_WATCH_VHOSTING=0
+Environment=FOSWIKI_WATCH_DEBUG=0
+EnvironmentFile=-/etc/default/foswiki-watch
+
+ExecStart=/bin/bash -lc "cd ${FOSWIKI_ROOT}/tools && ${FOSWIKI_WATCH} -r ${FOSWIKI_ROOT} -d ${FOSWIKI_WATCH_DEBUG} -v ${FOSWIKI_WATCH_VHOSTING} -p ${FOSWIKI_WATCH_PARALLEL} -t ${FOSWIKI_WATCH_THROTTLE} ${FOSWIKI_WATCH_EVENTS_LOG}"
+
+[Install]
+WantedBy=multi-user.target

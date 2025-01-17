@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2019 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2025 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,11 +19,21 @@ use Foswiki::Func ();
 use Foswiki::Plugins ();
 use Foswiki::Plugins::SolrPlugin ();
 use WebService::Solr ();
+use Foswiki::Contrib::Stringifier ();
 use Error qw( :try );
 use Encode ();
+use File::Temp ();
+use LWP::UserAgent ();
+use HTTP::Request ();
+use HTTP::Date ();
+use MIME::Base64 ();
+#use Data::Dump qw(dump);
 
 our $STARTWW = qr/^|(?<=[\s\(])/m;
 our $ENDWW = qr/$|(?=[\s,.;:!?)])/m;
+
+use constant TRACE => 0;    # toggle me
+use constant MAX_FILE_SIZE => 1014*1000*10;
 
 BEGIN {
   if ($Foswiki::Plugins::VERSION < 2.3) {
@@ -37,8 +47,6 @@ BEGIN {
   }
 }
 
-
-##############################################################################
 sub new {
   my $class = shift;
   my $session = shift;
@@ -56,24 +64,59 @@ sub new {
 
   $this->{iconOfType} = {
     'fa-file-text-o' => qr/^topic$/i,
-    'fa-code-o' => qr/\.?(js|css)$/i,
+    'fa-code-o' => qr/^(js|css)$/i,
     'fa-comment-o' => qr/^comment$/i,
-    'fa-file-image-o' => qr/\.?(art|bmp|cdr|cdt|cpt|djv|djvu|gif|ico|ief|jng|jpe|jpeg|jpg|pat|pbm|pcx|pgm|png|pnm|ppm|psd|ras|rgb|svg|svgz|tif|tiff|webp|wbmp|xbm|xpm|xwd)$/i,
-    'fa-file-video-o' => qr/\.?(3gp|asf|asx|avi|axv|dif|dl|dv|fli|flv|gl|lsf|lsx|m4v|mng|mov|movie|mp4|mpe|mpeg|mpg|mpv|mxu|ogv|qt|wm|wmv|wmx|wvx|swf|webm)$/i,
-    'fa-file-audio-o' => qr/\.?(aif|aifc|aiff|amr|amr|au|awb|awb|axa|flac|gsm|kar|m3u|m3u|m4a|mid|midi|mp2|mp3|mpega|mpga|oga|ogg|pls|ra|ra|ram|rm|sd2|sid|snd|spx|wav|wax|weba|wma)$/i,
-    'fa-file-archive-o' => qr/\.?(zip|tar|tar|rar|gz)$/i,
-    'fa-file-pdf-o' => qr/\.?pdf$/i,
-    'fa-file-excel-o' => qr/\.?xlsx?$/i,
-    'fa-file-word-o' => qr/\.?docx?$/i,
-    'fa-file-powerpoint-o' => qr/\.?pptx?$/i,
+    'fa-file-image-o' => qr/^(art|bmp|cdr|cdt|cpt|djv|djvu|gif|ico|ief|jng|jpe|jpeg|jpg|pat|pbm|pcx|pgm|png|pnm|ppm|psd|ras|rgb|svg|svgz|tif|tiff|webp|wbmp|xbm|xpm|xwd)$/i,
+    'fa-file-video-o' => qr/^(3gp|asf|asx|avi|axv|dif|dl|dv|fli|flv|gl|lsf|lsx|m4v|mng|mov|movie|mp4|mpe|mpeg|mpg|mpv|mxu|ogv|qt|wm|wmv|wmx|wvx|swf|webm)$/i,
+    'fa-file-audio-o' => qr/^(aif|aifc|aiff|amr|amr|au|awb|awb|axa|flac|gsm|kar|m3u|m3u|m4a|mid|midi|mp2|mp3|mpega|mpga|oga|ogg|pls|ra|ra|ram|rm|sd2|sid|snd|spx|wav|wax|weba|wma)$/i,
+    'fa-file-archive-o' => qr/^(zip|tar|tar|rar|gz)$/i,
+    'fa-file-pdf-o' => qr/^pdf$/i,
+    'fa-file-excel-o' => qr/^xls[xm]?$/i,
+    'fa-file-word-o' => qr/^doc[xm]?$/i,
+    'fa-file-powerpoint-o' => qr/^ppt[xm]?$/i,
   } unless defined $this->{iconOfType};
 
   $this->{defaultIcon} = 'fa-file-o' unless defined $this->{defaultIcon};
 
   $this->{timeout} = 180 unless defined $this->{timeout};
   $this->{optimizeTimeout} = 600 unless defined $this->{optimizeTimeout};
+  $this->{workArea} = Foswiki::Func::getWorkArea('SolrPlugin');
 
   return $this;
+}
+
+##############################################################################
+sub finish {
+  my $this = shift;
+
+  undef $this->{_skipwebs};
+  undef $this->{_skipattachments};
+  undef $this->{_skiptopics};
+  undef $this->{_sections};
+  undef $this->{_types};
+  undef $this->{_ua};
+  undef $this->{solr};
+}
+
+##############################################################################
+sub ua {
+  my $this = shift;
+
+  unless ($this->{_ua}) {
+    $this->{_ua} = LWP::UserAgent->new(
+      agent => "Foswiki-SolrPlugin/$Foswiki::Plugins::SolrPlugin::VERSION",
+      timeout => $this->{timeout},
+      keep_alive => 1
+    );
+
+    if ($Foswiki::cfg{PROXY}{HOST}) {
+      my @noProxy = $Foswiki::cfg{PROXY}{NoProxy} ? split(/\s*,\s*/, $Foswiki::cfg{PROXY}{NoProxy}) : undef;
+      $this->{_ua}->proxy(['http', 'https', 'ftp'], $Foswiki::cfg{PROXY}{HOST});
+      $this->{_ua}->no_proxy(@noProxy) if @noProxy;
+    }
+  }
+
+  return $this->{_ua};
 }
 
 ##############################################################################
@@ -86,19 +129,15 @@ sub connect {
   for ($tries = 1; $tries <= $maxConnectRetries; $tries++) {
     eval {
       $this->{solr} = WebService::Solr->new($this->{url}, {
-        agent => LWP::UserAgent->new(
-          agent => "Foswiki-SolrPlugin/$Foswiki::Plugins::SolrPlugin::VERSION",
-          timeout => $this->{timeout},
-          keep_alive => 1
-        ),
+        agent => $this->ua,
         autocommit => 0,
       });
     };
 
-    if ($@) {
+   if ($@) {
       $this->log("ERROR: can't contact solr server: $@");
       $this->{solr} = undef;
-    }
+    };
 
     last if $this->{solr};
     sleep 2;
@@ -111,7 +150,8 @@ sub connect {
 sub log {
   my ($this, $logString, $noNewLine) = @_;
 
-  print STDERR "$logString" . ($noNewLine ? '' : "\n");
+  print STDERR "$logString\n";
+  #print STDERR "\n" unless $noNewLine;
 
   #Foswiki::Func::writeDebug($logString);
 }
@@ -120,7 +160,14 @@ sub log {
 sub isDateField {
   my ($this, $name) = @_;
 
-  return ($name =~ /^((.*_dt)|createdate|date|timestamp)$/) ? 1 : 0;
+  return ($name =~ /^((.*_dt)|createdate|date)$/) ? 1 : 0;
+}
+
+##############################################################################
+sub isImage {
+  my ($this, $name) = @_;
+
+  return ($name && $name =~ /\.(gif|jpe?g|png|bmp|svgz?|webp|tiff?|avif)$/i)?1:0;
 }
 
 ##############################################################################
@@ -218,8 +265,7 @@ sub skipTopics {
 
   unless (defined $skiptopics) {
     $skiptopics = {};
-    my $to_skip = $Foswiki::cfg{SolrPlugin}{SkipTopics}
-      || 'WebRss, WebSearch, WebStatistics, WebTopicList, WebLeftBar, WebPreferences, WebSearchAdvanced, WebIndex, WebAtom, WebChanges, WebCreateNewTopic, WebNotify';
+    my $to_skip = $Foswiki::cfg{SolrPlugin}{SkipTopics} || 'TrashAttachments';
     foreach my $t (split(/\s*,\s*/, $to_skip)) {
       $skiptopics->{$t} = 1;
     }
@@ -290,7 +336,12 @@ sub putBackBlocks {
 
 ##############################################################################
 sub mapToIconFileName {
-  my ($this, $type) = @_;
+  my ($this, $typeOrFilename) = @_;
+
+  my $type = $typeOrFilename;
+  if ($typeOrFilename =~ /\.([^\.]+)$/) {
+    $type = $1;
+  }
 
   my $foundIcon;
 
@@ -304,7 +355,7 @@ sub mapToIconFileName {
 
   $foundIcon = $this->{defaultIcon} unless $foundIcon;
 
-  #print STDERR "$type => $foundIcon\n";
+  $this->log("... mapping type '$type' to icon '$foundIcon'") if TRACE;
 
   return $foundIcon;
 }
@@ -398,7 +449,9 @@ sub getScriptUrlPath {
 sub plainify {
   my ($this, $text, $web, $topic) = @_;
 
-  return '' unless defined $text;
+  return '' unless defined $text && $text ne "";
+  $web ||= $this->{session}{webName};
+  $topic ||= $this->{session}{topicName};
 
   my $wtn = Foswiki::Func::getPreferencesValue('WIKITOOLNAME') || '';
 
@@ -442,8 +495,6 @@ sub plainify {
   # remove brackets from [[][]] links
   $text =~ s/\[\[([^\]]*\]\[)(.*?)\]\]/$1 $2/g;
 
-  # remove "Web." prefix from "Web.TopicName" link
-  $text =~ s/$STARTWW(($Foswiki::regex{webNameRegex})\.($Foswiki::regex{wikiWordRegex}|$Foswiki::regex{abbrevRegex}))/$3/g;
   $text =~ s/[\[\]\*\|=_\&\<\>]/ /g;    # remove Wiki formatting chars
   $text =~ s/^\-\-\-+\+*\s*\!*/ /gm;    # remove heading formatting and hbar
   $text =~ s/[\+\-]+/ /g;               # remove special chars
@@ -534,6 +585,11 @@ sub getMimeType {
 sub getMappedMimeType {
   my ($this, $fileName) = @_;
 
+  # SMELL: ebook file extensions aren't found in mime.types most of the time
+  if ($fileName =~ /\.(azw|azw3|azw4|cbz|cbr|cbc|chm|djvu|epub|fb2|fbz|htmlz|lit|lrf|mobi|prc|pdb|pml|rb|snb|tcr|txtz)$/) {
+    return wantarray ? ("ebook", $1) : "application/$1"; # SMELL: mime type is just dummy here
+  }
+
   $fileName =~ s/\.tar\.gz$/.tgz/; # SMELL: sometimes not part of mime.types file
 
   my ($type, $subType) = $this->getMimeType($fileName);
@@ -609,14 +665,390 @@ sub getMappedMimeType {
 
     # suppress any other application type
     else {
-      return;
+      $type = $subType || '';
+      $type =~ s/^x\-//;
     }
   }
 
   # text based spreadsheets
   $type = 'spreadsheet' if $type eq 'text' && $subType eq 'csv';
 
+  $this->log("fileName=$fileName, type=$type, subType=$subType") if TRACE;
+
   return wantarray ? ($type, $subType) : "$type/$subType";
 }
+
+################################################################################
+sub deleteById {
+  my ($this, $id) = @_;
+
+  try {
+    $this->{solr}->delete_by_id($id);
+  } catch Error::Simple with {
+    my $e = shift;
+    $this->log("ERROR: " . $e->{-text});
+  };
+}
+
+################################################################################
+sub deleteByQuery {
+  my ($this, $query) = @_;
+
+  return unless $query;
+
+  #$this->log("Deleting documents by query $query") if TRACE;
+
+  my $success;
+  try {
+    $success = $this->{solr}->delete_by_query($query);
+  }
+  catch Error::Simple with {
+    my $e = shift;
+    $this->log("ERROR: " . $e->{-text});
+  };
+
+  return $success;
+}
+
+################################################################################
+sub updateById {
+  my ($this, $id, $key, $value, $oper) = @_;
+  
+  return; # SMELL: does not work
+  return unless $this->{solr};
+
+  $oper //= "set";
+
+  my $doc = $this->newDocument();
+  $doc->add_fields(id => $id);
+
+  my $field = WebService::Solr::Field->new( $key => {
+      $oper => $value
+    }
+  );
+  $doc->add_fields($field);
+
+  return $this->{solr}->add($doc);
+}
+
+################################################################################
+sub newDocument {
+  my $this = shift;
+
+  return WebService::Solr::Document->new(@_);
+}
+
+################################################################################
+# add a document to the index
+sub add {
+  my ($this, $doc) = @_;
+
+  return unless $this->{solr};
+
+  my $now = time();
+
+  my $tsField = $this->getField($doc, "timestamp");
+  if ($tsField) {
+    $tsField->value($now);
+  } else {
+    $doc->add_fields(timestamp => $now) 
+  }
+
+  my $res = $this->{solr}->add($doc);
+
+  my $webField = $this->getField($doc, "web");
+  if ($webField) {
+    my $web = $webField->value();
+    my $id = "$web.WebHome";
+    $this->updateById($id, "field_WebChangesDate_dt", $now);
+  }
+
+  return $res;
+}
+
+################################################################################
+sub mirror {
+  my ($this, $url, $mtime, $user, $password) = @_;
+
+  my $ifModifiedSince = $mtime?HTTP::Date::time2str($mtime):0;
+  $this->log("... downloading $url if modified since $ifModifiedSince") if TRACE;
+
+  my $request = HTTP::Request->new("GET", $url);
+  $request->header('If-Modified-Since' => $ifModifiedSince) if $mtime;
+
+  if (defined $user && defined $password) {
+    my $auth = MIME::Base64::encode_base64("$user:$password");
+    $auth =~ s/\n$//;
+    $request->header('Authorization' => "Basic $auth");
+  }
+
+  my $suffix = "";
+  if ($url =~ /.*\.([^.]*)(?:\?.*)?$/) {
+    $suffix = $1;
+  }
+
+  my $tmpFile = File::Temp->new(SUFFIX => ".$suffix");
+  my $response = $this->ua->request($request, $tmpFile->filename);
+
+  if ($response->header('X-Died')) {
+    $this->log("ERROR: request died");
+    return;
+  }
+
+  unless ($response->is_success) {
+    $this->log("ERROR: request failed - ".$request->status_line);
+    return;
+  }
+
+  return $tmpFile;
+}
+
+=begin TML
+
+---++ solrRequest($path, $params)
+
+low-level solr request
+
+=cut
+
+sub solrRequest {
+  my ($this, $path, $params) = @_;
+
+  my $response = $this->{solr}->generic_solr_request($path, $params);
+  if ($response->is_error) {
+    if (TRACE) {
+      confess($response->error()."\n\nresponse:".$response->raw_response->content()."\n\n");
+    } else {
+      my $error = $response->error();
+      $error =~ s/\sat\s.*//s;
+      throw Error::Simple($error);
+    }
+  }
+
+  return $response;
+}
+
+=begin TML
+
+---++ ObjectMethod translate($string, $web, $topic) -> $string
+
+translate string to user's current language
+
+=cut
+
+sub translate {
+  my ($this, $string, $web, $topic) = @_;
+
+  return $string if $string =~ /^<\w+ /; # don't translate html code
+
+  my $result = $string;
+
+  $string =~ s/^_+//;    # strip leading underscore as maketext doesnt like it
+
+  my $context = Foswiki::Func::getContext();
+  if ($context->{'MultiLingualPluginEnabled'}) {
+    require Foswiki::Plugins::MultiLingualPlugin;
+    $result = Foswiki::Plugins::MultiLingualPlugin::translate($string, $web, $topic);
+  } else {
+    $result = $this->{session}->i18n->maketext($string);
+  }
+
+  $result //= $string;
+
+  return $result;
+}
+
+=begin TML
+
+---++ ObjectMethod getSolrFieldNameOfFormfield($fieldDef, $default) -> $fieldName
+
+translate a foswiki formfield name to a solr field name
+
+=cut
+
+sub getSolrFieldNameOfFormfield {
+  my ($this, $fieldDef, $default) = @_;
+
+  my $name;
+  my $type;
+
+  if (ref($fieldDef)) {
+    $name = $fieldDef->{name};
+    $type = $fieldDef->{type};
+  } else {
+    $name = $fieldDef;
+    $type = "";
+  }
+
+  $type = $fieldDef->param("type") // 'autofill' if $type eq "autofill";
+
+  my $fieldName = "";
+
+  # date
+  return 'field_' . $name . '_dt' if $type =~ /^date/;
+
+  # floating numbers
+  return 'field_' . $name . '_d' if $type =~ /^(number|percent|currency|rating)/;
+
+  # integers 
+  return 'field_' . $name . '_l' if $type =~ /^bytes/;
+
+  # multi-valued types
+  if ((ref($fieldDef) && $fieldDef->isMultiValued()) || $name =~ /TopicType/) {
+    $fieldName = 'field_' . $name;
+    $fieldName =~ s/(_(?:i|s|l|t|b|f|dt|lst))$//;
+
+    $fieldName .= '_lst';
+    return $fieldName;
+  }
+
+  if ($name =~ s/(_(?:i|s|l|t|b|f|dt|lst|d))$//) {
+    return 'field_' . $name . $1;
+  }
+
+  $default //= "_s";
+
+  return 'field_' . $name . $default;
+}
+
+################################################################################
+sub getField {
+  my ($this, $doc, $name) = @_;
+
+  foreach my $field ($doc->fields) {
+    if ($field->name eq $name) {
+      return $field;
+    }
+  }
+
+  return;
+}
+
+###############################################################################
+sub getCacheTime {
+  my ($this, $fileName) = @_;
+
+  my $cacheTime = 0;
+  my $obj = _cache()->get_object($fileName);
+  $cacheTime = $obj->get_created_at() if $obj;
+
+  return $cacheTime;
+}
+
+################################################################################
+sub getStringifiedVersion {
+  my ($this, $fileName, $mtime) = @_;
+
+  return unless Foswiki::Contrib::Stringifier->canStringify($fileName);
+  $mtime ||= 0;
+
+  $this->log("... get stringified version of $fileName") if TRACE;
+
+  my $request = Foswiki::Func::getRequestObject();
+  my $doRefresh = Foswiki::Func::isTrue($request->param("refresh"));
+
+  my $cacheTime = $doRefresh ? 0 : $this->getCacheTime($fileName);
+  $mtime ||= _modificationTime($fileName) unless $fileName =~ /^(http|https|ftp):\/\//;
+
+  my $attText;
+
+  if ($mtime > $cacheTime) {
+    $this->log("... caching stringified version of $fileName") if TRACE;
+
+    my $tmpFile;
+    if ($fileName =~ /^(http|https|ftp):\/\//) {
+      $tmpFile = $this->mirror($fileName, $cacheTime);
+
+      unless ($tmpFile) {
+        $this->log("WARNING: error fetching $fileName");
+        return;
+      }
+
+      $fileName = $tmpFile->filename();
+    }
+
+    unless (-e $fileName) {
+      $this->log("WARNING: file not found - $fileName");
+      return;
+    }
+
+    $attText = Foswiki::Contrib::Stringifier->stringFor($fileName) || '';
+
+    # only cache the first 10MB at most, TODO: make size configurable
+    if (length($attText) > MAX_FILE_SIZE) { 
+      $this->log("WARNING: stripping down large file: $fileName");
+      $attText = substr($attText, 0, MAX_FILE_SIZE);
+    }
+
+    _cache()->set($fileName, $attText);
+
+  } else {
+    $this->log("... found stringified version of $fileName in cache") if TRACE;
+    $attText = _cache()->get($fileName) || '';
+  }
+
+  return $attText;
+}
+
+################################################################################
+our %isMultiParam = (
+  "fq" => 1,
+  "facet.field" => 1,
+  "facet.query" => 1
+);
+
+sub getRequestParams {
+  my $this = shift;
+
+  my $request = Foswiki::Func::getRequestObject();
+
+  my %params = ();
+  my @keys = $request->param();
+
+  try {
+    foreach my $key (@keys) {
+      next if $key =~ /^(_|shards).*$/;
+      my $val;
+      if ($isMultiParam{$key}) {
+        $val = [$request->multi_param($key)];
+        foreach my $v (@$val) {
+          throw Error::Simple("WARNING: detected potential log4j attack") if $v =~ /\bjndi:/;
+        }
+      } else {
+        $val = $request->param($key);
+        throw Error::Simple("WARNING: detected potential log4j attack") if $val =~ /\bjndi:/;
+      }
+
+      if ($key eq 'q' || $key eq 'search') {
+        $val =~ s/[{}]//g;
+      }
+      
+      $params{$key} = $val;
+    }
+  } catch Error with {
+    my $e = shift;
+    $e =~ s/ at .*$//;
+    $this->log($e);
+    %params = ();
+  };
+
+  #print STDERR "request params=".dump(\%params)."\n";
+  return \%params;
+}
+
+################################################################################
+sub _modificationTime {
+  my $filename = shift;
+
+  my @stat = stat($filename);
+  return $stat[9] || $stat[10] || 0;
+}
+
+################################################################################
+sub _cache {
+  # SMELL: hard-cded 7d cache expiry
+  return Foswiki::Contrib::CacheContrib::getCache("SolrPlugin", "7 d");
+}
+
 
 1;

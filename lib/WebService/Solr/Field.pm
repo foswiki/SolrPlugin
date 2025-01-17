@@ -1,5 +1,8 @@
 package WebService::Solr::Field;
 
+use strict;
+use warnings;
+
 use WebService::Solr ();
 use XML::Easy::Element;
 use XML::Easy::Content;
@@ -106,13 +109,16 @@ Serializes the object to xml.
 
 =head1 AUTHORS
 
+Andy Lester C<andy@petdance.com>
+
 Brian Cassidy E<lt>bricas@cpan.orgE<gt>
 
 Kirk Beers
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2013 National Adult Literacy Database
+Copyright 2008-2014 National Adult Literacy Database
+Copyright 2015-2020 Andy Lester
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

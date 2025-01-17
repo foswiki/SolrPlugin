@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1548932840" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1737108138" format="1.1"  version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -27,48 +27,50 @@ The below installation procedure assumes that you are going to install Solr as w
 
 ---+++ Download Solr
 
-The current plugin requires *Solr 5.0.0* or later.  Download it from the [[http://archive.apache.org/dist/lucene/solr/][Apache Archive]].
+<!--
+   * Set SOLR_VERSION = 9.7.0
+-->
+The current plugin requires *Solr 9* or later.  Download version %SOLR_VERSION% it from the [[https://archive.apache.org/dist/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%.tgz][here]].
 
 ---+++ Extract software, create user, install system service
 
-%JQREQUIRE{"chili"}%
+<pre class="bash">
+tar xzf solr-%SOLR_VERSION%.tgz solr-%SOLR_VERSION%/bin/install_solr_service.sh --strip-components 2 
+./install_solr_service.sh ./solr-%SOLR_VERSION%.tgz -n
+</pre>
 
-<verbatim class="bash">
-tar xzf solr-5.x.x.tgz solr-5.x.x/bin/install_solr_service.sh --strip-components 2 
-./install_solr_service.sh ./solr-5.x.x.tgz
-service solr stop
+Note that the =-n= option prevents the service from starting yet. We will start it once everything has been adjusted to our needs.
+
+---+++ Configure Solr service
+First relocate logs to a standard unix directory: =mv /var/solr/logs /var/log/solr=.
+Edit =/etc/default/solr.in.sh= and append the following lines:
+
+<verbatim>
+SOLR_HEAP="1024m"
+SOLR_LOGS_DIR=/var/log/solr
+SOLR_OPTS="$SOLR_OPTS -Djetty.host=localhost -Ddisable.configEdit=true"
+SOLR_TIMEZONE=GMT+1
+ENABLE_REMOTE_JMX_OPTS=false
+SOLR_HOST="127.0.0.1"
+SOLR_JETTY_HOST="127.0.0.1"
+SOLR_IP_ALLOWLIST=127.0.0.1
+SOLR_ADMIN_UI_DISABLED=true
+SOLR_REQUESTLOG_ENABLED=false
+SOLR_MODULES=langid
 </verbatim>
 
----+++ Secure Solr access
+Edit =/var/solr/log4j2.xml=:
 
-... so that it only listening to the local loopback interface
-
-   * edit =/var/solr/solr.in.sh=
-   * add =SOLR_OPTS="$SOLR_OPTS -Djetty.host=localhost"=
-
----+++ Optionally relocate logs 
-
-... from =/var/solr/logs= to =/var/log/solr=
-
-<verbatim class="bash">
-mv /var/solr/logs /var/log/solr
-</verbatim>
-
-   * edit =/var/solr/solr.in.sh=
-   * disable garbage collection logs ... =GC_LOG_OPTS=
-   * set =SOLR_LOGS_DIR=/var/log/solr=
-   * edit =/var/solr/log4j.properties=
-   * set =solr.log=/var/log/solr=
-   * set log level from =INFO= to =WARN=: =log4j.rootLogger=WARN, file, CONSOLE= 
+   * set log level from =info= to =warn=
 
 ---+++ Install Foswiki configuration set
 
 <verbatim class="bash">
 cd /var/solr/data
-cp -r <foswiki-dir>/solr/cores .
+cp -r <foswiki-dir>/solr_9/cores .
 mkdir configsets
 cd configsets
-ln -s <foswiki-dir>/solr/configsets/foswiki_configs 
+ln -s <foswiki-dir>/solr_9/configsets/foswiki_configs 
 chown -R solr.solr /var/solr
 </verbatim>
 
@@ -79,7 +81,28 @@ the solr server as well. This will be taken care of when the =foswiki_configs= d
 you made to these files will be overwritten by the update. You might eigher create a config set of your own and adjust the core definition accordingly to make use of the newly
 created config set, or you need to merge changes into the standard =foswiki_configs= set of files.
 
----+++ Start solr service again
+---+++ Increasing the security limits
+
+You may get a warning when starting the solr service in the next step saying along the lines of
+
+<verbatim>
+[WARN] *** Your open file limit is currently 1024.
+ It should be set to 65000 to avoid operational disruption.
+ If you no longer wish to see this warning, set SOLR_ULIMIT_CHECKS to false in your profile or solr.in.sh
+</verbatim>
+
+To increase the file limit create a file =/etc/security/limit.d/solr.conf= with
+
+<verbatim>
+solr             soft    nofile          65000
+solr             hard    nofile          65000
+solr             soft    nproc           65000
+solr             hard    nproc           65000
+</verbatim>
+
+The warning should be gone when starting the service.
+
+---+++ Start solr service 
 
 <verbatim class="bash">
 service solr start
@@ -103,20 +126,37 @@ cd <foswiki-dir>/bin
 
 ---+++ Skin integration
 
-SolrPlugin comes with a skin overlay - called =solr= - that will replace the upper left search boxes in [[Foswiki:Extensions/PatternSkin][PatternSkin]] with a solr-driven auto-suggest search box. To switch that on use
+SolrPlugin comes with a skin overlay - called =solr= - that will replace the upper left search boxes in [[https://foswiki.org/Extensions/PatternSkin][PatternSkin]] with a solr-driven auto-suggest search box. To switch that on use
 
 <verbatim>   * Set SKIN = solr, pattern</verbatim>
 
 in your %USERSWEB%.SitePreferences.
 
-%X% Note that you won't need to enable the =solr= skin overlay in case you are using [[Foswiki:Extensions/NatSkin][NatSkin]] as it comes with support for SolrPlugin out of the box.
+%X% Note that you won't need to enable the =solr= skin overlay in case you are using [[https://foswiki.org/Extensions/NatSkin][NatSkin]] as it comes with support for SolrPlugin out of the box.
+
+---++ Preference settings
+
+There are a couple of preference settings that you may set in your %USERSWEB%.SitePreferences in order to customize some basic parameters of the solr search user interface:
+
+| *Parameter* | *Description* | *Default* |
+| =SOLR_DATEFORMAT= | date format for search results, see [[%SYSTEMWEB%.JQMomentContrib]] for documentation | =dddd, Do, MMMM YYYY, HH:mm= |
+| =SOLR_DEFAULTSORT= | default sorting order of search results | =score desc= |
+| =SOLR_DEFAULTWEB= | the web to search for, e.g. =%<nop>BASEWEB%=. =all= defaults to a global search | =all= |
+| =SOLR_EXACTSEARCH= | boolean switch to select between two kinds of search; set this to true to get a sharper result set based on your query | =false= |
+| =SOLR_EXTRAFILTER= | solr query filter added ontop of the user-specified query | |
+| =SOLR_INSTANTSEARCH= | boolean switch to fire up search while you type | =false= |
+| =SOLR_TOPICSEARCH= | boolean switch to enable topic search by default | =false= | 
+| =SOLR_NUMROWS= | default number of search results returned per page | =10= |
+| =SOLR_QUERYFIELDS= | specify the =qf= solr parameter; note that this will disable =SOLR_EXACTSEARCH= settings | see =solrconfig.xml= |
+| =SOLR_INCLUDEWEB= | regular expression of webs to be listed in the web facet | |
+| =SOLR_EXCLUDEWEB= | regular expression of webs _not_ to be listed in the web facet | |
 
 ---++ Commandline scripts 
 
 There is a set of tools to interact with the Solr index from the commandline. These can either be
 used to index Foswiki manually - as we did in above tests - as well as for searching or deleting specific documents in the index.
 
-The set of tools comes in two variants, one for normal single-host Foswiki installations and for virtual hosting using [[Foswiki:Extensions/VirtualHostingContrib][VirtualHostingContrib]]
+The set of tools comes in two variants, one for normal single-host Foswiki installations and for virtual hosting using [[https://foswiki.org/Extensions/VirtualHostingContrib][VirtualHostingContrib]]
 
 The virtual-hosting aware scripts have a prefix =virtualhost-...= and take an optional =host=&lt;domain>= parameter to specify the virtual domain to interact with.
 When not specified will the script be executed for each domain in turn as configured in =VirtualHostingContrib=. Only exception is =solrjob= (see below).
@@ -158,11 +198,8 @@ cd <foswiki-dir>/tools
 </verbatim>
 
 This tool is a wrapper around =solrindex= and will use either =solrindex= or =virtualhost-solrindex=
-depending on the =host= commandline parameter. It is mainly used in cronjobs or =iwatch= (see below).
+depending on the =host= commandline parameter. It is mainly used in cronjobs.
 In contrast to =solrindex= a locking & throttling strategy is used to prevent multiple indexers being started simulataneously.
-This is usefull when firing up the indexer as part of =iwatch= monitoring filesystem changes in the Foswiki store. As these events
-often come in bundles firing rapidly in a short period of time will only one indexing process be spawned for a given time span defined
-by the =throttle= parameter to =solrhjob=. 
 
 | *Parameter* | *Description* | *Default* |
 | =-f / --file &lt;file-path>= | index the topic that the given file points to | |
@@ -170,7 +207,7 @@ by the =throttle= parameter to =solrhjob=.
 | =-m / --mode full/delta= | mode of operation (see =solrindex= above) | delta |
 | =-t / --throttle &lt;seconds>= | number of seconds to wait until the indexing process is started; note that any other calls to =solrjob= are prevented from entering the indexing loop as well | 5 |
 
----+++ rest /SolrPlugin/search
+---+++ Using Solr search on the commandline
 
 <verbatim class="bash">
 cd <foswiki-dir>/bin
@@ -179,6 +216,7 @@ cd <foswiki-dir>/bin
 
 | *Parameter* | *Description* | *Default* |
 
+TODO
 ---++ Setting up an indexing strategy
 
 Before using SolrSearch and get back results you will need to index your content completely and do so repeatedly to keep up with changes in the Foswiki content base.
@@ -220,74 +258,44 @@ create additional load on the server where no content is found to be delta-index
 
 ---+++ Realtime indexing
 
-This mode of operation requires a separate service to be installed such as [[http://iwatch.sourceforge.net/][iwatch]].
-Iwatch is a tool using the =inotify= kernel service of Linux systems to trigger a script based on events happening on the filesystem such as "file-open", "file-delete", "file-changed", "file-moved" etc.
-Iwatch lets us hook in the =solrjob= script (see above) while watching events in the Foswiki data store at =&lt;foswiki-dir>/data/=
+This mode of operation requires a separate service to be installed called =foswiki-watch=. This is a perl script that monitors any actions in Foswiki's event.log. 
 
-Note that this is only a "near-realtime" indexing behavior as the used script to perform the indexing is configured to throttle the procedure for a given
-amount of time defaulting to 5 seconds. So any change to the content will then show up within 5 seconds after the event.
+Note that this is only a "near-realtime" indexing behavior as the used script to perform the indexing is configured to throttle the procedure for a given amount of time defaulting to 5 seconds. So any change to the content will then show up within 5 seconds after the event.
 
-The service is configured by placing below configuration script at =/etc/iwatch/iwatch.xml=:
+Assuming you are running Foswiki on a Linux server with a systemd master server, use the following commands to install the =foswiki-watch= service
 
-<verbatim class="xml">
-<?xml version="1.0" ?>
-<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
-
-<config>
-  <guard email="root@localhost" name="IWatch"/>
-  <watchlist>
-    <title>Foswiki</title>
-    <contactpoint email="root@localhost" name="Administrator"/>
-    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> '<foswiki-dir>/tools/solrjob'"><foswiki-dir>/data</path>
-    <path type="regexception">\.tmp|\.sw\w|\.svn|\.lease|\.lock|,$|\.changes|,v|^_[0-9]|^log|^Temporary|^UnitTestCheck</path>
-  </watchlist>
-</config>
+<verbatim>
+cp <foswiki-dir>/tools/systemd/foswiki-watch.service /etc/systemd/system
+cp <foswiki-dir>/tools/systemd/foswiki-watch.defaults /etc/default/foswiki-watch
 </verbatim>
 
-For !VirtualHostingContrib use:
+Configure =/etc/default/foswiki-watch= to match your installation. Available settings:
 
-<verbatim class="xml">
-<?xml version="1.0" ?>
-<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
+   * FOSWIKI_ROOT: the path to your foswiki, e.g. =/var/www/foswiki=
+   * FOSWIKI_WATCH_EVENTS_LOG: file to watch, e.g. =/var/www/foswiki/working/logs/events.log=
+   * FOSWIKI_WATCH_PARALLEL: number of indexers to start in parallel at max, default 1
+   * FOSWIKI_WATCH_THROTTLE: number of seconds to wait before starting an indexerm default 1 second
+   * FOSWIKI_WATCH_VHOSTING: boolean switch to enable operate in a virtual hosting setting, default 0
+   * FOSWIKI_WATCH_DEBUG: boolean switch to enable debugging
 
-<config>
-  <guard email="root@localhost" name="IWatch"/>
-  <watchlist>
-    <title>Foswiki</title>
-    <contactpoint email="root@localhost" name="Administrator"/>
+If you are running Foswiki using <nop>VirtualHostingContrib and all your vhosts are located in =/var/www/vhosts= then set the =FOSWIKI_WATCH_EVENTS_LOG= to a glob path such as =/var/www/vhosts/*/working/logs/events.log= to watch all event logs of all vhosts. Don't forget to enable =FOSWIKI_WATCH_VHOSTING=.
 
-    <!-- watch directories shared among all virtual domains -->
-    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host all'"><foswiki-dir>/data/System</path>
-    <!-- <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host all'"><foswiki-dir>/data/Applications</path> -->
+Finally enable and start the service with
 
-    <!-- watch each virtual domain for changes -->
-    <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host <domain1'>"><vhosts-dir>/<domain1>/data</path>
-    <!-- <path type="recursive" filter=".*\.txt$" alert="off" syslog="on" exec="su <httpd-user> -c '<foswiki-dir>/tools/solrjob --host <domain2'>"><vhosts-dir>/<domain2>/data</path> -->
-
-    <path type="regexception">\.tmp|\.sw\w|\.svn|\.lease|\.lock|,$|\.changes|,v|^_[0-9]|^log|^Temporary|^UnitTestCheck</path>
-  </watchlist>
-</config>
+<verbatim>
+systemctl enable foswiki-watch
+systemctl start foswiki-watch
 </verbatim>
 
-Make sure to replace 
-
-   * =&lt;foswiki-dir>=
-   * =&lt;httpd-user>= 
-   * =&lt;domainX>= 
-   * =&lt;vhosts-dir>= 
-
-with the appropriate values on your platform.
-
-Note in the latter example for an =iwatch.xml= configuration for virtual hosting that those webs shared among all domains (via soft links) must be watched separately
-as changes to those directories don't appear as a change to the domains' directories. These are typically the [[%SYSTEMWEB%.%HOMETOPIC%]] and the Applications web in
-case you installed [[Foswiki:Extensions/WikiWorkbenchContrib][WikiWorkbenchContrib]] and you'd like to share all wiki apps among all virtual domains.
-
+Indexing is then reported to the system's log service.
 ---+++ Online indexing
+
+%RED%Not recommended, however ... %ENDCOLOR%
 
 This mode of operation refers to a way to update the search index _immediately_ as part of the =save= operation performed by Foswiki on behalf of the user.
 
 The biggest advantage here is that changes to the content base will immediately show up in the search index reflecting the exact changes being made to the 
-content base.
+content base. Note however that this can significantly cause performance issues interacting with Foswiki as indexing a topic an take quite some time.
 
 There are a couple of flags to switch on/off online indexing in your configuration.
 
@@ -306,7 +314,7 @@ $Foswiki::cfg{SolrPlugin}{EnableOnUploadUpdates} = 0;
 Enable/disable updates when a topic or attachment has been moved or deleted:
 
 <verbatim>
-$Foswiki::cfg{SolrPlugin}{EnableOnRenameUpdates} = 1;
+$Foswiki::cfg{SolrPlugin}{EnableOnRenameUpdates} = 0;
 </verbatim>
 
 ---+++ Setting up cronjobs
@@ -347,7 +355,7 @@ unless this content is indexed again. This is not a problem when the ACL of a si
 No such re-indexing is triggered automatically when a user group changes or is granted more or less authorization for content. This will indeed only be reflected the next
 time a full indexing is performed. 
 
-Access control structures might be changing totally outside of Foswiki when using [[Foswiki:Extensions][LdapContrib]] where users and groups are defined in a distant LDAP database.
+Access control structures might be changing totally outside of Foswiki when using <nop>LdapContrib or <nop>PluggableAuthContrib where users and groups are provided by an external identity provideer.
 These user and group records immediately affect Foswiki granting access to documents (there is some caching involved here as well, but let's ignore this for now). Only after
 indexing affected documents _again_ will a search on the index exclude / include new content users have access to when visiting the page directly.
 
@@ -381,7 +389,7 @@ There are two general categories for indexing content that we want to compare no
    * online indexing: index content as part of the interaction performed by the user
    * offline indexing: perform content indexing independent from the user interacting with the system online 
 
-Offline indexing is performed by the =solrindex= script as well as the =solrjob= wrapper. Both might be used in a cronjob or =iwatch= as described above.
+Offline indexing is performed by the =solrindex= script as well as the =solrjob= wrapper. Both might be used in a cronjob or by the =foswiki-watch= service as described above.
 
 Looking at _online indexing_ there is a price in doing so that we should keep in mind before switching it on. 
 
@@ -394,7 +402,7 @@ into the online operations of Foswiki.
 
 ---++ Using Solr for WebSearch, WebChanges and %USERSWEB%.WikiUsers
 
-It is recommended to replace Foswiki's default !AutoViewTemplatePlugin with [[Foswiki:Extensions/AutoTemplatePlugin][AutoTemplatePlugin]]. This will allow you to replace the default WebSearch, WebChanges and %SYSTEMWEB%.SiteChanges as well as %USERSWEB%.WikiUsers with a Solr-driven interface for better usability and performance. 
+It is recommended to replace Foswiki's default !AutoViewTemplatePlugin with <nop>AutoTemplatePlugin. This will allow you to replace the default WebSearch, WebChanges and %SYSTEMWEB%.SiteChanges as well as %USERSWEB%.WikiUsers with a Solr-driven interface for better usability and performance. 
 
 Configure !AutoTemplatePlugin by adding the following ={ViewTemplateRules}=
 
@@ -494,12 +502,20 @@ SOLRSEARCH also allows you to run a query in [[https://wiki.apache.org/solr/DisM
 | extrafilter | additional lucene filter query (see %SYSTEMWEB%.SolrSearchBaseTemplate for the difference in =filter= and =extrafilter= | |
 | reverse | on/off - reverts sorting if switched on; note: this overrides sorting order specified in =sort= | off |
 | sort | sorting expression; examples: =score desc=, =date desc=, =createdate=, =topic_sort= | |
+| checktopics | on/off - if enabled found topics that don't exist anymore are excluded | off |
 | *Dismax Parameter:* |||
 | boostquery | a raw query string (in the solr query syntax) that will be included with the user's query to influence the score. example: =type:topic^1000= will boost results of type topic | see solrconfig.xml and %SYSTEMWEB%.SolrSearchBaseTemplate |
 | queryfields | list of fields and their boosts giving each field a significance when a term was found in them. the format supported is fieldOne^2.3 fieldTwo fieldThree^0.4, which indicates that fieldOne has a boost of 2.3, fieldTwo has the default boost, and fieldThree has a boost of 0.4 ... this indicates that matches in fieldOne are much more significant than matches in fieldTwo, which are more significant than matches in fieldThree | see solrconfig.xml and %SYSTEMWEB%.SolrSearchBaseTemplate |
 | phrasefields | list of fields and their boosts similar to =queryfields=. this parameter may contain fields and boosts that _pharses_ (specified in quotes) are matched against. boosting those fields higher than their counterpart in =queryfields= allows you to prefer phrase matches over separate word matches | see solrconfig.xml and %SYSTEMWEB%.SolrSearchBaseTemplate |
+| *Grouping:* |||
+| group | name of the field to group results by | |
+| groupfunction | | |
+| groupquery | | |
+| groupsort | | score desc |
+| grouplimit | | 1 |
+| groupoffset | | |
 | *Faceting:* |||
-| facets | list of facets to be rendered during search; each facet can be a =title=name= pair specifying the facet name and the title label used to display it in the result; example: %BR% =%MAKETEXT<nop>{"Webs"}%=web, %MAKETEXT<nop>{"Topic type"}%=field_TopicType_lst= | |
+| facets | list of facets to be rendered during search; each facet can be a =title=name= pair specifying the facet name and the title label used to display it in the result; example: %BR% =%MAKETEXT<nop>{"Webs"}%=web, %MAKETEXT<nop>{"Topic type"}%=field_TopicType_first_s= | |
 | facetquery | query to be used for a facet query | |
 | facetoffset | used to page through a list of facets being returned by a search | |
 | facetlimit | maximum number of values to be displayed per facet; this is a list of pairs =name=integer= specifying a per-facet limit; example: =50, tag=100, contributor=10, category=10= will constraint the global limit of facet values to be returned to 50, tags to 100, list the top 10 contributors in the hit set as well as the 10 most used categories | 100 |
@@ -515,6 +531,7 @@ SOLRSEARCH also allows you to run a query in [[https://wiki.apache.org/solr/DisM
 | correction | format string for corrections proposed by the spellchecker | Did you mean &lt;a href='$url'>$correction&lt;/a> |
 | header | format string prepended to the result | |
 | format | format string used to render each hit in the result set| |
+| nullformat | format string used when no results were found | |
 | separator | format string used to separate hit results rendered using =format= | |
 | footer | format string appended to the result | |
 | header_interesting | format string prepended to more-like-this queries (see =%SOLRSIMILAR=) | |
@@ -523,6 +540,12 @@ SOLRSEARCH also allows you to run a query in [[https://wiki.apache.org/solr/DisM
 | footer_interesting | format string appended to more-like-this queries | |
 | include_interesting | regular expression terms must match in a more-lile-this result | |
 | exclude_interesting | regular expression terms must _not_ match in a more-lile-this result | |
+| header_group | format string for grouped results | |
+| format_group | format string for grouped results | |
+| separator_group | format string to separate results in grouped results | |
+| footer_group | format string for grouped results | |
+| include_group | regular expression groups must match  | |
+| exclude_group | regular expression groups must not match | |
 | header_&lt;facet> | format string prepended to a facet result | |
 | format_&lt;facet> | format string used to render a facet value | |
 | separator_&lt;facet> | format string used to separate facet values | |
@@ -574,12 +597,12 @@ SOLRSIMILAR allows to return a list of similar topics given the current one.
 | fields | list of fields and their boost value to be included in result items | web, topic, title, score |
 | filter | restricts results to those matching this filter | type:topic |
 | include | switches on/off inclusion of the matched document found in the query parameter | off |
-| limit | maximum number of results to return | 100 |
+| rows | maximum number of results to return | 100 |
 | boost | | |
 | mintermfrequency | | |
 | mindocumentfrequency | | |
-| mindwordlength | | |
-| maxdwordlength | | |
+| minwordlength | | |
+| maxwordlength | | |
 
 %SOLRSIMILAR{"id:%BASEWEB%.%BASETOPIC%"
    filter="web:%BASEWEB% type:topic"
@@ -615,7 +638,7 @@ returns a link to a SolrSearch with the given parameters pre-set.
 | id | get a link to the search defined by SOLRSEARCH | |
 | topic | name of the search topic to jump to | <nop>WebSearch |
 | union | a list of fields whose values can be selected in a union (using an "or" operator) | |
-| multivalued | a list of fields that may be searched by multiple values | |
+| multivalue | a list of fields that may be searched by multiple values | |
 | start | | |
 | sort | | |
 | &lt;field_name> | any field defined in in solr's schema.xml | |
@@ -685,9 +708,11 @@ useful for spatial search.
          defaults: it tokenizes with !StandardTokenizer, removes stop words from \
          case-insensitive "stopwords.txt", and down cases.  At query time only, it also \
          applies synonyms.|
-| text_generic | same as =text= but also splits words on case change while generating word parts. \
+| text_std | same as =text= but without processing stopwords an synonyms |
          a general unstemmed text field - good if one does not know the language of the field. \
          this field type is usful when searching for parts of a !WikiWord |
+| text_generic | same as =text= but also splits words on case change while generating word parts. \
+| text_substr | general substring decomposition |
 | text_prefix | substring decomposition starting at the front of the string |
 | text_suffix | substring decomposition starting at the back of the string |
 | text_spell | generic text analysis for spell checking |
@@ -699,7 +724,8 @@ useful for spatial search.
 ---+++ Fields
 
 | *Name* | *Type* | *Multivalued* | *Stored* | *Description* |
-| access_granted | string | multivalued | | this field controls access of users to this topic or attachment in the search index; every query is augmented with an ACL check against this field; only users listed in this field are allowed view rights; special value is "all" when there are no view restrictions |
+| access_granted | string | multivalued | | this field controls view access of users to this topic or attachment in the search index; every query is augmented with an ACL check against this field; only users listed in this field are allowed view rights; special value is "all" when there are no view restrictions |
+| edit_granted | string | multivalued | | field holding the change rights of a user on this topic or attachment |
 | attachment | string | multivalued | stored | list of all attachment names of this topic |
 | author | string | | stored | the name of the person that changed the document most recently |
 | author_title | string | | stored | title name of the person that changed the document most recently |
@@ -738,7 +764,7 @@ useful for spatial search.
 | tag | string | multivalued | stored | list of tags assigned to this document; note: this field will only be used if Foswiki:Extensions/ClassificationPlugin is installed; content of this field is copied to =category_search= as well (see generic fields below) |
 | text | text_generic | | | document text |
 | thumbnail | string | | stored | url to thumbnail representation of this document; mostly used for images |
-| timestamp | tdate | | stored | time when the document was added to the index |
+| timestamp | tint | | stored | epoch time when the document was added to the index |
 | title | string | | stored | title of a document; a topic title is read from a =TopicTitle= formfield, a =TOPICTITLE= preference variable or defaults to the =topic= name itself; for attachments this is the filename with the extension stripped off |
 | topic | string | | stored | name of the topic |
 | type | type | | stored | holds the type facet of the document; this is "image" for all kinds of images, "video" for all kinds of videos, "topic" for Foswiki topics and the verbatim file extension for everything else; note: plugins like Foswiki:Extensions/MetaCommentPlugin might use specific types as well (like "comment" in this case) |
@@ -759,13 +785,12 @@ the name of all formfields of a !DataForm that ever could be invented.
 
 When !SolrPlugin is about to index a !DataForm attached to a topic, it tries to
 guess the data type of each formfield. Normally, Foswiki does not specify any
-type information within a !DataForm definition. Exceptions are (1) date: these
-are mapped to a *_dt field and (2) checkbox, select, radio, textboxlist: these
-are potentially multi-value fields and are thus indexed in a *_lst field.
+type information within a !DataForm definition. Exceptions are 
+(1) date: these are mapped to a *_dt field for the iso date and an *_i field for the epoch seconds 
+(2) checkbox, select, radio, textboxlist: these are potentially multi-value fields and are thus indexed in a *_lst field.
 
-Every other formfield is stored into an *_s field as well as into a *_search field.
-The former captures the exact content while the latter analyses the text more thoroughly
-optimized for fuzzy searching.
+Every other formfield is stored into an =*_s= field as well as into a =*_search=, =*_prefix= and , =*_substr=, =*_sort= and =*_std= fields.
+These capture the exact content while a slightly different analysis of the text.
 
 !DataForm formfields are mapped to lucene document fields by prepending the =field_*=
 prefix to prevent name clashes with other dynamic fields generated on the fly.
@@ -784,7 +809,7 @@ Similarly topic preferences are indexed using a =preference_*= prefix.
 | *_i | tint | | stored | fields with a _i suffix are indexed as an integer number |
 | *_l | tlong | | stored | fields with a _l suffix are indexed as a long integer |
 | *_f | tfloat | | stored | fields with a _f suffix are indexed as a float |
-| *_d | tdouble | | stored | fields with a _f suffix are indexed as a double precision float |
+| *_d | tdouble | | stored | fields with a _d suffix are indexed as a double precision float |
 | *_b | boolean | | stored | true, false |
 | *_s | string | | stored | dynamic field for unanalyzed text |
 | *_std | string | not stored | dynamic field for standard analysis, i.e. stopwords not being removed |
@@ -843,7 +868,9 @@ specific search applications. The destination fields are then analysed using the
 | text | spell |
 | text | text_prefix |
 | text | text_std |
+| text | text_ws |
 | text | text_suffix |
+| text | text_substr |
 | title | catchall |
 | title | charnorm |
 | title | phonetic |
@@ -854,6 +881,7 @@ specific search applications. The destination fields are then analysed using the
 | title | title_sort |
 | title | title_std |
 | title | title_suffix |
+| title | title_substr |
 | topic | catchall |
 | topic | charnorm |
 | topic | phonetic |
@@ -885,6 +913,24 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  17 Jan 2025: | added support for solr-9 |
+|  14 Mar 2023: | replaced iwatch with =foswiki-watch= service |
+|  26 Jan 2022: | gave up on stopwords: removed stopwords filter from the solr schema |
+|  26 Sep 2019: | performance improvements of indexer; \
+                  implemented instant search; \
+                  new crawler interface to index not only wiki content but also external sources; \
+                  new filesystem crawler; \
+                  eased configuring the search interface with preference variables; \
+                  extended solr schema to cope with multiple data sources; \
+                  improved handling of substring searches in text fields; \
+                  require validation and authentication in rest handlers; \
+                  removed hardcoded !WorkflowPlugin support (plugins need to hook into the indexing api instead); \
+                  added support for formfields of type =number=, =percent=, =currency= and =bytes=; \
+                  improved indexing of used makros in a page; \
+                  improved detection of outgoing links while indexing; \
+                  changed handling of admin rights on content, i.e. not granting admin rights on external sources; \
+                  improved autosuggestion dropdown search; \
+                  added api to iterate over facet values while ignoring access rights  |
 |  31 Jan 2019: | reduce amount of presumably unrelated search results; \
                   improved language detection in solr; \
                   added fields =name_std= and =name_search= for better searchability of attachments; \
@@ -902,10 +948,10 @@ specific search applications. The destination fields are then analysed using the
                   replaced jquery.scrollto with native scroll api; \
                   make number of items suggested configurable in jquery.autosuggest drop-down box |
 |  07 Jun 2018: | new index fields =author_title=, =createauthor_title=, =title_first_letter=; \
-                  added support indexing arbitrary [[Foswiki:Extensions/MetaDataPlugin][meta data]]; \
-                  added support for [[Foswiki:Extensions/ListyPlugin][ListyPlugin]]; \
+                  added support indexing arbitrary [[https://foswiki.org/Extensions/MetaDataPlugin][meta data]]; \
+                  added support for [[https://foswiki.org/Extensions/ListyPlugin][ListyPlugin]]; \
                   added toggle "exact search" to search interface; \
-                  depending on new [[Foswiki:Extensions/TopicTitlePlugin][TopicTitlePlugin]] now; \
+                  depending on new [[https://foswiki.org/Extensions/TopicTitlePlugin][TopicTitlePlugin]] now; \
                   fixed keyboard interaction of autosuggest box; \
                   fixed sorting facet values by title; \
                   much improved relavancy sorting |
@@ -960,7 +1006,7 @@ specific search applications. The destination fields are then analysed using the
                   fixed applying extra-filters in !SolrSearch; \
                   harvest facet headings for translations; |
 |  28 May 2014: | implemented new ACL style compatible with Foswiki >= 1.2 |
-|  14 Jul 2013: | added support for [[Foswiki:Extensions/PiwikPlugin][PiwikPlugin]] |
+|  14 Jul 2013: | added support for [[https://foswiki.org/Extensions/PiwikPlugin][PiwikPlugin]] |
 |  14 Mar 2013: | improved indexing performance; \
                   added configurable http timeouts takling to the solr backend; \
                   fixed language mappings for multilingual content; \
@@ -1032,9 +1078,9 @@ specific search applications. The destination fields are then analysed using the
 %META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/SolrPlugin"}%
-%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2009-2019, Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2009-2025, Michael Daum"}%
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1548932840" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1548932840" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1737108138" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1737108138" size="158013" user="ProjectContributor" version="1"}%

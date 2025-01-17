@@ -5,14 +5,14 @@
   <td align="right" class="patternMetaMenu">%TMPL:P{"searchbox"}%</td>
   </tr>
 </table>
-%JQREQUIRE{"autosuggest"}%<!-- -->
-%ADDTOZONE{"script" id="SOLRPLUGIN::SEARCHBOX" requires="JQUERYPLUGIN::AUTOSUGGEST" text="<script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/solr-searchbox.js'></script>"}%
+%JQREQUIRE{"SearchBox"}%<!-- -->
 </div></div>
 </div>%TMPL:P{"horizontalnavigation"}%%TMPL:END%
    
 %TMPL:DEF{"searchbox"}%<div class="solrSearchBox jqUITooltip" data-theme="info" data-arrow="on" data-position="left">
-  <form name="searchbox" id="searchbox" action="%SCRIPTURLPATH{"view"}%/%BASEWEB%/WebSearch" %TMPL:P{"searchbox::params"}% >
-    <input type="text" class="foswikiInputField" placeholder="%TMPL:P{"searchbox::placeholder"}%" size="40" title="%MAKETEXT{"Enter topic name or a search string"}%" name="search" autocomplete="off" value="%TMPL:P{"searchbox::value"}%" accesskey="f" /> 
+  <form name="searchbox" id="searchbox" action="%SCRIPTURLPATH{"view" topic="%BASEWEB%.WebSearch"}%" %TMPL:P{"searchbox::params"}% >
+    <input type="search" class="foswikiInputField" placeholder="%TMPL:P{"searchbox::placeholder"}%" size="40" title="%MAKETEXT{"Enter topic name or a search string"}%" name="search" autocomplete="off" value="%TMPL:P{"searchbox::value"}%" accesskey="f" /> 
+    <input type="hidden" name="origin" value="%WEB%.%TOPIC%" />
   </form>
 </div>%TMPL:END%
 

@@ -34,21 +34,25 @@ $Foswiki::cfg{SolrPlugin}{SearchUrl} = '';
 # Name of the Foswiki DataForm that will identify the currently being indexed topic as a user profile page.
 $Foswiki::cfg{SolrPlugin}{PersonDataForm} = '*UserForm';
 
-# **STRING EXPERT CHECK='undefok'**
+# **STRING CHECK='undefok'**
 # Comma seperated list of webs to skip
 $Foswiki::cfg{SolrPlugin}{SkipWebs} = 'TWiki, TestCases';
 
-# **STRING EXPERT CHECK='undefok'**
+# **STRING CHECK='undefok'**
 # List of topics to skip.
 # Topics can be in the form of Web.MyTopic, or if you want a topic to be excluded from all webs just enter MyTopic.
 # For example: Main.WikiUsers, WebStatistics
-$Foswiki::cfg{SolrPlugin}{SkipTopics} = '';
+$Foswiki::cfg{SolrPlugin}{SkipTopics} = 'WebStatistics';
 
-# **STRING EXPERT CHECK='undefok'**
+# **STRING CHECK='undefok'**
 # List of attachments to skip                                                                                         
 # For example: Web.SomeTopic.AnAttachment.txt, Web.OtherTopic.OtherAttachment.pdf 
 # Note that neither metadata nor the content of the attachment is added to the index
 $Foswiki::cfg{SolrPlugin}{SkipAttachments} = '';
+
+# **BOOLEAN**
+# Require authentication for the plugin's rest handlers
+$Foswiki::cfg{SolrPlugin}{RequireAuthenticationForRest} = 0;
 
 # **BOOLEAN**
 # Update the index when a topic is created or save.
@@ -63,7 +67,12 @@ $Foswiki::cfg{SolrPlugin}{EnableOnUploadUpdates} = 0;
 # **BOOLEAN**
 # Update the index whenever a topic is renamed or deleted.
 # If this flag is disabled, you will have to install a cronjob to update the index regularly.
-$Foswiki::cfg{SolrPlugin}{EnableOnRenameUpdates} = 1;
+$Foswiki::cfg{SolrPlugin}{EnableOnRenameUpdates} = 0;
+
+# **BOOLEAN EXPERT**
+# If activated only the most recent author and the topic creator will be indexed. Otherwise
+# the 10 most recent contributors will be indexed. Useful to speed up indexing.
+$Foswiki::cfg{SolrPlugin}{SimpleContributors} = 0;
 
 # **PERL EXPERT**
 # List of supported languages. These are the locale IDs as supported for by the schema.xml configuration
@@ -107,11 +116,10 @@ $Foswiki::cfg{SolrPlugin}{SupportedLanguages} = {
   'tr' => 'tr', 'turkish' => 'tr',
 };
 
-# **PATH LABEL="Mime-Types Filename" CHECK='undefok perms:Fr' EXPERT**
+# **PATH LABEL="Mime-Types Filename" CHECK='emptyok undefok' EXPERT**
 # Pathname to file that maps file suffixes to MIME types :
 # This may be a different file than the one defined in {MimeTypesFileName}.
-# It defaults to <code>/etc/mime.types</code> which is more detailed in general.
-$Foswiki::cfg{SolrPlugin}{MimeTypesFileName} = '/etc/mime.types';
+$Foswiki::cfg{SolrPlugin}{MimeTypesFileName} = '';
 
 # **PERL H EXPERT**
 # This setting is required to enable executing the solrsearch script from the bin directory
@@ -127,13 +135,5 @@ $Foswiki::cfg{SwitchBoard}{solrindex} = {
   function => 'indexCgi', 
   context => { 'solrindex' => 1 },
 };
-
-# ---++ JQueryPlugin
-# ---+++ Extra plugins
-# **STRING**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{Autosuggest}{Module} = 'Foswiki::Plugins::SolrPlugin::Autosuggest';
-
-# **BOOLEAN**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{Autosuggest}{Enabled} = 1;
 
 1;

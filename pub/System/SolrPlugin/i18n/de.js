@@ -1,6 +1,6 @@
 {
   "persons": "Personen",
   "topics": "Topics",
-  "attachments": "Anhänge",
+  "other": "Sonstige",
   "... more": "... weitere"
 }

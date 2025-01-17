@@ -1,26 +1,18 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1528368504" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1737108138" format="1.1" version="1"}%
 %META:TOPICPARENT{name="WebHome"}%
-%{<verbatim class="tml">}%
 %TMPL:INCLUDE{"SolrSearchView"}%
-%{</verbatim>}%
 
-%{<verbatim class="tml">}%
-%TMPL:DEF{"solr::input::checkboxes"}%%TMPL:END%
-%TMPL:DEF{"solr::displayas"}%%TMPL:END%
-%{</verbatim>}%
+%TMPL:DEF{"solr::settings"}%%TMPL:END%
 
-%{<verbatim class="tml">}%
 %TMPL:DEF{"solr::defaultrows"}%12%TMPL:END%
 %TMPL:DEF{"solr::defaultsort"}%title_sort asc%TMPL:END%
-%TMPL:DEF{"solr::extrafilter"}%form:%QUERY{"{SolrPlugin}{PersonDataForm}"}% web:%USERSWEB%%TMPL:END%
-%TMPL:DEF{"solr::fields"}%field_Location_s, field_Profession_s, field_Email_s, field_LoginName_s, field_Telephone_s, web, topic, title, thumbnail%TMPL:END%
-%TMPL:DEF{"solr::pager"}%<div class='solrAlphaPager clearfix' data-field="title_first_letter" data-title="%MAKETEXT{"alphabetical"}%" data-all-text="%MAKETEXT{"All"}%" ></div>%TMPL:END%
+%TMPL:DEF{"solr::extrafilter"}%form:%QUERY{"{SolrPlugin}{PersonDataForm}"}% web:%USERSWEB% -state:disabled -topic:NewUserTemplate%TMPL:END%
+%TMPL:DEF{"solr::fields"}%field_Location_s, field_Profession_s, %IF{"not {AntiSpam}{HideUserDetails} or context isadmin" then="field_Email_s, "}%field_LoginName_s, field_Telephone_s, web, topic, title, thumbnail%TMPL:END%
+%TMPL:DEF{"solr::queryfields"}%field_LoginName_search field_LoginName_prefix field_Telephone_search field_Telephone_prefix topic_search topic_prefix title_search title_prefix%TMPL:END%
+%TMPL:DEF{"solr::pager"}%<div class='solrAlphaPager clearfix' data-field="LastName_first_letter" data-title="%MAKETEXT{"alphabetical"}%" data-all-text="%MAKETEXT{"All"}%" ></div>%TMPL:END%
 %TMPL:DEF{"solr::footer"}%<div class='solrFooter'><div class='solrPager clearfix' data-next-text="%MAKETEXT{"Next"}%" data-prev-text="%MAKETEXT{"Previous"}%"></div></div>%TMPL:END%
-%{</verbatim>}%
 
-%{<verbatim class="tml">}%
-%TMPL:DEF{"solr::sidebar"}%<noautolink>
-%TMPL:P{"solr::selection"}%
+%TMPL:DEF{"solr::facets"}%<noautolink>
 %TMPL:P{"solr::facet"
   id="field_OrganisationName_s"
   title="%MAKETEXT{"Organisation"}%"
@@ -28,6 +20,7 @@
   multivalue="true"
   exclusion="true"
   union="true"
+  sort="title" 
 }%
 %TMPL:P{"solr::facet"
   id="field_Location_s"
@@ -37,29 +30,27 @@
   multivalue="true"
   exclusion="true"
   union="true"
+  sort="title" 
 }%
 %TMPL:P{"solr::facet"
   id="field_Profession_s"
   title="%MAKETEXT{"Profession"}%"
   hidesingle="false"
+  sort="title" 
 }%
 </noautolink>%TMPL:END%
-%{</verbatim>}%
 
-%{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::hits"}%<!-- -->
 %TMPL:P{"solr::templates::hits::topic"}%<!-- -->
 %TMPL:P{"solr::templates::userimage"}%<!-- -->
 <script id="solrHitTemplate" type="text/x-jsrender"> 
 {{include tmpl=~getTemplateName() /}}
 </script>%TMPL:END%
-%{</verbatim>}%
 
-%{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::hits::topic"}%<script id="solrHitTemplate_topic" type="text/x-jsrender">
   <div class='solrSearchHit solrTopicHit foswikiProfileInfo'>
     {{include tmpl="#solrHitTemplate_userimage" /}}
-    <h4><a href='{{:url}}'>{{:title}}</a></h4>
+    <h5><a href='{{:url}}'>{{:title}}</a></h5>
     <ul class='foswikiTopicInfo'>
       {{if field_Telephone_s}}<li>%JQICON{"fa-phone"}% {{:field_Telephone_s}}</li>{{/if}}
       {{if field_Email_s}}<li>%JQICON{"fa-inbox"}% <a href='mailto:{{:field_Email_s}}'>{{:field_Email_s}}</a></li>{{/if}}
@@ -67,62 +58,33 @@
     </ul>
   </div>
 </script>%TMPL:END%
-%{</verbatim>}%
 
-%{<verbatim class="tml">}%
 %TMPL:DEF{"solr::templates::userimage"}%<script id="solrHitTemplate_userimage" type="text/x-jsrender">
   <a href='{{:url}}' class='foswikiImage foswikiLeft' style='background-image:url({{if thumbnail}}
       %SCRIPTURLPATH{"rest"}%/ImagePlugin/resize?topic={{:web}}.{{:topic}};file={{:~encodeURIComponent(thumbnail)}};size=80x100;crop=on
     {{else}}
-      %PUBURLPATH%/%SYSTEMWEB%/JQueryPlugin/images/nobody.gif
+      %PUBURLPATH%/%SYSTEMWEB%/NatSkin/images/nobody.png
     {{/if}})'>
   </a>
 </script>%TMPL:END%
-%{</verbatim>}%
 
-%{<verbatim class="tml">}%
 %TMPL:DEF{"solr::assets"}%%TMPL:PREV%<!-- -->
 %ADDTOZONE{"head"
   requires="SOLRPLUGIN"
-  text="<link rel='stylesheet' href='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/wikiusers.css' media='all' />"
+  text="<link rel='stylesheet' href='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/build/wikiusers.css' media='all' />"
 }%%ADDTOZONE{"script"
   requires="SOLRPLUGIN, JQUERYPLUGIN"
   id="WIKIUSERS::JS"
-  text="<script src='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/wikiusers.js' ></script>"
+  text="<script src='%PUBURLPATH%/%SYSTEMWEB%/SolrPlugin/build/wikiusers.js' ></script>"
 }%<!-- -->%TMPL:END%
-%{</verbatim>}%
 
-%{<verbatim class="tml">}%
-%TMPL:DEF{"solr::templates::resultsperpage"}%<script id="solrResultsPerPageTemplate" type="text/x-jsrender">
-<table class='foswikiNullTable' width='100%'>
-  <tr>
-    <td>
-     {{if count > 0}}
-       %MAKETEXT{"Results [_1] - [_2] of <b>[_3]</b>" args="{{:from}}, {{:to}}, {{:count}}"}%
-     {{else}}
-        <span class="foswikiAlert">%MAKETEXT{"nothing found"}%</span>
-     {{/if}}
-    </td>
-    <td align="right">
-      <table class='foswikiNullTable solrRows'>
-        <tr>
-          <th>%MAKETEXT{"Results per page"}%:</th>
-          <td>
-            <select class='foswikiSelect'>
-              <option class='foswikiOption' value="9">9</option>
-              <option class='foswikiOption' value="12">12</option>
-              <option class='foswikiOption' value="24">24</option>
-              <option class='foswikiOption' value="48">48</option>
-              <option class='foswikiOption' value="96">96</option>
-            </select>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-</script>%TMPL:END%
-%{</verbatim>}%
+%TMPL:DEF{"solr::pagelength::options"}%
+  <option class='foswikiOption' value="9">9</option>
+  <option class='foswikiOption' value="12">12</option>
+  <option class='foswikiOption' value="24">24</option>
+  <option class='foswikiOption' value="48">48</option>
+  <option class='foswikiOption' value="96">96</option>
+%TMPL:END%
 
 %META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
 %META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%

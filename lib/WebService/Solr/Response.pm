@@ -19,6 +19,8 @@ has 'raw_response' => (
 
 has 'content' => ( is => 'lazy', isa => HashRef );
 
+has 'error' => ( is => 'lazy' );
+
 has 'docs' =>
     ( is => 'lazy', isa => ArrayRef );
 
@@ -31,6 +33,14 @@ around docs => sub {
 sub BUILDARGS {
     my ( $self, $res ) = @_;
     return { raw_response => $res };
+}
+
+sub _build_error {
+    my $self = shift;
+    my $struct = $self->content;
+
+    return "" unless exists $struct->{error};
+    return $struct->{error}{msg} || $struct->{error}{trace};
 }
 
 sub _build_content {
@@ -50,7 +60,7 @@ sub _build_docs {
     my $self   = shift;
     my $struct = $self->content;
 
-    return unless exists $struct->{ response }->{ docs };
+    return [] unless exists $struct->{ response }->{ docs };
 
     return [ map { WebService::Solr::Document->new( %$_ ) }
             @{ $struct->{ response }->{ docs } } ];
@@ -203,13 +213,16 @@ Calls C<solr_status()> and check that it is equal to 0.
 
 =head1 AUTHORS
 
+Andy Lester C<andy@petdance.com>
+
 Brian Cassidy E<lt>bricas@cpan.orgE<gt>
 
 Kirk Beers
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2013 National Adult Literacy Database
+Copyright 2008-2014 National Adult Literacy Database
+Copyright 2015-2020 Andy Lester
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

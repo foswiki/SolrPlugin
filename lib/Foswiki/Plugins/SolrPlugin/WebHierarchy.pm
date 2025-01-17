@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2013-2019 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2013-2025 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -68,11 +68,11 @@ sub restWebHierarchy {
   @webs = grep {/$theInclude/} @webs if $theInclude;
 
   if (!$theType || $theType =~ /\bwebs\b/) {
-    my $defaultWebIcon = Foswiki::Plugins::JQueryPlugin::Plugins::getIconService->findIcon('database');
+    my $defaultWebIcon = Foswiki::Plugins::JQueryPlugin::getIconService->getIcon('database');
     # collect all webs
     foreach my $web (@webs) {
       my $webIcon = Foswiki::Func::getPreferencesValue('WEBICON', $web);
-      $webIcon = Foswiki::Plugins::JQueryPlugin::Plugins::getIconService->findIcon($webIcon) if defined $webIcon;
+      $webIcon = Foswiki::Plugins::JQueryPlugin::Plugins::getIconService->getIcon($webIcon) if defined $webIcon;
       $webIcon ||= $defaultWebIcon;
 
       $web =~ s/\//./g;

@@ -1,7 +1,7 @@
 {
   "persons": "People",
   "topics": "Topics",
-  "attachments": "Attachments",
+  "other": "Other",
   "... more": "... more"
 }
 

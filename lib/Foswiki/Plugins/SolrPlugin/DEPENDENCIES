@@ -1,8 +1,9 @@
+Foswiki::Plugins::MultiLingualPlugin,>=4.10,perl,Required
 Foswiki::Contrib::JQMomentContrib,>=1.0,perl,Required
 Foswiki::Contrib::JQPhotoSwipeContrib,>=1.0,perl,Required
 Foswiki::Contrib::JQSerialPagerContrib,>=2.0,perl,Required
 Foswiki::Contrib::JQTwistyContrib,>=1.0,perl,Required
-Foswiki::Contrib::StringifierContrib,>=1.20,perl,Required
+Foswiki::Contrib::StringifierContrib,>=6.00,perl,Required
 Foswiki::Plugins::AutoTemplatePlugin,>=1.0,perl,Optional
 Foswiki::Plugins::ClassificationPlugin,>=1.0,perl,Optional
 Foswiki::Plugins::DBCachePlugin,>=1,perl,Optional
@@ -10,7 +11,8 @@ Foswiki::Plugins::FilterPlugin,>=2.0,perl,Required
 Foswiki::Plugins::FlexWebListPlugin,>=1.91,perl,Required
 Foswiki::Plugins::ImagePlugin,>=3.0,perl,Required
 Foswiki::Plugins::JQueryPlugin,>=6.00,perl,Required
-Cache::Cache,>0,cpan,Required
+Foswiki::Contrib::CacheContrib,>=0,perl,Required
+Linux::Inotify2,>=2,cpan,Required
 HTML::Entities,>=3.64,cpan,Required
 JSON::XS,>=2.231,cpan,Required
 LWP::UserAgent,>=5.820,cpan,Required

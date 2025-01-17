@@ -1,0 +1,20 @@
+version: '3'
+services:
+  solr:
+    container_name: foswiki_solr
+    restart: always
+    image: solr:9
+    ports:
+     - "8983:8983"
+    volumes:
+      - ./solr:/var/solr
+#    user: "1000:1000"
+    environment:
+      - SOLR_HEAP=1024m
+      - SOLR_TIMEZONE=GMT+1
+      - ENABLE_REMOTE_JMX_OPTS=false
+      - SOLR_REQUESTLOG_ENABLED=false
+      - SOLR_MODULES=langid
+      - SOLR_ADMIN_UI_DISABLED=true
+    command: solr-precreate foswiki
+

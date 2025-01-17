@@ -2,8 +2,6 @@
 
 #set -x
 
-. ~/.bashrc
-
 # location of the foswiki install
 test -z $FOSWIKI_ROOT && FOSWIKI_ROOT=/var/www/foswiki
 
@@ -12,7 +10,7 @@ LOG=$FOSWIKI_ROOT/working/logs/solrindex.log
 
 # number of seconds until solrindex is executed. this helps to keep the indexing burden
 # low when iwatch fires a lot of events in a short period of time
-THROTTLE=10
+THROTTLE=3
 
 # lock file
 LOCKFILE=$FOSWIKI_ROOT/working/tmp/solrindex.lock
@@ -31,8 +29,8 @@ VHOST=
 FILE=
 
 
-longopts="throttle:,mode:,host:,file:"
-shortopts="t:m:h:f:"
+longopts="throttle:,mode:,host:,file:web:topic:"
+shortopts="t:m:h:f:w:t:"
 
 temp=`getopt -o $shortopts --long $longopts -n $0 -- "$@"`
 if [ $? != 0 ] ; then 
@@ -44,6 +42,16 @@ while true; do
   case $1 in
     -f|--file)
       FILE=$2
+      shift
+      shift
+      ;;
+    -w|--web)
+      WEB=$2
+      shift
+      shift
+      ;;
+    -t|--topic)
+      TOPIC=$2
       shift
       shift
       ;;
@@ -89,13 +97,15 @@ export TIME
       WEB=$(dirname $WEB)
       TOPIC=$(basename $FILE);
       TOPIC=${TOPIC/.txt*/};
+    fi
 
+    if test -n "$WEB" -a -n "$TOPIC"; then
       SOLRINDEX_ARGS="$SOLRINDEX_ARGS topic=$WEB.$TOPIC"
       MODE=delta
     fi
 
     if test "$MODE" = "full"; then
-      SOLRINDEX_ARGS="$SOLRINDEX_ARGS mode=full optimize=on"
+      SOLRINDEX_ARGS="$SOLRINDEX_ARGS mode=full"
       :> $LOG
     else
       SOLRINDEX_ARGS="$SOLRINDEX_ARGS mode=delta"
@@ -105,4 +115,4 @@ export TIME
     /bin/date >> $LOG 
     nice $SOLRINDEX $SOLRINDEX_ARGS >> $LOG 2>&1
   )
-) 200>$LOCKFILE &
+) 200>$LOCKFILE 

@@ -46,7 +46,7 @@ has 'last_response' => (
     isa => Maybe[InstanceOf['WebService::Solr::Response']],
 );
 
-our $VERSION = '0.24';
+our $VERSION = '0.44.1';
 
 sub BUILDARGS {
     my ( $self, $url, $options ) = @_;
@@ -416,6 +416,8 @@ own correspondingly named function (e.g. C<dataimport> ).
 
 =head1 AUTHORS
 
+Andy Lester C<andy@petdance.com>
+
 Brian Cassidy E<lt>bricas@cpan.orgE<gt>
 
 Kirk Beers
@@ -423,6 +425,7 @@ Kirk Beers
 =head1 COPYRIGHT AND LICENSE
 
 Copyright 2008-2014 National Adult Literacy Database
+Copyright 2015-2020 Andy Lester
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
