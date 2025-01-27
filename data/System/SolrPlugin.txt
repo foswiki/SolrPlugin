@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1737108138" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1737978160" format="1.1"  version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -28,7 +28,7 @@ The below installation procedure assumes that you are going to install Solr as w
 ---+++ Download Solr
 
 <!--
-   * Set SOLR_VERSION = 9.7.0
+   * Set SOLR_VERSION = 9.8.0
 -->
 The current plugin requires *Solr 9* or later.  Download version %SOLR_VERSION% it from the [[https://archive.apache.org/dist/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%.tgz][here]].
 
@@ -913,6 +913,7 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  27 Jan 2025: | shorten hightlight fragment; use nobody.png from !JQueryPlugin instead of !NatSkin |
 |  17 Jan 2025: | added support for solr-9 |
 |  14 Mar 2023: | replaced iwatch with =foswiki-watch= service |
 |  26 Jan 2022: | gave up on stopwords: removed stopwords filter from the solr schema |
@@ -1082,5 +1083,5 @@ specific search applications. The destination fields are then analysed using the
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1737108138" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1737108138" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1737978160" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1737978160" size="158013" user="ProjectContributor" version="1"}%

@@ -40,7 +40,7 @@ BEGIN {
   }
 }
   
-our $VERSION = '9.00';
+our $VERSION = '9.01';
 our $RELEASE = '%$RELEASE%';
 our $SHORTDESCRIPTION = 'Enterprise Search Engine for Foswiki based on Solr';
 our $LICENSECODE = '%$LICENSECODE%';

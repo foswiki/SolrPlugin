@@ -37,12 +37,12 @@
     "hl.method": "unified",
     "hl.fl": 'text',
     "hl.snippets": 2,
-    "hl.fragsize": 300,
+    "hl.fragsize": 100,
     "hl.mergeContignuous": true,
     "hl.usePhraseHighlighter": true,
     "hl.highlightMultiTerm": true,
     "hl.alternateField": "text",
-    "hl.maxAlternateFieldLength": 300,
+    "hl.maxAlternateFieldLength": 100,
     "rows": 10
   };
 

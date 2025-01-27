@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1737108138" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1737978160" format="1.1"  version="1"}%
 %META:TOPICPARENT{name="SolrSearchBase"}%
 %TMPL:INCLUDE{"SolrSearchBase"}%
 %TMPL:DEF{"bodyclassname"}%patternSolrPage%TMPL:END%
@@ -7,8 +7,10 @@
 
 %TMPL:DEF{"broadcastmessage"}%%TMPL:P{"solr::search"}%%TMPL:END%
 
-%TMPL:DEF{"top:toolbarbuttons"}%%TMPL:END%
+%TMPL:DEF{"top:toolbarbuttons"}%%TMPL:P{"backaction"}%%TMPL:END%
 %TMPL:DEF{"topicaction"}%%TMPL:END%
+
+%TMPL:DEF{"backaction"}%<a href="%SCRIPTURLPATH{"view" topic="%URLPARAM{"origin" default="%WEB%.%HOMETOPIC%"}%"}%" class='natTopicAction'>%MAKETEXT{"Close"}%</a>%TMPL:END%
 
 %TMPL:DEF{"styles:default"}%%TMPL:P{"styles:screen"}%%TMPL:P{"styles:print"}%%TMPL:P{"styles:solr"}%%TMPL:END%
 

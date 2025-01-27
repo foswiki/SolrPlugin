@@ -1321,12 +1321,12 @@ sub doSearch {
     $solrParams->{"hl.method"} = 'unified';
     $solrParams->{"hl.fl"} = 'text';
     $solrParams->{"hl.snippets"} = '2';
-    $solrParams->{"hl.fragsize"} = '300';
+    $solrParams->{"hl.fragsize"} = '100';
     $solrParams->{"hl.mergeContignuous"} = 'true';
     $solrParams->{"hl.usePhraseHighlighter"} = 'true';
     $solrParams->{"hl.highlightMultiTerm"} = 'true';
     $solrParams->{"hl.alternateField"} = 'text';
-    $solrParams->{"hl.maxAlternateFieldLength"} = '300';
+    $solrParams->{"hl.maxAlternateFieldLength"} = '100';
   }
 
   my $theMoreLikeThis = Foswiki::Func::isTrue($params->{morelikethis});

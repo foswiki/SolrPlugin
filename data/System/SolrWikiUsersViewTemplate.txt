@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1737108138" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1737978160" format="1.1" version="1"}%
 %META:TOPICPARENT{name="WebHome"}%
 %TMPL:INCLUDE{"SolrSearchView"}%
 
@@ -63,7 +63,7 @@
   <a href='{{:url}}' class='foswikiImage foswikiLeft' style='background-image:url({{if thumbnail}}
       %SCRIPTURLPATH{"rest"}%/ImagePlugin/resize?topic={{:web}}.{{:topic}};file={{:~encodeURIComponent(thumbnail)}};size=80x100;crop=on
     {{else}}
-      %PUBURLPATH%/%SYSTEMWEB%/NatSkin/images/nobody.png
+      %PUBURLPATH%/%SYSTEMWEB%/JQueryPlugin/images/nobody.png
     {{/if}})'>
   </a>
 </script>%TMPL:END%
