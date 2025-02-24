@@ -1,12 +1,13 @@
 :root {
-  --solr-highlight-foreground:var(--color-ternary-lighter-1);
+  --solr-highlight-foreground:var(--color-text);
+  --solr-highlight-background:var(--color-secondary-alpha-6, #d3e3fd);
   --solr-revision-foreground:var(--color-green, #049804);
   --solr-spellcheck-foreground:var(--color-red, red);
   --solr-facet-count:var(--color-gray);
 }
 
 :root[data-theme='dark'] {
-  --solr-highlight-foreground:var(--color-ternary-lighter-2);
+  --solr-highlight-foreground:#fff;
 }
 
 .solrJsonData {
@@ -194,6 +195,8 @@
   font-style:normal;
   font-weight:var(--font-weight-medium);
   color:var(--solr-highlight-foreground);
+  background:var(--solr-highlight-background);
+  padding:0 2px;
 }
 
 .solrHeaderResults {

@@ -1,7 +1,4 @@
 /* fixes for pattern skin */
-.patternTop {
-  height:27px;
-}
 #patternTopBarContents {
   padding-left:1.5em;
 }
@@ -43,8 +40,8 @@
   border-bottom:1px solid #ddd;
   font-size:120%;
 }
-#patternSideBarContents a:link,
-#patternSideBarContents a:visited {
+#patternSideBarContents a.jqSerialPagerPrev,
+#patternSideBarContents a.jqSerialPagerNext {
   color:#0066cc;
 }
 #patternSideBarContents h2 a:link,
@@ -67,3 +64,8 @@
 .solrPager a:visited:hover {
   text-decoration:none;
 }
+.solrSearchHits h3 a:link,
+.solrSearchHits h3 a:visited {
+  color:#06c;
+}
+

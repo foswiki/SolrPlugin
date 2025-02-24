@@ -29,7 +29,7 @@ VHOST=
 FILE=
 
 
-longopts="throttle:,mode:,host:,file:web:topic:"
+longopts="throttle:,mode:,host:,file:,web:,topic:"
 shortopts="t:m:h:f:w:t:"
 
 temp=`getopt -o $shortopts --long $longopts -n $0 -- "$@"`
@@ -99,9 +99,13 @@ export TIME
       TOPIC=${TOPIC/.txt*/};
     fi
 
-    if test -n "$WEB" -a -n "$TOPIC"; then
-      SOLRINDEX_ARGS="$SOLRINDEX_ARGS topic=$WEB.$TOPIC"
-      MODE=delta
+    if test -n "$WEB"; then
+      if test -n "$TOPIC"; then
+        SOLRINDEX_ARGS="$SOLRINDEX_ARGS topic=$WEB.$TOPIC"
+        MODE=delta
+      else
+        SOLRINDEX_ARGS="$SOLRINDEX_ARGS web=$WEB"
+      fi
     fi
 
     if test "$MODE" = "full"; then

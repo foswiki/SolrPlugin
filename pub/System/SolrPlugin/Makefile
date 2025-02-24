@@ -1,5 +1,6 @@
 FOSWIKI_ROOT?=~/foswiki/trunk/core
 TARGET=\
+  build \
   build/ajax-solr.js \
   build/ajax-solr-widgets.js \
   build/ajax-solr-init.js \
@@ -51,6 +52,9 @@ AJAX_SOLR_WIDGETS_SOURCE=\
 #.PHONY: git
 #git:
 #	git clone https://github.com/evolvingweb/ajax-solr.git git
+
+build:
+	@mkdir build
 
 build/ajax-solr.uncompressed.js: Makefile $(AJAX_SOLR_SOURCE)
 	@echo "generating ajax-solr.uncompressed.js"

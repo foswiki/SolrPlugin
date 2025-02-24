@@ -417,7 +417,7 @@ sub indexTopic {
     web => $web,
     webcat => [@webCats],
     webtopic => "$web.$topic",
-    title => Foswiki::Func::getTopicTitle($web, $topic, undef, $meta),
+    title => $this->plainify(Foswiki::Func::getTopicTitle($web, $topic, undef, $meta)),
     text => $text,
     summary => $this->getTopicSummary($web, $topic, $meta, $origText),
     author => $author,
@@ -435,7 +435,7 @@ sub indexTopic {
     container_web => $web,
     container_topic => $Foswiki::cfg{HomeTopicName},
     container_url => $this->getScriptUrlPath($web, $Foswiki::cfg{HomeTopicName}, "view"),
-    container_title => Foswiki::Func::getTopicTitle($web, $Foswiki::cfg{HomeTopicName}),
+    container_title => $this->plainify(Foswiki::Func::getTopicTitle($web, $Foswiki::cfg{HomeTopicName})),
     icon => $this->mapToIconFileName('topic'),
 
     # topic specific
@@ -670,7 +670,7 @@ sub indexFormFields {
       my @topicTypes = split(/\s*,\s*/, $topicType);
       $topicType = shift @topicTypes;
 
-      $doc->add_fields('field_TopicType_first_s' => $topicType) if $topicType && $topicType ne "";
+      $doc->add_fields('field_TopicType_first_s' => $topicType);
     }
   }
 
@@ -713,7 +713,13 @@ sub indexFormField {
     return;
   }
 
-  $type = $fieldDef->param("type") // 'autofill' if $type eq "autofill";
+  if ($type eq "autofill") {
+    my $casted = $fieldDef->param("type");
+    if ($casted) {
+      $type = $casted;
+      $fieldDef = $fieldDef->createField($type);
+    }
+  }
 
   my $isValueMapped = $fieldDef->can("isValueMapped") ? $fieldDef->isValueMapped(): $type =~ /\+values/;
   $isValueMapped = 0 if $type eq 'cat'; # SMELL
@@ -756,7 +762,7 @@ sub indexFormField {
   if ($type =~ /^(user|group)/) {
     my @nvals = ();
     foreach my $item (split(/\s*,\s*/, $value)) {
-      $item =~ s/^.*\.//;
+      $item =~ s/^$Foswiki::cfg{UsersWebName}\.//;
       push @nvals, $item;
     }
     $value = join(", ", @nvals);
@@ -767,7 +773,6 @@ sub indexFormField {
 
   # multi-valued types
   if ($fieldDef->isMultiValued || $name =~ /TopicType/) {    # TODO: make this configurable
-    #print STDERR "... adding $fieldName=$value\n";
     $doc->add_fields($fieldName => [split(/\s*,\s*/, $value)]);
 
     $fieldName = _stringFieldName($fieldName);
@@ -1097,6 +1102,9 @@ sub indexAttachment {
     push @webCats, join(".", @prefix);
   }
 
+  my $containerTitle = Foswiki::Func::getTopicTitle($web, $topic);
+  $containerTitle = $this->plainify($containerTitle);
+
   $doc->add_fields(
     # common fields
     id => $id,
@@ -1129,7 +1137,7 @@ sub indexAttachment {
     container_web => $web,
     container_topic => $topic,
     container_url => $this->getScriptUrlPath($web, $topic, "view"),
-    container_title => Foswiki::Func::getTopicTitle($web, $topic),
+    container_title => $containerTitle,
 
     'field_TopicType_lst' => 'Attachment',
   );

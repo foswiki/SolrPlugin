@@ -1,6 +1,7 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1737108138" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1740412760" format="1.1" version="1"}%
 %TMPL:INCLUDE{"WebChangesView"}%
 
 %TMPL:DEF{"revinfo"}%%TMPL:END%
+%TMPL:DEF{"sidebar"}%%TMPL:END%
 %TMPL:DEF{"bodyclass"}%natViewBody natSolrWebChangesBody%TMPL:END%
 

@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1737108138" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1740412760" format="1.1"  version="1"}%
 %META:TOPICPARENT{name="SolrPlugin"}%
 %{ ###########################################################################
    template inheritance and general presets 
@@ -78,6 +78,7 @@
 %TMPL:P{"solr::dictionary::webs"}%
 %TMPL:P{"solr::dictionary::languages"}%
 %TMPL:P{"solr::dictionary::misc"}%
+%TMPL:P{"solr::dictionary::topictypes"}%
 "":""
 %TMPL:END%
 
@@ -135,6 +136,14 @@
     subheader=",$n"
     separator=",$n"
   }%,
+%TMPL:END%
+
+%TMPL:DEF{"solr::dictionary::topictypes"}%
+  %DBQUERY{
+    "TopicType=~'\bTopicType\b'"
+    format="\"$topic\": \"$expand(topictitle)\","
+    separator="$n  "
+  }%
 %TMPL:END%
 
 %{ ###########################################################################

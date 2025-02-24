@@ -213,7 +213,7 @@ msgstr "Lettisch"
 
 #: data/System/SolrWikiUsersViewTemplate.txt:26
 msgid "Location"
-msgstr "Niederlassung"
+msgstr "Standort"
 
 #: data/System/SolrSearchBaseTemplate.txt:613
 msgid "Media Type"
