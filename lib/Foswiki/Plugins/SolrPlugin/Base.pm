@@ -1022,6 +1022,10 @@ sub getRequestParams {
       if ($key eq 'q' || $key eq 'search') {
         $val =~ s/[{}]//g;
       }
+
+      if ($key eq 'qf') {
+        $val = [split(/\s*,\s*/, $val)];
+      }
       
       $params{$key} = $val;
     }

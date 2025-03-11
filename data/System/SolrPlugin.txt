@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1740412760" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1741715458" format="1.1"  version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -30,7 +30,11 @@ The below installation procedure assumes that you are going to install Solr as w
 <!--
    * Set SOLR_VERSION = 9.8.0
 -->
-The current plugin requires *Solr 9* or later.  Download version %SOLR_VERSION% it from the [[https://archive.apache.org/dist/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%.tgz][here]].
+The current plugin requires *Solr 9* or later.  Download version %SOLR_VERSION% it from the [[https://www.apache.org/dyn/closer.lua/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%.tgz?action=download][here]].
+
+<pre class="bash">
+wget https://www.apache.org/dyn/closer.lua/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%.tgz?action=download -O solr-%SOLR_VERSION%.tgz
+</pre>
 
 ---+++ Extract software, create user, install system service
 
@@ -913,6 +917,7 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  11 Mar 2025: | fixed processing of query fields thus fixing people search |
 |  24 Feb 2025: | improved default weights for query scores; \
                   fixed indexing of autofill formfields with a type cast; \
                   improved css vars for highlighting search results ; \
@@ -1087,5 +1092,5 @@ specific search applications. The destination fields are then analysed using the
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1740412760" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1740412760" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1741715458" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1741715458" size="158013" user="ProjectContributor" version="1"}%

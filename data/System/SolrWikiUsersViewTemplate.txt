@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1737978160" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1741715458" format="1.1" version="1"}%
 %META:TOPICPARENT{name="WebHome"}%
 %TMPL:INCLUDE{"SolrSearchView"}%
 
@@ -8,7 +8,7 @@
 %TMPL:DEF{"solr::defaultsort"}%title_sort asc%TMPL:END%
 %TMPL:DEF{"solr::extrafilter"}%form:%QUERY{"{SolrPlugin}{PersonDataForm}"}% web:%USERSWEB% -state:disabled -topic:NewUserTemplate%TMPL:END%
 %TMPL:DEF{"solr::fields"}%field_Location_s, field_Profession_s, %IF{"not {AntiSpam}{HideUserDetails} or context isadmin" then="field_Email_s, "}%field_LoginName_s, field_Telephone_s, web, topic, title, thumbnail%TMPL:END%
-%TMPL:DEF{"solr::queryfields"}%field_LoginName_search field_LoginName_prefix field_Telephone_search field_Telephone_prefix topic_search topic_prefix title_search title_prefix%TMPL:END%
+%TMPL:DEF{"solr::queryfields"}%field_LoginName_search, field_LoginName_prefix, field_Telephone_search, field_Telephone_prefix, topic_search, topic_prefix, title_search, title_prefix%TMPL:END%
 %TMPL:DEF{"solr::pager"}%<div class='solrAlphaPager clearfix' data-field="LastName_first_letter" data-title="%MAKETEXT{"alphabetical"}%" data-all-text="%MAKETEXT{"All"}%" ></div>%TMPL:END%
 %TMPL:DEF{"solr::footer"}%<div class='solrFooter'><div class='solrPager clearfix' data-next-text="%MAKETEXT{"Next"}%" data-prev-text="%MAKETEXT{"Previous"}%"></div></div>%TMPL:END%
 
