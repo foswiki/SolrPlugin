@@ -915,13 +915,14 @@ sub getSolrFieldNameOfFormfield {
 sub getField {
   my ($this, $doc, $name) = @_;
 
+  my @fields = ();
   foreach my $field ($doc->fields) {
     if ($field->name eq $name) {
-      return $field;
+      push @fields, $field;
     }
   }
 
-  return;
+  return wantarray ? @fields : $fields[0];
 }
 
 ###############################################################################

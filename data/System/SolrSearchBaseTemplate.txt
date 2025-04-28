@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1740412760" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1745822505" format="1.1"  version="1"}%
 %META:TOPICPARENT{name="SolrPlugin"}%
 %{ ###########################################################################
    template inheritance and general presets 
@@ -18,7 +18,7 @@
 %TMPL:DEF{"solr::defaultsort"}%%SOLR_DEFAULTSORT{default="score desc"}%%TMPL:END%
 %TMPL:DEF{"solr::dateformat"}%%SOLR_DATEFORMAT{default="dddd, Do MMMM YYYY, HH:mm"}%%TMPL:END%
 %TMPL:DEF{"solr::fields"}%score%TMPL:END%
-%TMPL:DEF{"DISsolr::score"}%<div class='foswikiRight foswikiGrayText'>score: {{:score}}</div>%TMPL:END%
+%TMPL:DEF{"DISsolr::score"}%<span class='foswikiNormal foswikiGrayText'>score: {{:score}}</span>%TMPL:END%
 %TMPL:DEF{"solr::trashweb"}%Trash%TMPL:END%
 %TMPL:DEF{"solr::archiveweb"}%Archive%TMPL:END%
 %TMPL:DEF{"solr::queryfields"}%%SOLR_QUERYFIELDS{default=""}%%TMPL:END%
@@ -215,6 +215,7 @@
       <span class=' solrContainerLink foswikiGrayText foswikiNormal'>
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
+      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
@@ -226,7 +227,6 @@
     <div class='solrTopicInfo foswikiGrayText'>
       {{:~renderTopicInfo()}}
     </div>
-    %TMPL:P{"solr::score"}%
   </div>
 %TMPL:END%
 
@@ -239,6 +239,7 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
+      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
@@ -247,7 +248,6 @@
     <div class='solrHilite'>
       {{:~getHilite(id)}}
     </div>
-    %TMPL:P{"solr::score"}%
   </div>
 </script>%TMPL:END%
 
@@ -260,12 +260,12 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
+      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
     </div>
-    %TMPL:P{"solr::score"}%
   </div>
 </script>%TMPL:END%
 
@@ -277,6 +277,7 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
+      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
@@ -285,7 +286,6 @@
     <div class='solrHilite'>
       {{:~getHilite(id)}}
     </div>
-    %TMPL:P{"solr::score"}%
   </div>
 </script>%TMPL:END%
 
@@ -297,6 +297,7 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
+      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
@@ -305,7 +306,6 @@
     <div class='solrHilite'>
       {{:~getHilite(id)}}
     </div>
-    %TMPL:P{"solr::score"}%
   </div>
 </script>%TMPL:END%
 
@@ -318,6 +318,7 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
+      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
@@ -329,7 +330,6 @@
     {{if comment}}
       <div class='foswikiGrayText'>{{:comment}}</div>
     {{/if}}
-    %TMPL:P{"solr::score"}%
   </div>
 </script>%TMPL:END%
 
@@ -341,6 +341,7 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
+      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
@@ -352,7 +353,6 @@
     {{if comment}}
       <div class='foswikiGrayText'>{{:comment}}</div>
     {{/if}}
-    %TMPL:P{"solr::score"}%
   </div>
 </script>%TMPL:END%
 
@@ -364,6 +364,7 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
+      %TMPL:P{"solr::score"}%
     </h3>
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
@@ -371,7 +372,6 @@
     <div class='solrHilite'>
       {{:~getHilite(id)}}
     </div>
-    %TMPL:P{"solr::score"}%
   </div>
 </script>%TMPL:END%
 
@@ -383,6 +383,7 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
+      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
@@ -397,7 +398,6 @@
     <div class='solrTopicInfo foswikiGrayText'>
       {{:~renderTopicInfo()}}
     </div>
-    %TMPL:P{"solr::score"}%
   </div>
 </script>%TMPL:END%
 

@@ -782,48 +782,48 @@
       <str name="df">text</str>
       <float name="tie">0.01</float>
       <str name="qf"> 
-        title_std^7.0 
+        title_std^10.0 
+        title_search^10.0 
+        title_prefix^8.0
+        title_substr^5.0
         topic_std^7.0 
-        title_search^5.0 
-        summary^3.0
         topic_search^2.0 
-        title_prefix
-        title_substr^0.5
-        web_search 
-        text_ws^3.0
-        text_std^2.0
-        text_search
+        summary^3.0
         category_search
-        tag_search^0.5
+        tag_search
+        web_search 
+        text_ws
+        text_std
+        text_search
         catchall
         charnorm
         text_prefix^0.5
         text_substr^0.5
-        <!-- phonetic -->
+        <!-- phonetic^0.1 -->
       </str>
       <!-- boost more recent documents -->
       <str name="bf">sum(recip(ms(NOW/HOUR,date),3.16e-11,1,1),product(0.1,total_likes))</str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic^10 -web_search:Trash^100</str>
       <str name="pf">
-        title_std^7.0 
+        title_std^10.0 
+        title_search^10.0 
+        title_prefix^8.0
+        title_substr^5.0
         topic_std^7.0 
-        title_search^5.0 
-        summary^3.0
         topic_search^2.0 
-        title_prefix
-        title_substr^0.5
-        web_search 
-        text_ws^3.0
-        text_std^2.0
-        text_search
+        summary^3.0
         category_search
-        tag_search^0.5
+        tag_search
+        web_search 
+        text_ws
+        text_std
+        text_search
         catchall
         charnorm
         text_prefix^0.5
         text_substr^0.5
-        <!-- phonetic -->
+        <!-- phonetic^0.1 -->
       </str>
       <int name="ps">1</int>
       <int name="qs">1</int>
@@ -852,48 +852,48 @@
       <str name="df">text</str>
       <float name="tie">0.01</float>
       <str name="qf"> 
-        title_std^7.0 
+        title_std^10.0 
+        title_search^10.0 
+        title_prefix^8.0
+        title_substr^5.0
         topic_std^7.0 
-        title_search^5.0 
-        summary^3.0
         topic_search^2.0 
-        title_prefix
-        title_substr^0.5
-        web_search 
-        text_ws^3.0
-        text_std^2.0
-        text_search
+        summary^3.0
         category_search
-        tag_search^0.5
+        tag_search
+        web_search 
+        text_ws
+        text_std
+        text_search
         catchall
         charnorm
         text_prefix^0.5
         text_substr^0.5
-        <!-- phonetic -->
+        <!-- phonetic^0.1 -->
       </str>
       <!-- boost more recent documents -->
       <str name="bf">sum(recip(ms(NOW/HOUR,date),3.16e-11,1,1),product(0.1,total_likes))</str>
       <!-- boost topics in favor of attachments -->
       <str name="bq">type:topic^10 -web_search:Trash^100</str>
       <str name="pf">
-        title_std^7.0 
+        title_std^10.0 
+        title_search^10.0 
+        title_prefix^8.0
+        title_substr^5.0
         topic_std^7.0 
-        title_search^5.0 
-        summary^3.0
         topic_search^2.0 
-        title_prefix
-        title_substr^0.5
-        web_search
-        text_ws^3.0
-        text_std^2.0
-        text_search
+        summary^3.0
         category_search
-        tag_search^0.5
+        tag_search
+        web_search 
+        text_ws
+        text_std
+        text_search
         catchall
         charnorm
         text_prefix^0.5
         text_substr^0.5
-        <!-- phonetic -->
+        <!-- phonetic^0.1 -->
       </str>
       <int name="ps">1</int>
       <int name="qs">1</int>

@@ -773,8 +773,8 @@ sub indexFormField {
 
   # multi-valued types
   if ($fieldDef->isMultiValued || $name =~ /TopicType/) {    # TODO: make this configurable
+    #print STDERR "... adding $fieldName=$value\n";
     $doc->add_fields($fieldName => [split(/\s*,\s*/, $value)]);
-
     $fieldName = _stringFieldName($fieldName);
   }
 
