@@ -28,7 +28,8 @@ AJAX_SOLR_SOURCE=\
   lib/Manager.jquery.js \
   lib/ajaxsolr.support.js \
   src/ajax-solr-helpers.uncompressed.js \
-  src/ajax-solr-dictionary.uncompressed.js
+  src/ajax-solr-dictionary.uncompressed.js \
+  src/bytesConverter.uncompressed.js
 
 AJAX_SOLR_WIDGETS_SOURCE=\
   src/widgets/AbstractJQueryWidget.uncompressed.js \
@@ -52,6 +53,9 @@ AJAX_SOLR_WIDGETS_SOURCE=\
 #.PHONY: git
 #git:
 #	git clone https://github.com/evolvingweb/ajax-solr.git git
+
+clean:
+	rm -f build/*
 
 build:
 	@mkdir build

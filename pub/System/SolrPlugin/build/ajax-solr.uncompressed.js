@@ -2026,7 +2026,7 @@ String.prototype.strtr = function (replacePairs) {
   return str;
 };
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -2071,7 +2071,7 @@ String.prototype.strtr = function (replacePairs) {
   };
 })(jQuery);
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -2105,7 +2105,7 @@ var _ = function(key, id) {
   AjaxSolr.Dictionary.prototype.init = function() {
     var self = this;
     self.text = self.container.text();
-    self.data = $.parseJSON(self.text);
+    self.data = JSON.parse(self.text);
   };
 
   AjaxSolr.Dictionary.prototype.get = function(key) {
@@ -2152,3 +2152,16 @@ var _ = function(key, id) {
 
   });
 })(jQuery);
+"use strict";
+
+jQuery(function($) {
+  $.views.converters("bytes", function(bytes, frac) {
+      if (!+bytes) return '0B'
+
+      const k = 1024;
+      const dm = frac < 0 ? 0 : frac;
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+  });
+});

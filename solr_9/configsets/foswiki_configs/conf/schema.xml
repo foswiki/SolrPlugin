@@ -971,7 +971,7 @@
   <field name="name" type="string" />
   <field name="comment" type="text_generic" />
   <field name="hidden" type="boolean" /> 
-  <field name="size" type="int" />
+  <field name="size" type="long" />
   <field name="width" type="int" />
   <field name="height" type="int" />
 

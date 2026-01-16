@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2025 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2026 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -504,7 +504,7 @@ sub formatResponse {
       push @groupRows, $docResult if $docResult ne "";
     }
     if (@groupRows) {
-      $groupResults = join("", @groupRows);
+      $groupResults = join($params->{separator}//"", @groupRows);
     }
   }
 
@@ -2163,14 +2163,14 @@ sub iterate {
 
 =begin TML
 
----++ iterateFacet($field, $callback, $ignoreAccess)
+---++ iterateFacet($field, $callback, $ignoreAccess, $query)
 
 performs a facet search and iterates over it
 
 =cut
 
 sub iterateFacet {
-  my ($this, $field, $callback, $ignoreAccess) = @_;
+  my ($this, $field, $callback, $ignoreAccess, $query) = @_;
 
   my @filter = ();
   push @filter, $this->getACLFilter() unless $ignoreAccess;
@@ -2178,10 +2178,12 @@ sub iterateFacet {
   my $len = 0;
   my $offset = 0;
   my $limit = 100;
+  
+  $query //= "*";
 
   do {
     my $response = $this->solrSearch(
-      "*",
+      $query,
       {
         "fl" => "none",
         "rows" => 0,
@@ -2256,7 +2258,7 @@ sub getListOfWebs {
   $this->iterateFacet("web", sub {
     my ($val, $count) = @_;
     if ($count) {
-      push @webs, $val if $count;
+      push @webs, $val;
     } else {
       #$this->log("WARNING: found web=$val with count=$count ... index needs optimization");
     }

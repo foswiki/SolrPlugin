@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2020-2025 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2020-2026 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -242,7 +242,7 @@ sub processLine {
   }
 
   # save
-  if ($line =~ /\|\s*save\s*\|\s*(.*?)\s*\|/) {
+  if ($line =~ /\|\s*(?:comment)?save\s*\|\s*(.*?)\s*\|/) {
     $this->writeDebug("found save");
     $this->addToQueue($1, $host);
     return;

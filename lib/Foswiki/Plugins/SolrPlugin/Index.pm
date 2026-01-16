@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2025 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2026 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -266,6 +266,7 @@ sub update {
         next if $topicTime > $changed;
 
         try {
+          $this->deleteTopic($web, $topic);
           $this->indexTopic($web, $topic);
         } catch Error with {
           my $e = shift;
@@ -408,6 +409,7 @@ sub indexTopic {
     push @webCats, join(".", @prefix);
   }
 
+
   $doc->add_fields(
 
     # common fields
@@ -417,16 +419,16 @@ sub indexTopic {
     web => $web,
     webcat => [@webCats],
     webtopic => "$web.$topic",
-    title => $this->plainify(Foswiki::Func::getTopicTitle($web, $topic, undef, $meta)),
+    title => $this->plainify(_getTopicTitle($web, $topic, undef, $meta)),
     text => $text,
     summary => $this->getTopicSummary($web, $topic, $meta, $origText),
     author => $author,
-    author_title => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $author),
+    author_title => _getTopicTitle($Foswiki::cfg{UsersWebName}, $author),
     date => $date,
     date_s => $dateString,
     version => $rev,
     createauthor => $createAuthor,
-    createauthor_title => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $createAuthor),
+    createauthor_title => _getTopicTitle($Foswiki::cfg{UsersWebName}, $createAuthor),
     createdate => $createDate,
     createdate_s => $createString,
     source => 'wiki', # name of crawler
@@ -435,8 +437,9 @@ sub indexTopic {
     container_web => $web,
     container_topic => $Foswiki::cfg{HomeTopicName},
     container_url => $this->getScriptUrlPath($web, $Foswiki::cfg{HomeTopicName}, "view"),
-    container_title => $this->plainify(Foswiki::Func::getTopicTitle($web, $Foswiki::cfg{HomeTopicName})),
+    container_title => $this->plainify(_getTopicTitle($web, $Foswiki::cfg{HomeTopicName})),
     icon => $this->mapToIconFileName('topic'),
+    size => $this->getSizeOfTopic($web, $topic),
 
     # topic specific
   );
@@ -836,7 +839,7 @@ sub indexFormField {
       my @topicTitles = ();
       my $web = $fieldDef->getWeb();
       foreach (split(/\s*,\s*/, $origValue)) {
-        push @topicTitles, Foswiki::Func::getTopicTitle($web, $_);
+        push @topicTitles, _getTopicTitle($web, $_);
       }
       my $topicTitle = join(", ", @topicTitles);
 
@@ -850,7 +853,7 @@ sub indexFormField {
       $doc->add_fields($titleFieldName => \@topicTitles);
 
     } else {
-      my $topicTitle = Foswiki::Func::getTopicTitle($web, $origValue);
+      my $topicTitle = _getTopicTitle($web, $origValue);
       $titleFieldName =~ s/_s/_title_s/;
 
       #print STDERR "... adding $titleFieldName=$topicTitle\n";
@@ -895,7 +898,7 @@ sub indexFormField {
     # so we try to remove only those characters that break the json parser
     #$value = $this->plainify($value, $web, $topic);
     $value =~ s/<!--.*?-->//gs;    # remove all HTML comments
-    $value =~ s/<[^>]*>/ /g;       # remove all HTML tags
+    $value =~ s/<[^>\@]*>/ /g;       # remove all HTML tags
     $value = $this->discardIllegalChars($value);    # remove illegal characters
 
     # truncate field value to MAX_STRING_LENGTH
@@ -982,38 +985,80 @@ sub extractOutgoingLinks {
   my ($this, $web, $topic, $text, $outgoingLinks) = @_;
 
   return unless $text;
+
+  my $homeWebName = $Foswiki::cfg{HomeWebName} || $Foswiki::cfg{UsersWebName};
+  $text =~ s/\%USERSWEB\%/$Foswiki::cfg{UsersWebName}/g;
+  $text =~ s/\%SYSTEMWEB\%/$Foswiki::cfg{SystemWebName}/g;
+  $text =~ s/\%MAINWEB\%/$Foswiki::cfg{UsersWebName}/g; # deprecated
+  $text =~ s/\%HOMEWEB\%/$homeWebName/g;
+  $text =~ s/\%SCRIPTURL(?:PATH)?(?:\{.*?\})?\%\///g;
+  $text =~ s/%(?:BASE)?WEB%/$web/g;
+  $text =~ s/%(?:BASE)?TOPIC%/$topic/g;
+
   my $removed = {};
+  my $viewUrl = $this->{session}->getScriptUrl(1, "view");
+
+  # hrefs
+  $text =~ s#(?:\Q$viewUrl\E|%SCRIPTURL(?:PATH)%)\/($Foswiki::regex{webNameRegex})[\./]($Foswiki::regex{wikiWordRegex}|$Foswiki::regex{abbrevRegex})#$this->_addLink($outgoingLinks, $web, $topic, $1, $2)#ge;
+
+  # script macro
+  $text =~ s/%SCRIPTURL(?:PATH)?{(.*?)\}%/$this->_addLinkFromAttrs($outgoingLinks, $web, $topic, $1)/ge;
+
+  # square brackets
+  $text =~ s#\[\[([^\]\[\n]+)\]\]#$this->_addLink($outgoingLinks, $web, $topic, undef, $1)#ge;
+  $text =~ s#\[\[([^\]\[\n]+)\]\[([^\]\n]+)\]\]#$this->_addLink($outgoingLinks, $web, $topic, undef, $1)#ge;
 
   # normal wikiwords
   $text = $this->takeOutBlocks($text, 'noautolink', $removed);
   $text =~ s#(?:($Foswiki::regex{webNameRegex})\.)?($Foswiki::regex{wikiWordRegex}|$Foswiki::regex{abbrevRegex})#$this->_addLink($outgoingLinks, $web, $topic, $1, $2)#gexm;
   $this->putBackBlocks(\$text, $removed, 'noautolink');
 
-  # square brackets
-  $text =~ s#\[\[([^\]\[\n]+)\]\]#$this->_addLink($outgoingLinks, $web, $topic, undef, $1)#ge;
-  $text =~ s#\[\[([^\]\[\n]+)\]\[([^\]\n]+)\]\]#$this->_addLink($outgoingLinks, $web, $topic, undef, $1)#ge;
-
+  # special treatment of WebNotify content
+  my $notifyTopicName = $Foswiki::cfg{NotifyTopicName} // "WebNotify";
+  if ($topic eq $notifyTopicName) {
+    while ($text =~ /^\s+\*\s(?:$Foswiki::cfg{UsersWebName}\.)?.*?\s*(:.*)?$/gm) {
+        my $line = $1 || '';
+        while ($line =~ s/\s*([-+])?\s*((?:[[:alnum:]]|[*.])+|'.*?'|".*?")([!?]?)\s*(?:\((\d+)\))?//) {
+          my ($us, $spec, $opts, $depth) = ($1 || '+', $2, $3, $4 || 0);
+          $spec =~ s/^(['"])(.*)\1$/$2/; # remove quotes
+          $this->_addLink($outgoingLinks, $web, $topic, $web, $spec);
+        }
+    }
+  }
 }
 
 sub _addLink {
   my ($this, $links, $baseWeb, $baseTopic, $web, $topic) = @_;
 
   $web ||= $baseWeb;
+  $topic =~ s/#.*$//;
   ($web, $topic) = $this->normalizeWebTopicName($web, $topic);
 
   my $link = $web . "." . $topic;
-  return '' if $link =~ /^http|ftp/;    # don't index external links
+  return '' if $link =~ /^(https?|ftps?):/;    # don't index external links
   return '' unless Foswiki::Func::topicExists($web, $topic);
-
-  $link =~ s/\%SCRIPTURL(?:PATH)?(?:\{.*?\})?\%\///g;
-  $link =~ s/%(?:BASE)?WEB%/$baseWeb/g;
-  $link =~ s/%(?:BASE)?TOPIC%/$baseTopic/g;
-
-  #print STDERR "link=$link\n" unless defined $links->{$link};
 
   $links->{$link} = 1;
 
-  return $link;
+  #print STDERR "... adding link=$link\n" unless defined $links->{$link};
+
+  return "";
+}
+
+sub _addLinkFromAttrs {
+  my ($this, $links, $baseWeb, $baseTopic, $string) = @_;
+
+  my $params = Foswiki::Attrs->new($string);
+  my $script = $params->{_DEFAULT} || "view"; 
+  return "" unless $script eq "view";
+  my ($web, $topic) = $this->normalizeWebTopicName($params->{web} || $baseWeb, $params->{topic} || $baseTopic);
+
+  return "" if $web eq $baseWeb && $topic eq $baseTopic;
+  return "" unless Foswiki::Func::topicExists($web, $topic);
+
+  $links->{$web . "." . $topic} = 1;
+
+  return "";
 }
 
 ################################################################################
@@ -1102,7 +1147,7 @@ sub indexAttachment {
     push @webCats, join(".", @prefix);
   }
 
-  my $containerTitle = Foswiki::Func::getTopicTitle($web, $topic);
+  my $containerTitle = _getTopicTitle($web, $topic);
   $containerTitle = $this->plainify($containerTitle);
 
   $doc->add_fields(
@@ -1118,12 +1163,12 @@ sub indexAttachment {
     type => \@types,
     text => $attText,
     author => $author,
-    author_title => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $author),
+    author_title => _getTopicTitle($Foswiki::cfg{UsersWebName}, $author),
     date => $date,
     date_s => $dateString,
     version => $rev,
     createauthor => $createAuthor,
-    createauthor_title => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $createAuthor),
+    createauthor_title => _getTopicTitle($Foswiki::cfg{UsersWebName}, $createAuthor),
     createdate => $createDate,
     createdate_s => $createString,
 
@@ -1649,6 +1694,20 @@ sub _getPathOfAttachment {
 
   $web =~ s/\./\//g;
   return "$pubDir/$web/$topic/$attachment";
+}
+
+################################################################################
+sub _getTopicTitle {
+  my ($web, $topic) = @_;
+
+  return Foswiki::Func::getTopicTitle($web, $topic) if $Foswiki::cfg{Plugins}{TopicTitlePlugin}{Enabled};
+
+  return $topic if $topic ne $Foswiki::cfg{HomeTopicName};
+
+  my $webTitle = $web;
+  $webTitle =~ s/^.*[\/\.]//;
+
+  return $webTitle;
 }
 
 1;

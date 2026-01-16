@@ -1,6 +1,6 @@
 # Extension for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# JQuery SolrPlugin is Copyright (C) 2023-2025 Michael Daum 
+# JQuery SolrPlugin is Copyright (C) 2023-2026 Michael Daum 
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

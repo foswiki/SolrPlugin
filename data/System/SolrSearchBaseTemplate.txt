@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1745822505" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1768569210" format="1.1" version="1"}%
 %META:TOPICPARENT{name="SolrPlugin"}%
 %{ ###########################################################################
    template inheritance and general presets 
@@ -17,10 +17,11 @@
 %TMPL:DEF{"solr::defaultquerytype"}%edismax%TMPL:END%
 %TMPL:DEF{"solr::defaultsort"}%%SOLR_DEFAULTSORT{default="score desc"}%%TMPL:END%
 %TMPL:DEF{"solr::dateformat"}%%SOLR_DATEFORMAT{default="dddd, Do MMMM YYYY, HH:mm"}%%TMPL:END%
-%TMPL:DEF{"solr::fields"}%score%TMPL:END%
-%TMPL:DEF{"DISsolr::score"}%<span class='foswikiNormal foswikiGrayText'>score: {{:score}}</span>%TMPL:END%
+%TMPL:DEF{"solr::fields"}%score, size%TMPL:END%
+%TMPL:DEF{"DISsolr::score"}%, %TRANSLATE{"Score"}% {{:score}}%TMPL:END%
+%TMPL:DEF{"solr::size"}%<!-- -->{{if size}}, %TRANSLATE{"Size"}% {{bytes: size  2}}{{/if}}%TMPL:END%
 %TMPL:DEF{"solr::trashweb"}%Trash%TMPL:END%
-%TMPL:DEF{"solr::archiveweb"}%Archive%TMPL:END%
+%TMPL:DEF{"solr::archiveweb"}%%IF{"istopic '%WEB%.Archive.WebHome'" then="%WEB%.Archive" else="Archive"}%%TMPL:END%
 %TMPL:DEF{"solr::queryfields"}%%SOLR_QUERYFIELDS{default=""}%%TMPL:END%
 %TMPL:DEF{"solr::extrafilter"}%%SOLR_EXTRAFILTER{default=""}%%IF{ "not context isadmin" then=" -web_search:Applications" }%%TMPL:END%
 %TMPL:DEF{"solr::exactsearch"}%title_std^7 catchall^0.5%TMPL:END%
@@ -186,16 +187,13 @@
 {{if thumbnail}}
       <div class='solrThumbnail'>
           {{if thumbnail.startsWith("http")}}
-            <a href='{{:url}}'>
-            :xa
-              <img src='{{:thumbnail}}' alt='{{:name}}' width='70' />
-            </a>
+            <a href='{{:url}}'><img src='{{:thumbnail}}' alt='{{:name}}' width='70' /></a>
           {{else}}
             <a href='{{:url}}' title='{{:name}}' class='imageHref imageSimple jqImageTooltip' data-web='{{:web}}' data-topic='{{:topic}}' data-image='{{:thumbnail}}' data-orig-width='{{:width}}' data-orig-height='{{:height}}'>
               {{if thumbnail.endsWith(".svg")}}
                 <img src='{{:~getPubUrlPath(web, topic, thumbnail)}}' width='70' alt='{{:name}}' />
               {{else}}
-                <img src='%SCRIPTURLPATH{"rest"}%/ImagePlugin/resize?topic={{:web}}.{{:topic}};file={{:~encodeURIComponent(thumbnail)}};size=70x70^;crop=northwest' alt='{{:name}}' />
+                <img src='%SCRIPTURLPATH{"rest"}%/ImagePlugin/resize?topic={{:web}}.{{:topic}};file={{:~encodeURIComponent(thumbnail)}};size=70x70;crop=on' alt='{{:name}}' width='70' />
               {{/if}}
             </a>
           {{/if}}
@@ -215,11 +213,10 @@
       <span class=' solrContainerLink foswikiGrayText foswikiNormal'>
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
-      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::size"}%%TMPL:P{"solr::score"}%
     </div>
     <div class='solrHilite'>
       {{:~getHilite(id)}}
@@ -239,11 +236,10 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
-      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::size"}%%TMPL:P{"solr::score"}%
     </div>
     <div class='solrHilite'>
       {{:~getHilite(id)}}
@@ -260,11 +256,10 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
-      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
   </div>
 </script>%TMPL:END%
@@ -277,11 +272,10 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
-      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
     <div class='solrHilite'>
       {{:~getHilite(id)}}
@@ -297,11 +291,10 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink'>
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
-      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
     <div class='solrHilite'>
       {{:~getHilite(id)}}
@@ -318,11 +311,10 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
-      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
     <div class='solrHilite'>
       {{:~getHilite(id)}}
@@ -341,11 +333,10 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
-      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
     <div class='solrHilite'>
       {{:~getHilite(id)}}
@@ -364,10 +355,9 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
-      %TMPL:P{"solr::score"}%
     </h3>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
     <div class='solrHilite'>
       {{:~getHilite(id)}}
@@ -383,11 +373,10 @@
       <span class='foswikiGrayText foswikiNormal solrContainerLink' >
         %TRANSLATE{"in [_1]" args="<a href='{{:container_url}}'>{{:container_title}}</a>"}%
       </span>
-      %TMPL:P{"solr::score"}%
     </h3>
     <div class='foswikiTopicSummary'>{{:summary}}</div>
     <div class='solrRevision'> 
-      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}
+      {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
     <div class='solrHilite'>
       {{:~getHilite(id)}}
@@ -489,6 +478,7 @@
   <option class='foswikiOption' value='date desc'>%TRANSLATE{"Last changed"}%</option>
   <option class='foswikiOption' value='createdate desc'>%TRANSLATE{"Create date"}%</option>
   <option class='foswikiOption' value='title_sort asc'>%TRANSLATE{"Name"}%</option>
+  <option class='foswikiOption' value='size desc'>%TRANSLATE{"Size"}%</option>
 <!-- -->%TMPL:END%
 
 %TMPL:DEF{"solr::pagelength"}%<div class="solrPageLength">
@@ -909,3 +899,4 @@
 %META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%
 %META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
 %META:PREFERENCE{name="NATEDIT_PURIFY" title="NATEDIT_PURIFY" type="Set" value="off"}%
+%META:NOTIFY{name="BaseUserMapping_999" date="1759820301" state="enabled"}%

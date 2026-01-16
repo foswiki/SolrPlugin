@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -105,8 +105,14 @@
       self.selectionContainer.append($(self.template.render({
         id: AjaxSolr.Helpers.getUniqueID(),
         field: _(field),
-        facet: value
+        facet: self.escapeHtml(value)
       })).on("change", handler));
+    },
+
+    escapeHtml: function(text) {
+      return $("<div />")
+        .text(text)
+        .html();
     },
 
     removeFacet: function (field, value) {

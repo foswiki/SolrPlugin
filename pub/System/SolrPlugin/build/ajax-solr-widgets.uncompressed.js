@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -20,7 +20,7 @@
 })(jQuery);
 
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -184,7 +184,7 @@
   });
 })(jQuery);
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -213,7 +213,7 @@
     initQueries: function() {
       var self = this, text = $(self.target).find(".solrJsonData").text();
       if (text) {
-        self.queries = $.parseJSON(text);
+        self.queries = JSON.parse(text);
       }
     },
 
@@ -368,7 +368,7 @@
 
 })(jQuery);
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -414,7 +414,7 @@
 
 })(jQuery);
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -568,7 +568,7 @@
 
 
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -681,7 +681,7 @@
 
 
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -797,7 +797,7 @@
 
 })(jQuery);
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -874,7 +874,7 @@
 
 })(jQuery);
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -924,7 +924,7 @@
 })(jQuery);
 
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -1232,7 +1232,7 @@
 
 })(jQuery);
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -1307,7 +1307,7 @@
 
 })(jQuery);
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -1413,8 +1413,14 @@
       self.selectionContainer.append($(self.template.render({
         id: AjaxSolr.Helpers.getUniqueID(),
         field: _(field),
-        facet: value
+        facet: self.escapeHtml(value)
       })).on("change", handler));
+    },
+
+    escapeHtml: function(text) {
+      return $("<div />")
+        .text(text)
+        .html();
     },
 
     removeFacet: function (field, value) {
@@ -1446,7 +1452,7 @@
 })(jQuery);
 
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -1503,7 +1509,7 @@
 
 })(jQuery);
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -1633,7 +1639,7 @@
 })(jQuery);
 
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -1810,7 +1816,7 @@
 
 })(jQuery);
 /*
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -1878,7 +1884,7 @@
 
 
 /*
- * Copyright (c) 2022-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2022-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *

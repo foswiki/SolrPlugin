@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2025 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2026 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -10,7 +10,16 @@
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 package Foswiki::Plugins::SolrPlugin::Base;
+
+=begin TML
+
+---+ package Foswiki::Plugins::SolrPlugin::Base
+
+Base class for indexer and searcher holding shared stuff
+
+=cut
 
 use strict;
 use warnings;
@@ -27,6 +36,7 @@ use LWP::UserAgent ();
 use HTTP::Request ();
 use HTTP::Date ();
 use MIME::Base64 ();
+use Carp qw(confess);
 #use Data::Dump qw(dump);
 
 our $STARTWW = qr/^|(?<=[\s\(])/m;
@@ -46,6 +56,14 @@ BEGIN {
     $WebService::Solr::DECODE = 0;
   }
 }
+
+=begin TML
+
+---++ ClassMethod new() -> $core
+
+constructor base
+
+=cut
 
 sub new {
   my $class = shift;
@@ -82,10 +100,22 @@ sub new {
   $this->{optimizeTimeout} = 600 unless defined $this->{optimizeTimeout};
   $this->{workArea} = Foswiki::Func::getWorkArea('SolrPlugin');
 
+  if (Foswiki::Func::getContext()->{WebStatisticsPluginEnabled}) {
+    eval "use Foswiki::Plugins::WebStatisticsPlugin;";
+    $this->{canGetTopicSize} = 1;
+  }
+
   return $this;
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod finish()
+
+called at the end of the session
+
+=cut
+
 sub finish {
   my $this = shift;
 
@@ -98,7 +128,30 @@ sub finish {
   undef $this->{solr};
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod getSizeOfTopic($web, $topic) -> $bytes
+
+returns the size of a topic if WebStatisticsPlugin is installed,
+zero otherwise
+
+=cut
+
+sub getSizeOfTopic {
+  my ($this, $web, $topic) = @_;
+
+  return 0 unless $this->{canGetTopicSize};
+  return Foswiki::Plugins::WebStatisticsPlugin::getCore->storeTester->getSizeOfTopic($web, $topic);
+}
+
+=begin TML
+
+---++ ObjectMethod ua() -> $ua
+
+returns a LWP::UserAgent delegate used to contact the solr backend
+
+=cut
+
 sub ua {
   my $this = shift;
 
@@ -119,9 +172,16 @@ sub ua {
   return $this->{_ua};
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod connect()
+
+establish a connection to the solr backend
+
+=cut
+
 sub connect {
-  my ($this) = @_;
+  my $this = shift;
 
   my $maxConnectRetries = 1; # ... was 3 before;
   my $tries;
@@ -146,7 +206,14 @@ sub connect {
   return $this->{solr};
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod log($logSting, $noNewLine)
+
+log data to STDERR
+
+=cut
+
 sub log {
   my ($this, $logString, $noNewLine) = @_;
 
@@ -156,21 +223,42 @@ sub log {
   #Foswiki::Func::writeDebug($logString);
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod isDateField($name) -> $boolean
+
+returns true if the named field is a date field
+
+=cut
+
 sub isDateField {
   my ($this, $name) = @_;
 
   return ($name =~ /^((.*_dt)|createdate|date)$/) ? 1 : 0;
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod isImage($name) -> $boolean
+
+returns true if the named file is an image file
+
+=cut
+
 sub isImage {
   my ($this, $name) = @_;
 
   return ($name && $name =~ /\.(gif|jpe?g|png|bmp|svgz?|webp|tiff?|avif)$/i)?1:0;
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod isSkippedWeb($web) -> $boolean
+
+returns true if the named web is to be excluded from indexing
+
+=cut
+
 sub isSkippedWeb {
   my ($this, $web) = @_;
 
@@ -185,7 +273,14 @@ sub isSkippedWeb {
   return 0;
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod isSkippedTopic($web, $topic) -> $boolean
+
+returns true if the given web.topic is excluded from indexing 
+
+=cut
+
 sub isSkippedTopic {
   my ($this, $web, $topic) = @_;
 
@@ -195,7 +290,14 @@ sub isSkippedTopic {
   return 0;
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod isSkippedAttachment($web, $topic, $attachment) -> $boolean
+
+returns true if the given attachment is excluded from indexing
+
+=cut
+
 sub isSkippedAttachment {
   my ($this, $web, $topic, $attachment) = @_;
 
@@ -211,8 +313,14 @@ sub isSkippedAttachment {
   return 0;
 }
 
-##############################################################################
-# List of webs that shall not be indexed
+=begin TML
+
+---++ ObjectMethod skipWebs() -> $hash
+
+hash of webs that shall not be indexed
+
+=cut
+
 sub skipWebs {
   my $this = shift;
 
@@ -234,8 +342,14 @@ sub skipWebs {
   return $skipwebs;
 }
 
-##############################################################################
-# List of attachments to be skipped.
+=begin TML
+
+---++ ObjectMethod skipAttachments() -> $hash 
+
+hash of attachments to be skipped
+
+=cut
+
 sub skipAttachments {
   my $this = shift;
 
@@ -256,8 +370,14 @@ sub skipAttachments {
   return $skipattachments;
 }
 
-##############################################################################
-# List of topics to be skipped.
+=begin TML
+
+---++ ObjectMethod skipTopics() -> $hash
+
+hash of topics to be skipped.
+
+=cut
+
 sub skipTopics {
   my $this = shift;
 
@@ -275,13 +395,27 @@ sub skipTopics {
   return $skiptopics;
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod inlineError(text) -> $html
+
+returns an htmlized error message
+
+=cut
+
 sub inlineError {
   my ($this, $text) = @_;
   return "<span class='foswikiAlert'>$text</span>";
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod entityDecode($in) > $out
+
+entity encoded string
+
+=cut
+
 sub entityDecode {
   my ($this, $text) = @_;
 
@@ -291,7 +425,14 @@ sub entityDecode {
   return $text;
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod urlDecode($in) -> $out
+
+url encoded string
+
+=cut
+
 sub urlDecode {
   my ($this, $text) = @_;
 
@@ -301,7 +442,15 @@ sub urlDecode {
   return $text;
 }
 
-###############################################################################
+=begin TML
+
+---++ ObjectMethod normalizeWebTopicName($web, $topic) -> ($web, $topic)
+
+wrapper to Foswiki::Func::normalizeWebTopicName() adding normalized web names
+by translating slashes with dots
+
+=cut
+
 sub normalizeWebTopicName {
   my ($this, $web, $topic) = @_;
 
@@ -316,8 +465,14 @@ sub normalizeWebTopicName {
   return ($web, $topic);
 }
 
-###############################################################################
-# compatibility wrapper
+=begin TML
+
+---++ ObjectMethod takeOutBlocks() 
+
+compatibility wrapper for Foswiki::takeOutBlocks()
+
+=cut
+
 sub takeOutBlocks {
   my $this = shift;
 
@@ -325,8 +480,14 @@ sub takeOutBlocks {
   return $this->{session}->renderer->takeOutBlocks(@_);
 }
 
-###############################################################################
-# compatibility wrapper
+=begin TML
+
+---++ ObjectMethod putBackBlocks() 
+
+compatibility wrapper for Foswiki::putBackBlocks()
+
+=cut
+
 sub putBackBlocks {
   my $this = shift;
 
@@ -334,7 +495,14 @@ sub putBackBlocks {
   return $this->{session}->renderer->putBackBlocks(@_);
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod mapToIconFileName($typeOrFileName)  -> $icon
+
+returns an icon representation for the given type or filename
+
+=cut
+
 sub mapToIconFileName {
   my ($this, $typeOrFilename) = @_;
 
@@ -360,7 +528,20 @@ sub mapToIconFileName {
   return $foundIcon;
 }
 
-##############################################################################
+=begin TML
+
+---++ ObjectMethod getTopicSummary($web, $topic, $meta, $text) -> $string
+
+this returns the content of one of the following fields in the given precedense:
+
+   1 Summary formfield 
+   1 Teaser formfield
+   1 SUMMARY preference
+
+the returned string will be plainified removing special chars
+
+=cut
+
 sub getTopicSummary {
   my ($this, $web, $topic, $meta, $text) = @_;
 
@@ -495,7 +676,7 @@ sub plainify {
   # remove brackets from [[][]] links
   $text =~ s/\[\[([^\]]*\]\[)(.*?)\]\]/$1 $2/g;
 
-  $text =~ s/[\[\]\*\|=_\&\<\>]/ /g;    # remove Wiki formatting chars
+  $text =~ s/[\[\]\*\|=_\<\>]/ /g;    # remove Wiki formatting chars
   $text =~ s/^\-\-\-+\+*\s*\!*/ /gm;    # remove heading formatting and hbar
   $text =~ s/[\+\-]+/ /g;               # remove special chars
   $text =~ s/^\s+//gm;                  # remove leading whitespace
@@ -1054,6 +1235,5 @@ sub _cache {
   # SMELL: hard-cded 7d cache expiry
   return Foswiki::Contrib::CacheContrib::getCache("SolrPlugin", "7 d");
 }
-
 
 1;

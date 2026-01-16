@@ -1,7 +1,7 @@
 /*
  * jQuery autosuggest plugin 2.32
  *
- * Copyright (c) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2013-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *

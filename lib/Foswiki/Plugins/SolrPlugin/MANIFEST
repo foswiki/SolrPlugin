@@ -59,8 +59,6 @@ pub/System/SolrPlugin/assets/toggle-collapse.png 0644
 pub/System/SolrPlugin/assets/toggle.png 0644
 pub/System/SolrPlugin/assets/toggle-small-collapse.png 0644
 pub/System/SolrPlugin/assets/toggle-small.png 0644
-pub/System/SolrPlugin/build/ajax-solr-dictionary.js 0644
-pub/System/SolrPlugin/build/ajax-solr-helpers.js 0644
 pub/System/SolrPlugin/build/ajax-solr-init.js 0644
 pub/System/SolrPlugin/build/ajax-solr-init.js.gz 0644
 pub/System/SolrPlugin/build/ajax-solr.js 0644
@@ -103,6 +101,7 @@ pub/System/SolrPlugin/SolrPluginSnap2.png 0644
 pub/System/SolrPlugin/src/ajax-solr-dictionary.uncompressed.js 0644
 pub/System/SolrPlugin/src/ajax-solr-helpers.uncompressed.js 0644
 pub/System/SolrPlugin/src/ajax-solr-init.uncompressed.js 0644
+pub/System/SolrPlugin/src/bytesConverter.uncompressed.js 0644
 pub/System/SolrPlugin/src/jquery.autosuggest.uncompressed.css 0644
 pub/System/SolrPlugin/src/jquery.autosuggest.uncompressed.js 0644
 pub/System/SolrPlugin/src/pattern.uncompressed.css 0644

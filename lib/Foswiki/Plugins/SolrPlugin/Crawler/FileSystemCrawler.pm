@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2012-2025 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2012-2026 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -239,7 +239,7 @@ sub indexFile {
     type => \@types,
     author => $author,
     contributor => $author,
-    author_title => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $author),
+    author_title => _getTopicTitle($Foswiki::cfg{UsersWebName}, $author),
     date => $date,
     date_s => $dateString,
     container_id => $dirName,
@@ -258,6 +258,19 @@ sub indexFile {
     my $e = shift;
     $this->log("ERROR: " . $e->{-text});
   };
+}
+
+sub _getTopicTitle {
+  my ($web, $topic) = @_;
+
+  return Foswiki::Func::getTopicTitle($web, $topic) if $Foswiki::cfg{Plugins}{TopicTitlePlugin}{Enabled};
+
+  return $topic if $topic ne $Foswiki::cfg{HomeTopicName};
+
+  my $webTitle = $web;
+  $webTitle =~ s/^.*[\/\.]//;
+
+  return $webTitle;
 }
 
 1;

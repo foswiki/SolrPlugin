@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1745822505" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1768569210" format="1.1" version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -28,19 +28,19 @@ The below installation procedure assumes that you are going to install Solr as w
 ---+++ Download Solr
 
 <!--
-   * Set SOLR_VERSION = 9.8.1
+   * Set SOLR_VERSION = 9.10.0
 -->
-The current plugin requires *Solr 9* or later.  Download version %SOLR_VERSION% it from the [[https://www.apache.org/dyn/closer.lua/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%.tgz?action=download][here]].
+The current plugin requires *Solr 9* or later.  Download version %SOLR_VERSION% it from the [[https://www.apache.org/dyn/closer.lua/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%-slim.tgz?action=download][here]].
 
 <pre class="bash">
-wget https://www.apache.org/dyn/closer.lua/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%.tgz?action=download -O solr-%SOLR_VERSION%.tgz
+wget https://www.apache.org/dyn/closer.lua/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%-slim.tgz?action=download -O solr-%SOLR_VERSION%-slim.tgz
 </pre>
 
 ---+++ Extract software, create user, install system service
 
 <pre class="bash">
-tar xzf solr-%SOLR_VERSION%.tgz solr-%SOLR_VERSION%/bin/install_solr_service.sh --strip-components 2 
-./install_solr_service.sh ./solr-%SOLR_VERSION%.tgz -n
+tar xzf solr-%SOLR_VERSION%-slim.tgz solr-%SOLR_VERSION%-slim/bin/install_solr_service.sh --strip-components 2 
+./install_solr_service.sh ./solr-%SOLR_VERSION%-slim.tgz -n
 </pre>
 
 Note that the =-n= option prevents the service from starting yet. We will start it once everything has been adjusted to our needs.
@@ -60,7 +60,6 @@ SOLR_JETTY_HOST="127.0.0.1"
 SOLR_IP_ALLOWLIST=127.0.0.1
 SOLR_ADMIN_UI_DISABLED=true
 SOLR_REQUESTLOG_ENABLED=false
-SOLR_MODULES=langid
 </verbatim>
 
 Edit =/var/solr/log4j2.xml=:
@@ -700,7 +699,7 @@ useful for spatial search.
 | string | not analyzed, but indexed/stored verbatim |
 | boolean | boolean values (true, false) |
 | binary | the data should be sent/retrieved in as Base64 encoded strings |
-| int, float, long, double | default numeric field types. for faster range queries, consider the tint/tfloat/tlong/tdouble types |
+| int, float, long, double | default numeric field types. for faster range queries, consider the int/float/long/double types |
 | date | the format for this date field is of the form 1995-12-31T23:59:59Z, \
          and is a more restricted form of the canonical representation of \
          [[http://www.w3.org/TR/xmlschema-2/#dateTime][dateTime]].  The trailing \
@@ -759,7 +758,7 @@ useful for spatial search.
 | charnorm | text_charnorm | | multivalued | result of the character normalization analysis | 
 | preference | string | multivalued | stored | this field catches all topic preferences. each preference is captured in a dynamic field as well (see dynamic fields below) |
 | sentence | text_generic | multivalued | stored | support for uima processing chain |
-| size | tint | | stored | size of an attachment in bytes |
+| size | long | | stored | size in bytes of an attachment (or a topic if !WebStatisticsPlugin is installed) |
 | spell | text_spell | multivalued | | used for spellchecking |
 | state | string | | | used by comments or any other application that tracks specific states of a document, such as "new", "unapproved", "approved", "draft", "unpublished", "published", ... |
 | text_prefix | text_text_prefix | multivalued | | holds substring analysis of the most important search fields, starting at the front |
@@ -768,7 +767,7 @@ useful for spatial search.
 | tag | string | multivalued | stored | list of tags assigned to this document; note: this field will only be used if Foswiki:Extensions/ClassificationPlugin is installed; content of this field is copied to =category_search= as well (see generic fields below) |
 | text | text_generic | | | document text |
 | thumbnail | string | | stored | url to thumbnail representation of this document; mostly used for images |
-| timestamp | tint | | stored | epoch time when the document was added to the index |
+| timestamp | int | | stored | epoch time when the document was added to the index |
 | title | string | | stored | title of a document; a topic title is read from a =TopicTitle= formfield, a =TOPICTITLE= preference variable or defaults to the =topic= name itself; for attachments this is the filename with the extension stripped off |
 | topic | string | | stored | name of the topic |
 | type | type | | stored | holds the type facet of the document; this is "image" for all kinds of images, "video" for all kinds of videos, "topic" for Foswiki topics and the verbatim file extension for everything else; note: plugins like Foswiki:Extensions/MetaCommentPlugin might use specific types as well (like "comment" in this case) |
@@ -810,10 +809,10 @@ can be indexed type-specific nevertheless.
 Similarly topic preferences are indexed using a =preference_*= prefix.
 
 | *Name* | *Type* | *Multivalued* | *Stored* | *Description* |
-| *_i | tint | | stored | fields with a _i suffix are indexed as an integer number |
-| *_l | tlong | | stored | fields with a _l suffix are indexed as a long integer |
-| *_f | tfloat | | stored | fields with a _f suffix are indexed as a float |
-| *_d | tdouble | | stored | fields with a _d suffix are indexed as a double precision float |
+| *_i | int | | stored | fields with a _i suffix are indexed as an integer number |
+| *_l | long | | stored | fields with a _l suffix are indexed as a long integer |
+| *_f | float | | stored | fields with a _f suffix are indexed as a float |
+| *_d | double | | stored | fields with a _d suffix are indexed as a double precision float |
 | *_b | boolean | | stored | true, false |
 | *_s | string | | stored | dynamic field for unanalyzed text |
 | *_std | string | not stored | dynamic field for standard analysis, i.e. stopwords not being removed |
@@ -917,6 +916,10 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  16 Jan 2026: | fixed potential xss in solr search interface |
+|  28 Nov 2025: | improved exrtacting backlinks from !WebNotify topics |
+|  23 Oct 2025: | measuring topic size now; added sort by size to web search template |
+|  25 Jul 2025: | removed unused langid module to be able to use the slim distro of solr |
 |  28 Apr 2025: | removed =text_wikiword= from solr schema, using =text_search= instead |
 |  11 Mar 2025: | fixed processing of query fields thus fixing people search |
 |  24 Feb 2025: | improved default weights for query scores; \
@@ -1089,9 +1092,9 @@ specific search applications. The destination fields are then analysed using the
 %META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/SolrPlugin"}%
-%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2009-2025, Michael Daum"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2009-2026, Michael Daum"}%
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1745822505" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1745822505" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1768569210" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1768569210" size="158013" user="ProjectContributor" version="1"}%

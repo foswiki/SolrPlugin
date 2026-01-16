@@ -1721,17 +1721,6 @@
       <str name="typeClass">solr.TextField</str>
       <int name="maxLength">32764</int>
     </processor>
-    <!-- processor class="org.apache.solr.update.processor.LangDetectLanguageIdentifierUpdateProcessorFactory">
-      <str name="langid.fl">catchall</str>
-      <str name="langid.langField">language</str>
-      <str name="langid.allowlist">ar,bg,ca,cjk,ckb,cz,de,el,en,es,eu,fa,fi,fr,ga,gl,hi,hu,hy,id,it,ja,lv,nl,no,pt,ro,ru,sv,th,tr</str>
-      <str name="langid.overwrite">false</str>
-      <str name="langid.threshold">0.8</str>
-      <str name="langid.fallback">en</str>
-      <bool name="langid.map">true</bool>
-      <str name="langid.map.fl">text</str>
-      <bool name="langid.map.keepOrig">true</bool>
-    </processor -->
     <processor class="solr.LogUpdateProcessorFactory" />
     <processor class="solr.RunUpdateProcessorFactory" />
   </updateRequestProcessorChain>

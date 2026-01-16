@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1737978160" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1768569210" format="1.1" version="1"}%
 %META:TOPICPARENT{name="SolrSearchBase"}%
 %TMPL:INCLUDE{"SolrSearchBase"}%
 %TMPL:DEF{"bodyclassname"}%patternSolrPage%TMPL:END%

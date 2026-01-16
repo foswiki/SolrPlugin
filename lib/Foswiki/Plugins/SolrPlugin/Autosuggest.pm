@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2013-2025 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2013-2026 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -13,11 +13,27 @@
 
 package Foswiki::Plugins::SolrPlugin::Autosuggest;
 
+=begin TML
+
+---+ package Foswiki::Plugins::SolrPlugin::Autosuggest
+
+Autosuggest jQuery module Solr
+
+=cut
+
 use strict;
 use warnings;
 
 use Foswiki::Plugins::JQueryPlugin::Plugin ();
 our @ISA = qw( Foswiki::Plugins::JQueryPlugin::Plugin );
+
+=begin TML
+
+---++ ClassMethod new() -> $core
+
+constructor for a plugin object
+
+=cut
 
 sub new {
   my $class = shift;

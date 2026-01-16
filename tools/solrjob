@@ -30,7 +30,7 @@ FILE=
 
 
 longopts="throttle:,mode:,host:,file:,web:,topic:"
-shortopts="t:m:h:f:w:t:"
+shortopts="r:m:h:f:w:t:"
 
 temp=`getopt -o $shortopts --long $longopts -n $0 -- "$@"`
 if [ $? != 0 ] ; then 
@@ -65,7 +65,7 @@ while true; do
       shift
       shift
       ;;
-    -t|--throttle)
+    -r|--throttle)
       THROTTLE=$2
       shift
       shift
