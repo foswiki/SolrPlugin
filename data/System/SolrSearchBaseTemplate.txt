@@ -218,9 +218,7 @@
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::size"}%%TMPL:P{"solr::score"}%
     </div>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
+    <div class='solrHilite'>{{:~getHilite(id)}}</div>
     <div class='solrTopicInfo foswikiGrayText'>
       {{:~renderTopicInfo()}}
     </div>
@@ -241,9 +239,7 @@
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::size"}%%TMPL:P{"solr::score"}%
     </div>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
+    <div class='solrHilite'>{{:~getHilite(id)}}</div>
   </div>
 </script>%TMPL:END%
 
@@ -277,9 +273,7 @@
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
+    <div class='solrHilite'>{{:~getHilite(id)}}</div>
   </div>
 </script>%TMPL:END%
 
@@ -296,9 +290,7 @@
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
+    <div class='solrHilite'>{{:~getHilite(id)}}</div>
   </div>
 </script>%TMPL:END%
 
@@ -316,9 +308,7 @@
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
+    <div class='solrHilite'>{{:~getHilite(id)}}</div>
     {{if comment}}
       <div class='foswikiGrayText'>{{:comment}}</div>
     {{/if}}
@@ -338,9 +328,7 @@
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
+    <div class='solrHilite'>{{:~getHilite(id)}}</div>
     {{if comment}}
       <div class='foswikiGrayText'>{{:comment}}</div>
     {{/if}}
@@ -359,9 +347,7 @@
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
+    <div class='solrHilite'>{{:~getHilite(id)}}</div>
   </div>
 </script>%TMPL:END%
 
@@ -378,9 +364,7 @@
     <div class='solrRevision'> 
       {{:~formatDate(date,'%TMPL:P{"solr::dateformat"}%')}}, {{:author_title}}%TMPL:P{"solr::score"}%%TMPL:P{"solr::size"}%
     </div>
-    <div class='solrHilite'>
-      {{:~getHilite(id)}}
-    </div>
+    <div class='solrHilite'>{{:~getHilite(id)}}</div>
     {{if comment}}
       <div class='foswikiGrayText'>{{:comment}}</div>
     {{/if}}
@@ -400,7 +384,7 @@
             <td width='12px'>
               <input type='{{:~widget.inputType}}' name='{{:~widget.field}}' title='{{:~getFacetKey(facet)}}' value='{{:~getFacetValue(facet)}}' id='{{:~widget.field}}_{{:#index}}' autocomplete='off' class='solrFacetValue {{:~widget.inputClass}}' {{:~checked(facet)}} />
             </td>
-            <td><label for='{{:~widget.field}}_{{:#index}}' style='display:block'>{{:~getFacetKey(facet)}} <span class='solrFacetCounter'>{{:count}}</span></label></td>
+            <td><label for='{{:~widget.field}}_{{:#index}}' style='display:block'><span class='solrFacetCounter'>{{:count}}</span>{{:~getFacetKey(facet)}}</label></td>
             </tr>
           </table>
         </li>
@@ -597,6 +581,12 @@
   sort="title" 
   limit="-1"
 }%%{}%
+%TMPL:P{"solr::facet"
+  id="field_Category_title_lst"
+  title="%TRANSLATE{"Category"}%"
+  sort="title" 
+  multivalue="true" 
+}%
 %TMPL:P{"solr::facet"
   id="field_TopicType_first_s"
   exclude="^$"
@@ -898,5 +888,5 @@
 
 %META:PREFERENCE{name="PERMSET_VIEW" title="PERMSET_VIEW" type="Local" value="everybody"}%
 %META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%
-%META:PREFERENCE{name="NATEDIT_PURIFY" title="NATEDIT_PURIFY" type="Set" value="off"}%
+%META:PREFERENCE{name="NATEDIT_SECURITY" title="NATEDIT_SECURITY" type="Set" value="off"}%
 %META:NOTIFY{name="BaseUserMapping_999" date="1759820301" state="enabled"}%

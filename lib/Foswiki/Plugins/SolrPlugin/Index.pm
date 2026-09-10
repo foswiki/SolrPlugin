@@ -154,9 +154,12 @@ sub afterUploadHandler {
   # SMELL: make sure meta is loaded
   $meta = $meta->load() unless $meta->latestIsLoaded();
 
-  my @aclFields = $this->getAclFields($web, $topic, $meta);
+  my @commonFields = $this->getAclFields($web, $topic, $meta);
 
-  $this->indexAttachment($web, $topic, $attachment, \@aclFields);
+  my @stateField = $this->getStateField($meta);
+  push @commonFields, @stateField if @stateField;
+
+  $this->indexAttachment($web, $topic, $meta, $attachment, \@commonFields);
 }
 
 ################################################################################
@@ -419,7 +422,7 @@ sub indexTopic {
     web => $web,
     webcat => [@webCats],
     webtopic => "$web.$topic",
-    title => $this->plainify(_getTopicTitle($web, $topic, undef, $meta)),
+    title => $this->plainify(_getTopicTitle($web, $topic)),
     text => $text,
     summary => $this->getTopicSummary($web, $topic, $meta, $origText),
     author => $author,
@@ -478,6 +481,9 @@ sub indexTopic {
 
       $this->indexFormFields($web, $topic, $meta, $formDef, $doc, \%outgoingLinks, \%macros);
     }
+
+    my @stateField = $this->getStateField($meta);
+    $doc->add_fields(@stateField) if @stateField;
   }
 
   # store all outgoing links collected so far
@@ -523,8 +529,11 @@ sub indexTopic {
   my $t1;
   $t1 = [Time::HiRes::gettimeofday] if PROFILE;
 
-  my @aclFields = $this->getAclFields($web, $topic, $meta);
-  $doc->add_fields(@aclFields) if @aclFields;
+  my @commonFields = $this->getAclFields($web, $topic, $meta);
+  $doc->add_fields(@commonFields) if @commonFields;
+
+  my @stateField = $this->getStateField($meta);
+  push @commonFields, @stateField if @stateField;
 
   #if (PROFILE) {
   #  my $elapsed = int(Time::HiRes::tv_interval($t1) * 1000);
@@ -566,7 +575,7 @@ sub indexTopic {
       }
 
       # then index each of them
-      $this->indexAttachment($web, $topic, $attachment, \@aclFields);
+      $this->indexAttachment($web, $topic, $meta, $attachment, \@commonFields);
       last if $this->{_trappedSignal};
     }
 
@@ -605,17 +614,11 @@ sub indexTopic {
 sub indexFormFields {
   my ($this, $web, $topic, $meta, $formDef, $doc, $outgoingLinks, $macros) = @_;
 
-  # check whether we are indexing a user profile
-  my $personDataFormPattern = $Foswiki::cfg{SolrPlugin}{PersonDataForm} || '*UserForm';
-  $personDataFormPattern =~ s/\*/.*/g;
-  $personDataFormPattern =~ s/OR/|/g;
-
-  my $formName = $meta->getFormName();
-  my ($formWeb, $formTopic) = Foswiki::Func::normalizeWebTopicName(undef, $formName);
-  my $isUserProfile = ($formName =~ /$personDataFormPattern/x) ? 1 : 0;
+  my $isUserProfile = $this->isUserProfile($meta);
   my %seenFields = ();
   my $formFields = $formDef->getFields();
-  my $state;
+  my $formWeb = $formDef->web;
+  my $formTopic = $formDef->topic;
 
   if ($formFields) {
     my $topicType;
@@ -642,11 +645,6 @@ sub indexFormFields {
         if ($name eq 'Email' && !$val) {
           my @emails = Foswiki::Func::wikinameToEmails($topic);
           $val = $emails[0] if @emails;
-        }
-
-        # special handling of state formfield
-        if ($name eq 'Status') {
-          $state = Foswiki::Func::isTrue($val, 1);
         }
 
         # special handling of LastName
@@ -677,15 +675,20 @@ sub indexFormFields {
     }
   }
 
-  if ($isUserProfile) {
-    unless (defined $state) {
-      my $loginName = Foswiki::Func::wikiToUserName($topic);
-      $state = $loginName ? 1: 0;
-    }
+}
 
-    $this->log("... user $topic is disabled") unless $state;
-    $doc->add_fields('state' => $state ? 'enabled' : 'disabled');
-  }
+################################################################################
+# check whether we are indexing a user profile
+sub isUserProfile {
+  my ($this, $meta) = @_;
+
+  my $personDataFormPattern = $Foswiki::cfg{SolrPlugin}{PersonDataForm} || '*UserForm';
+  $personDataFormPattern =~ s/\*/.*/g;
+  $personDataFormPattern =~ s/OR/|/g;
+
+  my $formName = $meta->getFormName();
+  my ($formWeb, $formTopic) = Foswiki::Func::normalizeWebTopicName(undef, $formName);
+  return ($formName =~ /$personDataFormPattern/x) ? 1 : 0;
 }
 
 ################################################################################
@@ -953,7 +956,6 @@ sub extractMacros {
     # nop
   };
 
-
   return $text;
 }
 
@@ -1036,11 +1038,13 @@ sub _addLink {
 
   my $link = $web . "." . $topic;
   return '' if $link =~ /^(https?|ftps?):/;    # don't index external links
-  return '' unless Foswiki::Func::topicExists($web, $topic);
+
+  # also store non-existing targets or those not _yet_ existing
+  # return '' unless Foswiki::Func::topicExists($web, $topic);
 
   $links->{$link} = 1;
 
-  #print STDERR "... adding link=$link\n" unless defined $links->{$link};
+  #print STDERR "... adding link=$link\n";
 
   return "";
 }
@@ -1064,7 +1068,7 @@ sub _addLinkFromAttrs {
 ################################################################################
 # add the given attachment to the index.
 sub indexAttachment {
-  my ($this, $web, $topic, $attachment, $commonFields) = @_;
+  my ($this, $web, $topic, $meta, $attachment, $commonFields) = @_;
 
   #my $t0 = [Time::HiRes::gettimeofday] if PROFILE;
 
@@ -1659,6 +1663,25 @@ sub getAclFields {
   push @fields, ("edit_granted" => $editUsers) if $editUsers;
 
   return @fields;
+}
+
+################################################################################
+sub getStateField {
+  my ($this, $meta) = @_;
+
+  my $state;
+  my $formfield = $meta->get('FIELD', 'Status');
+  my $topic = $meta->topic;
+
+  if ($formfield) {
+    $state = Foswiki::Func::isTrue($formfield->{value}, 1);
+  } elsif ($this->isUserProfile($meta)) {
+    $state = Foswiki::Func::wikiToUserName($topic) ? 1 : 0;
+  }
+
+  return unless defined $state;
+
+  return ('state' => $state ? 'enabled' : 'disabled');
 }
 
 ################################################################################

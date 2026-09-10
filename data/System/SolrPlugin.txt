@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1768569210" format="1.1" version="1"}%
+%META:TOPICINFO{author="micha" comment="rePref" date="1784792552" format="1.1" reprev="5" version="5"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -27,10 +27,7 @@ The below installation procedure assumes that you are going to install Solr as w
 
 ---+++ Download Solr
 
-<!--
-   * Set SOLR_VERSION = 9.10.0
--->
-The current plugin requires *Solr 9* or later.  Download version %SOLR_VERSION% it from the [[https://www.apache.org/dyn/closer.lua/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%-slim.tgz?action=download][here]].
+The current plugin requires *Solr 9* or later.  Download version %SOLR_VERSION% from the [[https://www.apache.org/dyn/closer.lua/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%-slim.tgz?action=download][here]].
 
 <pre class="bash">
 wget https://www.apache.org/dyn/closer.lua/solr/solr/%SOLR_VERSION%/solr-%SOLR_VERSION%-slim.tgz?action=download -O solr-%SOLR_VERSION%-slim.tgz
@@ -51,13 +48,13 @@ Edit =/etc/default/solr.in.sh= and append the following lines:
 
 <verbatim>
 SOLR_HEAP="1024m"
-SOLR_LOGS_DIR=/var/log/solr
+SOLR_LOGS_DIR="/var/log/solr"
 SOLR_OPTS="$SOLR_OPTS -Djetty.host=localhost -Ddisable.configEdit=true"
-SOLR_TIMEZONE=GMT+1
+SOLR_TIMEZONE="GMT+1"
 ENABLE_REMOTE_JMX_OPTS=false
 SOLR_HOST="127.0.0.1"
 SOLR_JETTY_HOST="127.0.0.1"
-SOLR_IP_ALLOWLIST=127.0.0.1
+SOLR_IP_ALLOWLIST="127.0.0.1"
 SOLR_ADMIN_UI_DISABLED=true
 SOLR_REQUESTLOG_ENABLED=false
 </verbatim>
@@ -74,7 +71,7 @@ cp -r <foswiki-dir>/solr_9/cores .
 mkdir configsets
 cd configsets
 ln -s <foswiki-dir>/solr_9/configsets/foswiki_configs 
-chown -R solr.solr /var/solr
+chown -R solr:solr /var/solr
 </verbatim>
 
 ---+++ Updating from a previous configuration set
@@ -711,10 +708,10 @@ useful for spatial search.
          defaults: it tokenizes with !StandardTokenizer, removes stop words from \
          case-insensitive "stopwords.txt", and down cases.  At query time only, it also \
          applies synonyms.|
-| text_std | same as =text= but without processing stopwords an synonyms |
-         a general unstemmed text field - good if one does not know the language of the field. \
+| text_std | same as =text= but without processing stopwords an synonyms \
+         a general unstemmed text field - good if one does not know the language of the field \
          this field type is usful when searching for parts of a !WikiWord |
-| text_generic | same as =text= but also splits words on case change while generating word parts. \
+| text_generic | same as =text= but also splits words on case change while generating word parts |
 | text_substr | general substring decomposition |
 | text_prefix | substring decomposition starting at the front of the string |
 | text_suffix | substring decomposition starting at the back of the string |
@@ -916,6 +913,7 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  04 Mar 2026: | removed support for solr-5; added support for solr-10 |
 |  16 Jan 2026: | fixed potential xss in solr search interface |
 |  28 Nov 2025: | improved exrtacting backlinks from !WebNotify topics |
 |  23 Oct 2025: | measuring topic size now; added sort by size to web search template |
@@ -1085,6 +1083,10 @@ specific search applications. The destination fields are then analysed using the
                   fixed removal of deleted webs from search index |
 |  22 Nov 2010: | fixes integration with pattern skin |
 |  18 Nov 2010: | initial public release |
+
+<!--
+   * Set SOLR_VERSION = 9.10.1
+-->
 
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Michael Daum"}%

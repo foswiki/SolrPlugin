@@ -18,7 +18,7 @@
 
 <!-- 
      For more details about configurations options that may appear in
-     this file, see http://wiki.apache.org/solr/SolrConfigXml. 
+     this file, see https://solr.apache.org/guide/solr/latest/configuration-guide/configuring-solrconfig-xml.html.
 -->
 <config>
   <!-- In all configuration below, a prefix of "solr." for class names
@@ -35,7 +35,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>5.0.0</luceneMatchVersion>
+  <luceneMatchVersion>9.3</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load any Jars
        identified and use them to resolve any "plugins" specified in
@@ -58,40 +58,6 @@
               <lib dir="./lib" />
     -->
 
-  <!-- A 'dir' option by itself adds any files found in the directory 
-       to the classpath, this is useful for including all jars in a
-       directory.
-
-       When a 'regex' is specified in addition to a 'dir', only the
-       files in that directory which completely match the regex
-       (anchored on both ends) will be included.
-
-       If a 'dir' option (with or without a regex) is used and nothing
-       is found that matches, a warning will be logged.
-
-       The examples below can be used to load some solr-contribs along 
-       with their external dependencies.
-    -->
-  <lib dir="${solr.install.dir:../../../..}/contrib/extraction/lib" regex=".*\.jar" />
-  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-cell-\d.*\.jar" />
-
-  <lib dir="${solr.install.dir:../../../..}/contrib/clustering/lib/" regex=".*\.jar" />
-  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-clustering-\d.*\.jar" />
-
-  <lib dir="${solr.install.dir:../../../..}/contrib/langid/lib/" regex=".*\.jar" />
-  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-langid-\d.*\.jar" />
-
-  <lib dir="${solr.install.dir:../../../..}/contrib/velocity/lib" regex=".*\.jar" />
-  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-velocity-\d.*\.jar" />
-
-  <!-- an exact 'path' can be used instead of a 'dir' to specify a 
-       specific jar file.  This will cause a serious error to be logged 
-       if it can't be loaded.
-    -->
-  <!--
-     <lib path="../a-jar-that-does-not-exist.jar" /> 
-  -->
-  
   <!-- Data Directory
 
        Used to specify an alternate directory to hold all index data
@@ -301,24 +267,6 @@
   </indexConfig>
 
 
-  <!-- JMX
-       
-       This example enables JMX if and only if an existing MBeanServer
-       is found, use this if you want to configure JMX through JVM
-       parameters. Remove this to disable exposing Solr configuration
-       and statistics to JMX.
-
-       For more details see http://wiki.apache.org/solr/SolrJmx
-    -->
-  <jmx />
-  <!-- If you want to connect to a particular server, specify the
-       agentId 
-    -->
-  <!-- <jmx agentId="myAgent" /> -->
-  <!-- If you want to start a new MBeanServer, specify the serviceUrl -->
-  <!-- <jmx serviceUrl="service:jmx:rmi:///jndi/rmi://localhost:9999/solr"/>
-    -->
-
   <!-- The default high-performance update handler -->
   <updateHandler class="solr.DirectUpdateHandler2">
 
@@ -449,20 +397,9 @@
          be based on the last SolrCore to be initialized.
          
       -->
-    <maxBooleanClauses>1024</maxBooleanClauses>
+    <maxBooleanClauses>${solr.max.booleanClauses:1024}</maxBooleanClauses>
 
  
-    <!-- Slow Query Threshold (in millis)
-    
-         At high request rates, logging all requests can become a bottleneck 
-         and therefore INFO logging is often turned off. However, it is still
-         useful to be able to set a latency threshold above which a request
-         is considered "slow" and log that request at WARN level so we can
-         easily identify slow queries.
-    --> 
-    <slowQueryThresholdMillis>-1</slowQueryThresholdMillis>
-
-
     <!-- Solr Internal Query Caches
 
          There are two implementations of cache available for Solr,
@@ -494,8 +431,7 @@
            autowarmCount - the number of entries to prepopulate from
                and old cache.  
       -->
-    <filterCache class="solr.FastLRUCache"
-                 size="512"
+    <filterCache size="512"
                  initialSize="512"
                  autowarmCount="0"/>
 
@@ -504,8 +440,7 @@
          Caches results of searches - ordered lists of document ids
          (DocList) based on a query, a sort, and the range of documents requested.  
       -->
-    <queryResultCache class="solr.LRUCache"
-                     size="512"
+    <queryResultCache size="512"
                      initialSize="512"
                      autowarmCount="0"/>
    
@@ -515,51 +450,17 @@
          document).  Since Lucene internal document ids are transient,
          this cache will not be autowarmed.  
       -->
-    <documentCache class="solr.LRUCache"
-                   size="512"
+    <documentCache size="512"
                    initialSize="512"
                    autowarmCount="0"/>
     
     <!-- custom cache currently used by block join --> 
     <cache name="perSegFilter"
-      class="solr.search.LRUCache"
-      size="10"
-      initialSize="0"
-      autowarmCount="10"
-      regenerator="solr.NoOpRegenerator" />
-
-    <!-- Field Value Cache
-         
-         Cache used to hold field values that are quickly accessible
-         by document id.  The fieldValueCache is created by default
-         even if not configured here.
-      -->
-    <!--
-       <fieldValueCache class="solr.FastLRUCache"
-                        size="512"
-                        autowarmCount="128"
-                        showItems="32" />
-      -->
-
-    <!-- Custom Cache
-
-         Example of a generic cache.  These caches may be accessed by
-         name through SolrIndexSearcher.getCache(),cacheLookup(), and
-         cacheInsert().  The purpose is to enable easy caching of
-         user/application level data.  The regenerator argument should
-         be specified as an implementation of solr.CacheRegenerator 
-         if autowarming is desired.  
-      -->
-    <!--
-       <cache name="myUserCache"
-              class="solr.LRUCache"
-              size="4096"
-              initialSize="1024"
-              autowarmCount="1024"
-              regenerator="com.mycompany.MyRegenerator"
-              />
-      -->
-
+           class="solr.CaffeineCache"
+           size="10"
+           initialSize="0"
+           autowarmCount="10"
+           regenerator="solr.NoOpRegenerator" />
 
     <!-- Lazy Field Loading
 
@@ -656,6 +557,64 @@
 
   </query>
 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     Circuit Breaker Section - This section consists of configurations for
+     circuit breakers
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+    <!-- Circuit Breakers
+
+     Circuit breakers are designed to allow stability and predictable query
+     execution. They prevent operations that can take down the node and cause
+     noisy neighbour issues.
+
+     This flag is the uber control switch which controls the activation/deactivation of all circuit
+     breakers. If a circuit breaker wishes to be independently configurable,
+     they are free to add their specific configuration but need to ensure that this flag is always
+     respected - this should have veto over all independent configuration flags.
+    -->
+    <circuitBreakers enabled="true">
+
+    <!-- Memory Circuit Breaker Configuration
+
+     Specific configuration for max JVM heap usage circuit breaker. This configuration defines whether
+     the circuit breaker is enabled and the threshold percentage of maximum heap allocated beyond which queries will be rejected until the
+     current JVM usage goes below the threshold. The valid value range for this value is 50-95.
+
+     Consider a scenario where the max heap allocated is 4 GB and memoryCircuitBreakerThreshold is
+     defined as 75. Threshold JVM usage will be 4 * 0.75 = 3 GB. Its generally a good idea to keep this value between 75 - 80% of maximum heap
+     allocated.
+
+     If, at any point, the current JVM heap usage goes above 3 GB, queries will be rejected until the heap usage goes below 3 GB again.
+     If you see queries getting rejected with 503 error code, check for "Circuit Breakers tripped"
+     in logs and the corresponding error message should tell you what transpired (if the failure
+     was caused by tripped circuit breakers).
+
+     If, at any point, the current JVM heap usage goes above 3 GB, queries will be rejected until the heap usage goes below 3 GB again.
+     If you see queries getting rejected with 503 error code, check for "Circuit Breakers tripped"
+     in logs and the corresponding error message should tell you what transpired (if the failure
+     was caused by tripped circuit breakers).
+    -->
+    <!--
+   <memBreaker enabled="true" threshold="75"/>
+    -->
+
+      <!-- CPU Circuit Breaker Configuration
+
+     Specific configuration for CPU utilization based circuit breaker. This configuration defines whether the circuit breaker is enabled
+     and the average load over the last minute at which the circuit breaker should start rejecting queries.
+
+     Consider a scenario where the max heap allocated is 4 GB and memoryCircuitBreakerThreshold is
+     defined as 75. Threshold JVM usage will be 4 * 0.75 = 3 GB. Its generally a good idea to keep this value between 75 - 80% of maximum heap
+     allocated.
+    -->
+
+      <!--
+       <cpuBreaker enabled="true" threshold="75"/>
+      -->
+
+  </circuitBreakers>
+
 
   <!-- Request Dispatcher
 
@@ -706,11 +665,11 @@
          should make sure your system has some authentication before
          using enableRemoteStreaming="true"
 
-      --> 
     <requestParsers enableRemoteStreaming="true" 
                     multipartUploadLimitInKB="2048000"
                     formdataUploadLimitInKB="2048"
                     addHttpRequestToContext="false"/>
+      --> 
 
     <!-- HTTP Caching
 
@@ -801,6 +760,8 @@
       -->
      <lst name="defaults">
        <str name="echoParams">explicit</str>
+       <str name="q.op">AND</str>
+       <str name="df">text</str>
        <int name="rows">10</int>
        <str name="hl.fl">text</str>
        <str name="fl">*</str>
@@ -818,56 +779,58 @@
     <lst name="defaults">
       <str name="defType">dismax</str>
       <str name="echoParams">explicit</str>
+      <str name="df">text</str>
       <float name="tie">0.01</float>
       <str name="qf"> 
-        title_std^7.0 
+        title_std^10.0 
+        title_search^10.0 
+        title_prefix^8.0
+        title_substr^5.0
         topic_std^7.0 
-        title_search^5.0 
-        summary^3.0
         topic_search^2.0 
-        title_prefix
-        title_substr^0.5
-        web_search 
-        text_ws^3.0
-        text_std^2.0
-        text_search
+        summary^3.0
         category_search
-        tag_search^0.5
+        tag_search
+        web_search 
+        text_ws
+        text_std
+        text_search
         catchall
         charnorm
         text_prefix^0.5
         text_substr^0.5
-        <!-- phonetic -->
+        <!-- phonetic^0.1 -->
       </str>
       <!-- boost more recent documents -->
       <str name="bf">sum(recip(ms(NOW/HOUR,date),3.16e-11,1,1),product(0.1,total_likes))</str>
       <!-- boost topics in favor of attachments -->
-      <str name="bq">type:topic^10</str>
+      <str name="bq">type:topic^10 -web_search:Trash^100</str>
       <str name="pf">
-        title_std^7.0 
+        title_std^10.0 
+        title_search^10.0 
+        title_prefix^8.0
+        title_substr^5.0
         topic_std^7.0 
-        title_search^5.0 
-        summary^3.0
         topic_search^2.0 
-        title_prefix
-        title_substr^0.5
-        web_search 
-        text_ws^3.0
-        text_std^2.0
-        text_search
+        summary^3.0
         category_search
-        tag_search^0.5
+        tag_search
+        web_search 
+        text_ws
+        text_std
+        text_search
         catchall
         charnorm
         text_prefix^0.5
         text_substr^0.5
-        <!-- phonetic -->
+        <!-- phonetic^0.1 -->
       </str>
       <int name="ps">1</int>
       <int name="qs">1</int>
       <!--str name="mm">
          2&lt;-1 5&lt;-2 
       </str-->
+      <str name="q.op">AND</str>
       <str name="q.alt">*:*</str>
       <str name="hl.fl">text</str>
 
@@ -886,55 +849,58 @@
     <lst name="defaults">
       <str name="defType">edismax</str>
       <str name="echoParams">explicit</str>
+      <str name="df">text</str>
       <float name="tie">0.01</float>
       <str name="qf"> 
-        title_std^7.0 
+        title_std^10.0 
+        title_search^10.0 
+        title_prefix^8.0
+        title_substr^5.0
         topic_std^7.0 
-        title_search^5.0 
-        summary^3.0
         topic_search^2.0 
-        title_prefix
-        title_substr^0.5
-        web_search 
-        text_ws^3.0
-        text_std^2.0
-        text_search
+        summary^3.0
         category_search
-        tag_search^0.5
+        tag_search
+        web_search 
+        text_ws
+        text_std
+        text_search
         catchall
         charnorm
         text_prefix^0.5
         text_substr^0.5
+        <!-- phonetic^0.1 -->
       </str>
       <!-- boost more recent documents -->
       <str name="bf">sum(recip(ms(NOW/HOUR,date),3.16e-11,1,1),product(0.1,total_likes))</str>
       <!-- boost topics in favor of attachments -->
-      <str name="bq">type:topic^10</str>
+      <str name="bq">type:topic^10 -web_search:Trash^100</str>
       <str name="pf">
-        title_std^7.0 
+        title_std^10.0 
+        title_search^10.0 
+        title_prefix^8.0
+        title_substr^5.0
         topic_std^7.0 
-        title_search^5.0 
-        summary^3.0
         topic_search^2.0 
-        title_prefix
-        title_substr^0.5
-        web_search
-        text_ws^3.0
-        text_std^2.0
-        text_search
+        summary^3.0
         category_search
-        tag_search^0.5
+        tag_search
+        web_search 
+        text_ws
+        text_std
+        text_search
         catchall
         charnorm
         text_prefix^0.5
         text_substr^0.5
-        <!-- phonetic -->
+        <!-- phonetic^0.1 -->
       </str>
       <int name="ps">1</int>
       <int name="qs">1</int>
       <!--str name="mm">
          2&lt;-1 5&lt;-2 
       </str-->
+      <str name="q.op">AND</str>
       <str name="q.alt">*:*</str>
       <str name="hl.fl">text</str>
       <!-- By default, don't spell check -->
@@ -953,9 +919,11 @@
   <requestHandler name="/query" class="solr.SearchHandler">
      <lst name="defaults">
        <str name="echoParams">explicit</str>
+       <str name="df">text</str>
        <str name="wt">json</str>
        <str name="indent">true</str>
        <str name="df">text</str>
+       <str name="q.op">AND</str>
      </lst>
   </requestHandler>
 
@@ -965,6 +933,7 @@
     Do not change these defaults.
   -->
 
+  <!--
   <requestHandler name="/export" class="solr.SearchHandler">
     <lst name="invariants">
       <str name="rq">{!xport}</str>
@@ -976,6 +945,7 @@
       <str>query</str>
     </arr>
   </requestHandler>
+  -->
 
   <!-- realtime get handler, guaranteed to return the latest stored fields of
        any document, without the need to commit or open a new searcher.  The
@@ -991,6 +961,7 @@
   <requestHandler name="/mlt" class="solr.MoreLikeThisHandler"> 
      <lst name="defaults"> 
         <str name="echoParams">explicit</str>
+        <str name="df">text</str>
         <str name="mlt.fl">text</str> 
         <!-- str name="mlt.qf"> web^4.0 category^3.0 tag^3.0 title^2.0 </str--> 
         <str name="mlt.mintf">1</str>
@@ -1035,6 +1006,7 @@
     <lst name="defaults">
       <!-- default chain including language detection -->
       <str name="update.chain">foswiki_chain</str> 
+      <str name="df">text</str>
 
       <!-- use this instead to enable uima: see below for more information -->
       <!-- <str name="update.chain">uima</str> -->
@@ -1062,6 +1034,7 @@
       <str name="lowernames">true</str>
       <str name="uprefix">ignored_</str>
       <str name="captureAttr">true</str>
+      <str name="df">text</str>
     </lst>
   </requestHandler>
 
@@ -1748,21 +1721,6 @@
       <str name="typeClass">solr.TextField</str>
       <int name="maxLength">32764</int>
     </processor>
-    <processor class="org.apache.solr.update.processor.LangDetectLanguageIdentifierUpdateProcessorFactory">
-    <!-- processor class="org.apache.solr.update.processor.TikaLanguageIdentifierUpdateProcessorFactory"-->
-      <lst name="defaults">
-        <str name="langid.fl">catchall</str>
-        <str name="langid.langField">language</str>
-        <!-- languages we've got a tokenizer for - minus da as it brings down accuracies for the other languages (wtf) -->
-        <str name="langid.whitelist">ar,bg,ca,cjk,ckb,cz,de,el,en,es,eu,fa,fi,fr,ga,gl,hi,hu,hy,id,it,ja,lv,nl,no,pt,ro,ru,sv,th,tr</str>
-        <str name="langid.overwrite">false</str>
-        <str name="langid.threshold">0.8</str>
-        <str name="langid.fallback">en</str>
-        <bool name="langid.map">true</bool>
-        <str name="langid.map.fl">text</str>
-        <bool name="langid.map.keepOrig">true</bool>
-      </lst>
-    </processor>
     <processor class="solr.LogUpdateProcessorFactory" />
     <processor class="solr.RunUpdateProcessorFactory" />
   </updateRequestProcessorChain>
@@ -1828,14 +1786,6 @@
       <str name="template.base.dir">${velocity.template.base.dir:}</str>
     </queryResponseWriter>
   
-
-  <!-- XSLT response writer transforms the XML output by any xslt file found
-       in Solr's conf/xslt directory.  Changes to xslt files are checked for
-       every xsltCacheLifetimeSeconds.  
-    -->
-  <queryResponseWriter name="xslt" class="solr.XSLTResponseWriter">
-    <int name="xsltCacheLifetimeSeconds">5</int>
-  </queryResponseWriter>
 
   <!-- Query Parsers
 

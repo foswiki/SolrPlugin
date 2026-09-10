@@ -1154,15 +1154,21 @@ sub getStringifiedVersion {
       return;
     }
 
-    $attText = Foswiki::Contrib::Stringifier->stringFor($fileName) || '';
+    my $fileSize = _fileSize($fileName);
+    if ($fileSize > MAX_FILE_SIZE) {
+      $this->log("WARNING: file $fileName is larger than ".MAX_FILE_SIZE.": $fileSize ... ignoring");
+      $attText = "";
+    } else {
+      $attText = Foswiki::Contrib::Stringifier->stringFor($fileName) || '';
 
-    # only cache the first 10MB at most, TODO: make size configurable
-    if (length($attText) > MAX_FILE_SIZE) { 
-      $this->log("WARNING: stripping down large file: $fileName");
-      $attText = substr($attText, 0, MAX_FILE_SIZE);
+      # only cache the first 10MB at most, TODO: make size configurable
+      if (length($attText) > MAX_FILE_SIZE) { 
+        $this->log("WARNING: stripping down large file: $fileName");
+        $attText = substr($attText, 0, MAX_FILE_SIZE);
+      }
+
+      _cache()->set($fileName, $attText);
     }
-
-    _cache()->set($fileName, $attText);
 
   } else {
     $this->log("... found stringified version of $fileName in cache") if TRACE;
@@ -1171,6 +1177,7 @@ sub getStringifiedVersion {
 
   return $attText;
 }
+
 
 ################################################################################
 our %isMultiParam = (
@@ -1228,6 +1235,13 @@ sub _modificationTime {
 
   my @stat = stat($filename);
   return $stat[9] || $stat[10] || 0;
+}
+
+################################################################################
+sub _fileSize {
+  my $filePath = shift;
+  my @stat = stat($filePath);
+  return $stat[7] // 0;
 }
 
 ################################################################################
