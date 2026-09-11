@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1768569210" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1789144796" format="1.1" version="1"}%
 %META:TOPICPARENT{name="SolrPlugin"}%
 %{ ###########################################################################
    template inheritance and general presets 
@@ -595,6 +595,7 @@
   multivalue="true" 
   union="true" 
   exclusion="true" 
+  hidesingle="false"
 }%
 %TMPL:P{"solr::facet"
   id="type"

@@ -1674,14 +1674,14 @@ sub getStateField {
   my $topic = $meta->topic;
 
   if ($formfield) {
-    $state = Foswiki::Func::isTrue($formfield->{value}, 1);
+    $state = $formfield->{value};
   } elsif ($this->isUserProfile($meta)) {
-    $state = Foswiki::Func::wikiToUserName($topic) ? 1 : 0;
+    $state = Foswiki::Func::wikiToUserName($topic) ? "enabled" : "disabled";
   }
 
   return unless defined $state;
 
-  return ('state' => $state ? 'enabled' : 'disabled');
+  return ('state' => $state);
 }
 
 ################################################################################
