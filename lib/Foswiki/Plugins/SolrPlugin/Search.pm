@@ -1254,7 +1254,6 @@ sub doSearch {
 
   my $theRows = $params->{rows};
   my $theFields = $params->{fields} || '*,score';
-  my $theQueryType = $params->{type} || 'edismax';
   my $theWeb = $params->{web};
   my $theFilter = $params->{filter} // '';
   my $theExtraFilter = $params->{extrafilter};
@@ -1264,6 +1263,8 @@ sub doSearch {
   my $theQueryFields = $params->{queryfields};
   my $thePhraseFields = $params->{phrasefields};
   my $theDebugQuery = Foswiki::Func::isTrue($params->{debugquery}, 0);
+  my $theQueryType = $params->{type} || 'edismax';
+  $theQueryType = 'edismax' unless $theQueryType =~ /^(e?dismax|standard)$/;  
 
   my %disjunctiveFacets = map {$_ => 1} split(/\s*,\s*/, $theDisjunktiveFacets);
   my %combinedFacets = map {$_ => 1} split(/\s*,\s*/, $theCombinedFacets);
@@ -1469,6 +1470,7 @@ sub solrSearch {
   $params ||= {};
   $params->{'q'} = $query if $query;
   $params->{qt} ||= "edismax";
+  $params->{qt} = 'edismax' unless $params->{qt} =~ /^(e?dismax|standard)$/;  
 
   $query = $params->{q} // '';
   $query =~ s/[\s\*:]+$//g;

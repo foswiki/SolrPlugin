@@ -40,7 +40,7 @@ BEGIN {
   }
 }
   
-our $VERSION = '10.11';
+our $VERSION = '10.20';
 our $RELEASE = '%$RELEASE%';
 our $SHORTDESCRIPTION = 'Enterprise Search Engine for Foswiki based on Solr';
 our $LICENSECODE = '%$LICENSECODE%';
@@ -118,17 +118,19 @@ sub initPlugin {
     }
   });
 
-  Foswiki::Func::registerRESTHandler('search', sub {
-      my $session = shift;
+  if (Foswiki::Func::getContext()->{command_line}) {
+    Foswiki::Func::registerRESTHandler('search', sub {
+        my $session = shift;
 
-      my $web = $session->{webName};
-      my $topic = $session->{topicName};
-      return getSearcher($session)->restSOLRSEARCH($web, $topic);
-    }, 
-    authenticate => $Foswiki::cfg{SolrPlugin}{RequireAuthenticationForRest} // 0,
-    validate => 0,
-    http_allow => 'GET,POST',
-  );
+        my $web = $session->{webName};
+        my $topic = $session->{topicName};
+        return getSearcher($session)->restSOLRSEARCH($web, $topic);
+      }, 
+      authenticate => $Foswiki::cfg{SolrPlugin}{RequireAuthenticationForRest} // 0,
+      validate => 0,
+      http_allow => 'GET,POST',
+    );
+  }
 
   Foswiki::Func::registerRESTHandler('proxy', sub {
       my $session = shift;

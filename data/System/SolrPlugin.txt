@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1789144796" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1791388179" format="1.1" version="1"}%
 ---+ Solr Plugin
 %FORMFIELD{"Description"}%
 
@@ -770,7 +770,6 @@ useful for spatial search.
 | type | type | | stored | holds the type facet of the document; this is "image" for all kinds of images, "video" for all kinds of videos, "topic" for Foswiki topics and the verbatim file extension for everything else; note: plugins like Foswiki:Extensions/MetaCommentPlugin might use specific types as well (like "comment" in this case) |
 | url | string | | stored | url used to  access the document being indexed |
 | version | float | | | current version of the topic |
-| webcat | string | | stored | combined web-category facet |
 | web | string | | stored | name of the web this document is located in |
 | webtopic | string | | stored | concatenation of the web and topic part |
 
@@ -913,6 +912,7 @@ specific search applications. The destination fields are then analysed using the
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  02 Oct 2026: | restrict request handlers to dismax, edismax and standard only; restrict REST search to the commandline only |
 |  11 Sep 2026: | fixed propagating the state field down to the attachments of a topic |
 |  04 Mar 2026: | removed support for solr-5; added support for solr-10 |
 |  16 Jan 2026: | fixed potential xss in solr search interface |
@@ -1086,7 +1086,7 @@ specific search applications. The destination fields are then analysed using the
 |  18 Nov 2010: | initial public release |
 
 <!--
-   * Set SOLR_VERSION = 9.10.1
+   * Set SOLR_VERSION = 9.11.0
 -->
 
 %META:FORM{name="PackageForm"}%
@@ -1099,5 +1099,5 @@ specific search applications. The destination fields are then analysed using the
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/SolrPlugin"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support/SolrPlugin"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1789144796" size="93552" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1789144796" size="158013" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap1.png" attr="" comment="" date="1791388179" size="93552" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="SolrPluginSnap2.png" attr="" comment="" date="1791388179" size="158013" user="ProjectContributor" version="1"}%

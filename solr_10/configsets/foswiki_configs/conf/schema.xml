@@ -883,7 +883,6 @@
   <!-- type: topic, gif, jpg, png, ... all kind of extensions -->
   <field name="type" type="string" multiValued="true" termVectors="true" /> <!-- not using solr typemaps anymore -->
   <field name="web" type="string" />
-  <field name="webcat" type="string" multiValued="true" termVectors="true" />
   <field name="topic" type="string" />
   <field name="webtopic" type="string" /> <!-- useful for autocompletion in a jump box -->
 

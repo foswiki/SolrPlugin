@@ -404,15 +404,6 @@ sub indexTopic {
   my $author = $contributors[0] || 'UnknownUser';
   my $createAuthor = $contributors[ scalar(@contributors) - 1 ] || $author;
 
-  # gather all webs and parent webs
-  my @webCats = ();
-  my @prefix = ();
-  foreach my $component (split(/\./, $web)) {
-    push @prefix, $component;
-    push @webCats, join(".", @prefix);
-  }
-
-
   $doc->add_fields(
 
     # common fields
@@ -420,7 +411,6 @@ sub indexTopic {
     url => $this->getScriptUrlPath($web, $topic, "view"),
     topic => $topic,
     web => $web,
-    webcat => [@webCats],
     webtopic => "$web.$topic",
     title => $this->plainify(_getTopicTitle($web, $topic)),
     text => $text,
@@ -1143,14 +1133,6 @@ sub indexAttachment {
   my $webDir = $web;
   $webDir =~ s/\./\//g;
 
-  # gather all webs and parent webs
-  my @webCats = ();
-  my @prefix = ();
-  foreach my $component (split(/\./, $web)) {
-    push @prefix, $component;
-    push @webCats, join(".", @prefix);
-  }
-
   my $containerTitle = _getTopicTitle($web, $topic);
   $containerTitle = $this->plainify($containerTitle);
 
@@ -1159,7 +1141,6 @@ sub indexAttachment {
     id => $id,
     url => $Foswiki::cfg{PubUrlPath}.'/'.$webDir.'/'.$topic.'/'.$name,
     web => $web,
-    webcat => [@webCats],
     topic => $topic,
     webtopic => "$web.$topic",
     title => $title,

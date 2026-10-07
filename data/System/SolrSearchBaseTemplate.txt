@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1789144796" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1791388179" format="1.1" version="1"}%
 %META:TOPICPARENT{name="SolrPlugin"}%
 %{ ###########################################################################
    template inheritance and general presets 
@@ -86,7 +86,7 @@
 %TMPL:DEF{"solr::dictionary::misc"}%
   "keyword": "%TRANSLATE{"keyword"}%",
   "tag": "%TRANSLATE{"tag"}%",
-  "webcat": "%TRANSLATE{"Category"}%",
+  "category": "%TRANSLATE{"Category"}%",
   "web_search": "%TRANSLATE{"Web"}%",
   "field_TopicType_first_s": "%TRANSLATE{"Type"}%",
 %TMPL:END%
@@ -879,7 +879,7 @@
    solr::hierarchystep - part of the solr::searchform. this contains the category list
 }%
 %TMPL:DEF{"solr::hierarchystep"}%%{}%
-<div class='solrHierarchy' data-field='webcat' data-facet-sort='title'>
+<div class='solrHierarchy' data-field='category' data-facet-sort='title'>
   <div class='solrHierarchyBreadcrumbs'>
     <span class='solrHierarchyBreadcrumbsTitle'>%TRANSLATE{"You are here:"}%</span>
     <span class='solrHierarchyBreadcrumbsContainer'></span>
